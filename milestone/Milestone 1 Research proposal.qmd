@@ -9,16 +9,22 @@ format: html
 ## Motivation
 
 ## Research question
+What is the effect of regime changes on economic preferences of individuals?
 
 ## Literature overview
+The motivation for this study stems out of the existing literature on the relationship between political regime changes and economic preferences. Study from @fuchs-schundeln_endogeneity_2015 has shown ...
+
+
+
+@algan_trust_2013 @friehe_time_2020 @horvath_does_2013
 
 ## Data description
 
 In this project, we will be working with two datasets.
 
-The variables containing economic preferences of individuals will be taken from the Global Preference Survey (GPS), where we can find numerical evaluation of risk-taking, patience, positive and negative reciprocity, altruism, trust and math skills of the subjects, from year XXX unil year XXX. The dataset contains also date of the interview, country, region, age and gender of all subjects from the 76 countries, which covers about 90% of both the world population and global income.
+The variables containing economic preferences of individuals will be taken from the Global Preference Survey (GPS), where we can find numerical evaluation of risk-taking, patience, positive and negative reciprocity, altruism, trust and math skills of the subjects, from year XXX unil year XXX. The dataset contains also date of the interview, country, region, age and gender of all subjects from the 76 countries, which covers about 90% of both the world population and global income .
 
-The second one will be based on the V-dem dataset, which contains country level data from year 1789 till, classifying 195 countries into different regime types on yearly basis, as dummy variables: closed autocracy, electoral autocracy, electoral democracy and liberal democracy.
+The second one will be based on the @coppedge_v-dem_2025 dataset. We will use the processed version @noauthor_v-dem_2025, which contains country level data from year 1789 till, classifying 195 countries into different regime types on yearly basis, as dummy variables: closed autocracy, electoral autocracy, electoral democracy and liberal democracy.
 
 After merging these two datasets by country and year, we will be working with data of about 80 000 subjects from 76 countries from year XXX to year XXX.
 
@@ -37,6 +43,10 @@ As mentioned previously, the regime change will be our treatment. For this we wi
 ### Controls
 
 ### Bias and Identification
+
 Reverse causality, strong pretrends
 
 ### Expected results
+
+//
+
