@@ -5,7 +5,43 @@ date: "2025-04-20"
 output: html_document
 ---
 
-```{r data wragling}
+```{r loading packages, include=FALSE}
+#install.packages("summarytools")
+library(haven)
+library(here)
+library(stargazer)
+library(summarytools)
+library(readxl)
+library(dplyr)
+
+
+
+#opening datasets (individual survey)
+unzip("Data/GPS_Dataset.zip")
+unzip("GPS_dataset_individual_level.zip")
+GPS_indiv <- read_dta(here("individual_new.dta"))
+
+#opening datasets (country survey)
+unzip(here("GPS_dataset_country_level.zip"))
+GPS_country <- read_dta(here("Data", "country.dta"))
+#openning data polity
+p5 <- read_excel(here("Data", "p5v2018.xls"))
+
+
+#converting the column encodings to UTF-8
+names(GPS_indiv)
+GPS_indiv <- GPS_indiv %>%
+  mutate(across(where(is.character), ~ iconv(., from = "", to = "UTF-8")))
+
+
+
+view(dfSummary(GPS_country))
+
+view(dfSummary(GPS_indiv))
+view(dfSummary(p5))
+
+
 
 ```
+
 
