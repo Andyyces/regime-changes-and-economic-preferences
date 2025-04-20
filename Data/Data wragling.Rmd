@@ -1,0 +1,11 @@
+---
+title: "Data wragling"
+author: "Elvin Mammadov"
+date: "2025-04-20"
+output: html_document
+---
+
+```{r data wragling}
+
+```
+
