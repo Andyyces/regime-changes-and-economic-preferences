@@ -1,0 +1,52 @@
+---
+title: "Milestone 1"
+bibliography: references.bib
+format: html
+---
+
+# Regime Changes and Economic Preferences: Global Evidence
+
+## Motivation
+
+## Research question
+What is the effect of regime changes on economic preferences of individuals?
+
+## Literature overview
+The motivation for this study stems out of the existing literature on the relationship between political regime changes and economic preferences. Study from @fuchs-schundeln_endogeneity_2015 has shown ...
+
+
+
+@algan_trust_2013 @friehe_time_2020 @horvath_does_2013
+
+## Data description
+
+In this project, we will be working with two datasets.
+
+The variables containing economic preferences of individuals will be taken from the Global Preference Survey (GPS), where we can find numerical evaluation of risk-taking, patience, positive and negative reciprocity, altruism, trust and math skills of the subjects, from year XXX unil year XXX. The dataset contains also date of the interview, country, region, age and gender of all subjects from the 76 countries, which covers about 90% of both the world population and global income .
+
+The second one will be based on the @coppedge_v-dem_2025 dataset. We will use the processed version @noauthor_v-dem_2025, which contains country level data from year 1789 till, classifying 195 countries into different regime types on yearly basis, as dummy variables: closed autocracy, electoral autocracy, electoral democracy and liberal democracy.
+
+After merging these two datasets by country and year, we will be working with data of about 80 000 subjects from 76 countries from year XXX to year XXX.
+
+## Empirical strategy
+
+We will be using DiD approach to examine the relationship between regime changes(=treatment) and economic preferences across multiple countries and time periods. This will allow us to compare changes in economic preferences before and after regime changes, using countries without regime changes as control groups. We are also planning to control for time-invariant country characteristics by including country and time fixed effects(does that make sense?)
+
+### Setting
+
+We are working with pseudo-panel design, which uses repeated cross-sectional data, where different individuals are surveyed in each wave and grouped into cohorts based on fixed characteristics (country, gender, age) to approximate the tracking of the same groups over time. In contrast, if this was a panel design, the same individuals would be surveyed repeatedly over multiple time periods, which would allow us to track changes in their preferences over time and better control for unobserved heterogeneity.
+
+### Treatment
+
+As mentioned previously, the regime change will be our treatment. For this we will code a dummy variable for the year the regime change happened, and examine the changed in economic preferences before and after regime change (Since we have a long dataset how many years after?)
+
+### Controls
+
+### Bias and Identification
+
+Reverse causality, strong pretrends
+
+### Expected results
+
+//
+
