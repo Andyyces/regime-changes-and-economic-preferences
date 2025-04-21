@@ -7,13 +7,21 @@ output: html_document
 
 ```{r loading packages, include=FALSE}
 #install.packages("summarytools")
+#install.packages("devtools")
+
 library(haven)
 library(here)
 library(stargazer)
 library(summarytools)
 library(readxl)
 library(dplyr)
+library(lubridate)
+library(ggplot2)
 
+#Vdem data 
+devtools::install_github("vdeminstitute/vdemdata")
+library(vdemdata)
+vdem <- vdemdata::vdem
 
 
 #opening datasets (individual survey)
@@ -24,6 +32,7 @@ GPS_indiv <- read_dta(here("individual_new.dta"))
 #opening datasets (country survey)
 unzip(here("GPS_dataset_country_level.zip"))
 GPS_country <- read_dta(here("Data", "country.dta"))
+
 #openning data polity
 p5 <- read_excel(here("Data", "p5v2018.xls"))
 
@@ -35,11 +44,53 @@ GPS_indiv <- GPS_indiv %>%
 
 
 
-view(dfSummary(GPS_country))
 
+view(dfSummary(GPS_country))
 view(dfSummary(GPS_indiv))
 view(dfSummary(p5))
+view(dfSummary(vdem))
 
+#selecting necessary columns
+vdem_sub <- vdem %>%
+  select(country_name, year, v2x_libdem)
+
+#calculating birt_years and selecting necessary columns
+gps_sub <- GPS_indiv %>%
+  mutate(birth_year = year(date) - age) %>%
+  select(country, age, trust, patience, birth_year)
+
+
+#creating regime change function
+generate_regime_change <- function(data, threshold = 0.03) {
+  data %>%
+    arrange(country_name, year) %>%
+    group_by(country_name) %>%
+    mutate(
+      libdem_diff = v2x_libdem - lag(v2x_libdem),
+      regime_change = ifelse(libdem_diff > threshold, 1, 0)
+    ) %>%
+    ungroup()
+
+}
+
+#then applying this function to our data , *thershold* is example, this number can be different.
+
+vdem_with_regimes <- generate_regime_change(vdem_sub, threshold = 0.03)
+
+head(vdem_with_regimes)
+
+
+#Imagine the person faced with democracy at 18
+gps_sub <- gps_sub %>%
+  mutate(year_at_18 = birth_year + 18)
+
+#merging data
+merged_data <- gps_sub %>%
+  left_join(vdem_with_regimes, 
+            by = c("country" = "country_name", "year_at_18" = "year"))
+
+
+view(dfSummary(merged_data))
 
 
 ```
