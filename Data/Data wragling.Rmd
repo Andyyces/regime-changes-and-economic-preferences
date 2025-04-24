@@ -48,7 +48,7 @@ GPS_indiv <- GPS_indiv %>%
 view(dfSummary(GPS_country))
 view(dfSummary(GPS_indiv))
 view(dfSummary(p5))
-view(dfSummary(vdem))
+
 
 #selecting necessary columns
 vdem_sub <- vdem %>%
@@ -101,7 +101,7 @@ view(dfSummary(merged_data))
 
 
 
-install.packages(c("tidyverse", "sf", "rnaturalearth", "rnaturalearthdata"))
+
 
 
 library(tidyverse)
