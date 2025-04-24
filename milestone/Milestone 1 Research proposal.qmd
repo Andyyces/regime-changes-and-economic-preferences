@@ -8,6 +8,8 @@ format: html
 
 ## Motivation
 
+Economic preferences, especially trust at the individual level, is crucial for economic growth and varies widely across countries (@algan_trust_2013). Research has also shown, that political systems can shape political preferences (@fuchs-schundeln_endogeneity_2015); however, their impact on economic preferences remains incompletely understood . The initial hypothesis for this paper was that attained education might be influencing economic preferences. However, given that autocratic regimes frequently implement educational reforms as a homogenization tool to preserve their interests and maintain power (@alesina_nation-building_2021), education can function as a mechanism through which political institutions influence economic preferences of individuals. This is why we will be interested in examining the causal link of regime changes on economic preferences.
+
 ## Research question
 
 What is the effect of regime changes on economic preferences of individuals? More precisely, we are interested in understanding the dynamics of economic preferences of individuals who experienced regime changes in their countries.
@@ -52,7 +54,13 @@ Our unit of study are individuals. We are working with **pseudo-panel** design i
 
 ### Treatment
 
-As mentioned previously, the regime change dummy will determine our treatment assignment (a major increase/decrease in the liberal democracy index). In other words, a subject residing in a country following a significant shift in its liberal democracy index, as measure in the v-Dem dataset, will be assigned the treatment. For this, we need to decide on the assignment **threshold**.
+The non-experiment treatment is exposure to regime changes, particularly democratization. A treated individual would be someone who lived through a regime change in their country. But the treatment could vary based on:
+
+-   Age exposure to regime change
+
+-   Duration of exposure to different regime types
+
+-   Intensity of regime change (magnitude of shift in democracy index)
 
 Important point to mention is that the treatment assignment will likely be occuring at different points in time and the treatment assignment might turn on-and-off over time (Intuition: country might change regime more than once during the analysed time period).
 
@@ -60,16 +68,16 @@ Important point to mention is that the treatment assignment will likely be occur
 
 Individual-level: age, gender, math-skills, country, region
 
-Country-level: GDP per capita
+Country-level: GDP per capita (is currently not included in our available data, we would have to add)
 
 ### Bias and Identification
 
-The challenge will be to deal with the endogeneity problem. Both economic preferences and regimes may be driven by unobserved factors. To solve this problem we could apply country and cohort (age group) fixed effects.
+-   Reverse causality: The challenge will be to deal with the endogeneity problem. Both economic preferences and regimes may be driven by unobserved factors. To solve this problem we could apply country and cohort (age group) fixed effects.
 
-Also: reverse causality, strong pretrends
+-   Strong pre-trends, violated parallel trends assumption: In order to be able to establish a causal link in our setting with DiD method, we would have to make sure that individuals from the same age groups across countries would have developed similar economic preferences in the absence of regime changes. In other words: we would have to assume parallel development. This is challenging to verify, our next step would be to examine this visually.
 
 ### Expected results
 
-We aim to identify the Average Treatment Effect (ATE)- Does being born under a new regime affect economic preferences?
+The identified effect depends on the specific empirical approach. Since we still have to clarify our empirical setting, our identified effect will need clarification aswell. Since we are lacking the pre-treatment economic preferences measures, establishing causality becomes more difficult and we rely a lot on assumptions.
 
-Based on previous literature and intuition: - Individuals born under democratic regimes might display higher trust and potentially more cooperative behavior. These effects may be stronger for older generations and weaker under authoritarian settings.
+Based on previous literature and intuition: - Individuals born under democratic regimes might display higher trust and potentially more cooperative behavior. These effects may be stronger for older generations and weaker under authoritarian settings. Our goal is to examine the dynamics of this settings.
