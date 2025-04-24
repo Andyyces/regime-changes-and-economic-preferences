@@ -96,3 +96,75 @@ view(dfSummary(merged_data))
 ```
 
 
+```{r plotting world map, echo=FALSE}
+
+
+
+
+install.packages(c("tidyverse", "sf", "rnaturalearth", "rnaturalearthdata"))
+
+
+library(tidyverse)
+library(sf)
+library(rnaturalearth)
+library(rnaturalearthdata)
+
+
+
+vdem_2018 <- vdem %>%
+  filter(year == 2018) %>%
+  select(country_name, country_text_id, year, v2x_libdem) 
+
+
+world <- ne_countries(scale = "medium", returnclass = "sf")
+
+# Merge map with V-Dem data
+world_vdem <- world %>%
+  left_join(vdem_2018, by = c("iso_a3" = "country_text_id"))
+
+# Drawing the map
+ggplot(data = world_vdem) +
+  geom_sf(aes(fill = v2x_libdem), color = "gray70", size = 0.1) +
+  scale_fill_viridis_c(name = "Liberal Democracy Index", na.value = "lightgray") +
+  labs(
+    title = "Liberal Democracy Index by Country (2018)",
+    caption = "Data: V-Dem v14, World map: Natural Earth"
+  ) +
+  theme_minimal()
+
+
+```
+
+
+
+
+```{r}
+
+
+# 1. Create age intervals starting from 15
+gps_data <- merged_data %>%
+  mutate(age_group = cut(age,
+                         breaks = seq(15, 85, by = 10),
+                         include.lowest = TRUE,
+                         right = FALSE,
+                         labels = paste(seq(15, 75, by = 10), seq(24, 84, by = 10), sep = "-")
+                         ))
+
+# 2. Calculate percentages
+age_dist <- gps_data %>%
+  count(age_group) %>%
+  mutate(percent = 100 * n / sum(n))
+
+# 3. Plot the histogram
+ggplot(age_dist, aes(x = age_group, y = percent)) +
+  geom_bar(stat = "identity", fill = "#009E73", color = "white") +
+  labs(
+    title = "Age Distribution of GPS Individuals",
+    x = "Age Group",
+    y = "Percentage (%)"
+  ) +
+  theme_minimal() +
+  geom_text(aes(label = sprintf("%.1f%%", percent)), vjust = -0.3, size = 3.5)
+
+```
+
