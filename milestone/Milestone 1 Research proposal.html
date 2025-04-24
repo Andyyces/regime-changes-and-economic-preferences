@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.433">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Milestone 1</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="Milestone 1 Research proposal_files/libs/clipboard/clipboard.min.js"></script>
+<script src="Milestone 1 Research proposal_files/libs/quarto-html/quarto.js"></script>
+<script src="Milestone 1 Research proposal_files/libs/quarto-html/popper.min.js"></script>
+<script src="Milestone 1 Research proposal_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="Milestone 1 Research proposal_files/libs/quarto-html/anchor.min.js"></script>
+<link href="Milestone 1 Research proposal_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="Milestone 1 Research proposal_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="Milestone 1 Research proposal_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="Milestone 1 Research proposal_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="Milestone 1 Research proposal_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Milestone 1</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="regime-changes-and-economic-preferences-global-evidence" class="level1">
+<h1>Regime Changes and Economic Preferences: Global Evidence</h1>
+<section id="motivation" class="level2">
+<h2 class="anchored" data-anchor-id="motivation">Motivation</h2>
+</section>
+<section id="research-question" class="level2">
+<h2 class="anchored" data-anchor-id="research-question">Research question</h2>
+<p>What is the effect of regime changes on economic preferences of individuals? More precisely, we are interested in understanding the dynamics of economic preferences of individuals who experienced regime changes in their countries.</p>
+</section>
+<section id="literature-overview" class="level2">
+<h2 class="anchored" data-anchor-id="literature-overview">Literature overview</h2>
+<p>The motivation for this study stems out of the existing literature on the relationship between political regime changes and economic preferences.</p>
+<p>Study from <span class="citation" data-cites="algan_trust_2013">Algan and Cahuc (<a href="#ref-algan_trust_2013" role="doc-biblioref">2013</a>)</span> is examining, whether trust is a causal determinant of economic growth across different countries. The authors employ two main identification strategies Trust is measured through surveys, where individuals are asked the following question: . Economic performance is measured by GDP per capita and GDP growth rate.</p>
+<p>Research from <span class="citation" data-cites="friehe_time_2020">Friehe and Pannenberg (<a href="#ref-friehe_time_2020" role="doc-biblioref">2020</a>)</span> investigates how political systems shape individual’s economic time preferences, utilizing the German separation and later reunification as a natural experiment. Apart from this, the researchers also adopt a geographic regression discontinuity design with border segment fixed effects to examine the causal relationship. The time preferences are measured using survey questions from the German Socio-Economic Panel (SOEP) in 2008 and 2013. This dataset operationalizes present bias through an 11-point impulsitivity scale and patience through a similar 11-point scale, both validated against experimental data. Their findings reveal that former GDR residents exhibit significantly lower present bias compared to their FRG counterparts, while patience levels remain statistically indistinguishable. We would like to extend the analysis and investigate whether these institutionally-shaped preferences would be present also in a global dataset and across different social contexts.</p>
+<p>Similar evidence we can also find in the paper <span class="citation" data-cites="fuchs-schundeln_endogeneity_2015">Fuchs-Schündeln and Schündeln (<a href="#ref-fuchs-schundeln_endogeneity_2015" role="doc-biblioref">2015</a>)</span>, where the authors investigate, how political preferences (especially support for democracy), are shaped by individual experiences with democratic political systems. The authors make use of a within-country variation at the individual-level observations from 104 countries between 1994 and 2013. Their empirical strategy employs <strong>country-year fixed effects</strong> to account for all country-level unobservables specific to a given year, like current institutions, ruling parties or economic conditions. The independent variable is “democratic capital”, which is a measure of accumulated experience with democracy that depreciates at a rate of 2% annually. The findings reveal that preferences for democracy increase significantly with longer exposure to democratic rule. This relationship holds across different measures of support for democracy and different datasets (the autors use data from the World Values Survey and Afrobarometer). The magnitude of the effects is substantial: approximately 8,5 years of continuous democratic experience support for democracy by the same amount as moving from primary to secondary education. These results are robust to various specifications, controlling for age effects and alternative ways of measuring democratic periods. The findings of this paper suggest, that popular support for democratic institutions requires time to develop.</p>
+</section>
+<section id="data-description" class="level2">
+<h2 class="anchored" data-anchor-id="data-description">Data description</h2>
+<p>At this point, we have 3 datasets, which we are working with.</p>
+<p>The variables containing economic preferences of individuals will be taken from the Global Preference Survey (GPS) <span class="citation" data-cites="falk_global_2018">Falk et al. (<a href="#ref-falk_global_2018" role="doc-biblioref">2018</a>)</span> dataset, where we can find numerical evaluation of <strong>risk-taking</strong>, <strong>patience</strong>, <strong>positive and negative reciprocity</strong>, <strong>altruism</strong>, <strong>trust</strong> and <strong>math skills</strong> of about <strong>80 000 representative individuals</strong> from <strong>76 countries</strong>. The survey data was collected in 2012 and apart from the economic preferences data provide information about each individual’s <strong>country and region of residence</strong>, <strong>language</strong>, <strong>age</strong> an <strong>gender</strong>.</p>
+<p><img src="images/world_map.jpg" class="img-fluid"></p>
+<p>In the choice of the second dataset, we have two options:</p>
+<ul>
+<li><p>The initial proposed dataset is the <strong>V-Dem</strong> <span class="citation" data-cites="coppedge_v-dem_2025">Coppedge et al. (<a href="#ref-coppedge_v-dem_2025" role="doc-biblioref">2025</a>)</span> dataset, containing 531 V-Dem indicators and 245 indices + 60 other indicators for <strong>195 countries</strong>, published on <strong>yearly basis</strong> from <strong>1789 till 2024</strong>. From this dataset, we took the variable <strong>Liberal democracy index</strong> (v2x_libdem). This is also the dataset we have been working with so far.</p></li>
+<li><p>We are also considering to change the V-Dem dataset for the <strong>Polity IV</strong> dataset, containing XXX.</p></li>
+</ul>
+<p>Next step in our analysis involved <strong>calculation of birth years</strong> for all subjects withing the GPS dataset sample.</p>
+<p>Then we established a democratic participation threshold by adding 18 years to each individual’s birth year and saved it as <strong>year_at_18</strong>. We assume, that upon reaching 18 years of age, individuals attain legal capacity for democratic participation in governance systems. We ended up with data between <strong>1930-2015</strong>. The following histogram depicts the distribution of observations.</p>
+<p><img src="images/hist.jpg" class="img-fluid">After this, we merged the GPS dataset with V-Dem (Liberal democracy index, country name, year). With the help of a custom function, we added a binary variable <strong>regime_change</strong>, which gives value 1 if an individual experienced a regime change in his lifetime and 0 if an individual didn’t experience a regime change in his lifetime. We are assuming the individuals have been living in the same country.</p>
+<p>We are also planning to investigate if exposure to different political regime over a very long time horizon might influence the former resident’s economic preferences. We base our hypothesis on the findings of <span class="citation" data-cites="friehe_time_2020">Friehe and Pannenberg (<a href="#ref-friehe_time_2020" role="doc-biblioref">2020</a>)</span>, who found out on the example of reunified Germany, that a long exposure to the socialist regime during certain formative years had an effect on current preferences. In order to examine this globally on our global dataset, some more data-wrangling will be needed.</p>
+</section>
+<section id="empirical-strategy" class="level2">
+<h2 class="anchored" data-anchor-id="empirical-strategy">Empirical strategy</h2>
+<p>We will be using DiD approach to examine the relationship between regime changes(=treatment) and economic preferences on individual level across multiple countries and time periods. This will allow us to compare the dynamics of economic preferences of different , using subjects from countries without regime changes as control groups.</p>
+<section id="setting" class="level3">
+<h3 class="anchored" data-anchor-id="setting">Setting</h3>
+<p>Our unit of study are individuals. We are working with <strong>pseudo-panel</strong> design in the GPS dataset, which uses cross-sectional data, where different individuals are surveyed during 2012-2013. This allows us to group the individuals into cohorts based on fixed characteristics (country, gender, age group). In contrast, if this was a panel design, the same individuals would be surveyed repeatedly over multiple time periods, which would allow us to track changes in their preferences over time and better control for unobserved heterogeneity.</p>
+</section>
+<section id="treatment" class="level3">
+<h3 class="anchored" data-anchor-id="treatment">Treatment</h3>
+<p>As mentioned previously, the regime change dummy will determine our treatment assignment (a major increase/decrease in the liberal democracy index). In other words, a subject residing in a country following a significant shift in its liberal democracy index, as measure in the v-Dem dataset, will be assigned the treatment. For this, we need to decide on the assignment <strong>threshold</strong>.</p>
+<p>Important point to mention is that the treatment assignment will likely be occuring at different points in time and the treatment assignment might turn on-and-off over time (Intuition: country might change regime more than once during the analysed time period).</p>
+</section>
+<section id="controls" class="level3">
+<h3 class="anchored" data-anchor-id="controls">Controls</h3>
+<p>Individual-level: age, gender, math-skills, country, region</p>
+<p>Country-level: GDP per capita</p>
+</section>
+<section id="bias-and-identification" class="level3">
+<h3 class="anchored" data-anchor-id="bias-and-identification">Bias and Identification</h3>
+<p>canonical DiD: limited applicability because we don’t have time varying survey data about economic preferences (outcome variable).</p>
+<p>Also: reverse causality, strong pretrends</p>
+</section>
+<section id="expected-results" class="level3">
+<h3 class="anchored" data-anchor-id="expected-results">Expected results</h3>
+<p>We aim to identify the Average Treatment Effect (ATE)- Does being born under a new regime affect economic preferences?</p>
+<p>Based on previous literature and intuition: - Individuals born under democratic regimes might display higher trust and potentially more cooperative behavior. These effects may be stronger for older generations and weaker under authoritarian settings.</p>
+
+</section>
+</section>
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-algan_trust_2013" class="csl-entry" role="listitem">
+Algan, Yann, and Pierre Cahuc. 2013. <span>“Trust and Growth.”</span> <em>Annual Review of Economics</em> 5 (August): 521–49. <a href="https://doi.org/10.1146/annurev-economics-081412-102108">https://doi.org/10.1146/annurev-economics-081412-102108</a>.
+</div>
+<div id="ref-coppedge_v-dem_2025" class="csl-entry" role="listitem">
+Coppedge, Michael, John Gerring, Carl Henrik Knutsen, Staffan I. Lindberg, Jan Teorell, David Altman, Fabio Angiolillo, et al. 2025. <span>“V-Dem Dataset V15.”</span> Varieties of Democracy (V-Dem) Project. <a href="https://doi.org/10.23696/VDEMDS25">https://doi.org/10.23696/VDEMDS25</a>.
+</div>
+<div id="ref-falk_global_2018" class="csl-entry" role="listitem">
+Falk, Armin, Anke Becker, Thomas Dohmen, Benjamin Enke, David Huffman, and Uwe Sunde. 2018. <span>“Global Evidence on Economic Preferences.”</span> <em>The Quarterly Journal of Economics</em> 133 (4): 1645–92. <a href="https://doi.org/10.1093/qje/qjy013">https://doi.org/10.1093/qje/qjy013</a>.
+</div>
+<div id="ref-friehe_time_2020" class="csl-entry" role="listitem">
+Friehe, Tim, and Markus Pannenberg. 2020. <span>“Time Preferences and Political Regimes: Evidence from Reunified Germany.”</span> <em>Journal of Population Economics</em> 33 (1): 349–87. <a href="https://doi.org/10.1007/s00148-019-00728-7">https://doi.org/10.1007/s00148-019-00728-7</a>.
+</div>
+<div id="ref-fuchs-schundeln_endogeneity_2015" class="csl-entry" role="listitem">
+Fuchs-Schündeln, Nicola, and Matthias Schündeln. 2015. <span>“On the Endogeneity of Political Preferences: Evidence from Individual Experience with Democracy.”</span> <em>Science</em> 347 (6226): 1145–48. <a href="https://doi.org/10.1126/science.aaa0880">https://doi.org/10.1126/science.aaa0880</a>.
+</div>
+</div></section></div></main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
