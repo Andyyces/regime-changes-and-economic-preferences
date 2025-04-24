@@ -36,11 +36,13 @@ Next step in our analysis involved **calculation of birth years** for all subjec
 
 Then we established a democratic participation threshold by adding 18 years to each individual's birth year and saved it as **year_at_18**. We assume, that upon reaching 18 years of age, individuals attain legal capacity for democratic participation in governance systems. We ended up with data between **1930-2015**. The following histogram depicts the distribution of observations.
 
-![](images/histogram){width="583"}
+[![](http://127.0.0.1:23785/chunk_output/s/530430AF/cqrqf06wy8pdq/000012.png?resize=6)](http://127.0.0.1:23785/chunk_output/s/530430AF/cqrqf06wy8pdq/000012.png?resize=6)
 
 After this, we merged the GPS dataset with V-Dem (Liberal democracy index, country name, year). With the help of a custom function, we added a binary variable **regime_change**, which gives value 1 if an individual experienced a regime change in his lifetime and 0 if an individual didn't experience a regime change in his lifetime. We are assuming the individuals have been living in the same country.
 
 We are also planning to investigate if exposure to different political regime over a very long time horizon might influence the former resident's economic preferences. We base our hypothesis on the findings of @friehe_time_2020, who found out on the example of reunified Germany, that a long exposure to the socialist regime during certain formative years had an effect on current preferences. In order to examine this globally on our global dataset, some more data-wrangling will be needed.
+
+[![](http://127.0.0.1:23785/chunk_output/s/530430AF/ced7u6c5edube/000018.png)](http://127.0.0.1:23785/chunk_output/s/530430AF/ced7u6c5edube/000018.png)
 
 ## Empirical strategy
 
