@@ -14,9 +14,7 @@ What is the effect of regime changes on economic preferences of individuals? Mor
 
 ## Literature overview
 
-The motivation for this study stems out of the existing literature on the relationship between political regime changes and economic preferences.
-
-Study from @algan_trust_2013 is examining, whether trust is a causal determinant of economic growth across different countries. The authors employ two main identification strategies Trust is measured through surveys, where individuals are asked the following question: . Economic performance is measured by GDP per capita and GDP growth rate.
+The motivation for this study stems out of the existing literature on the relationship between political regime changes and economic preferences. The study from @algan_trust_2013 documents trust at the individual level as a causal determinant of economic growth across different countries.
 
 Research from @friehe_time_2020 investigates how political systems shape individual's economic time preferences, utilizing the German separation and later reunification as a natural experiment. Apart from this, the researchers also adopt a geographic regression discontinuity design with border segment fixed effects to examine the causal relationship. The time preferences are measured using survey questions from the German Socio-Economic Panel (SOEP) in 2008 and 2013. This dataset operationalizes present bias through an 11-point impulsitivity scale and patience through a similar 11-point scale, both validated against experimental data. Their findings reveal that former GDR residents exhibit significantly lower present bias compared to their FRG counterparts, while patience levels remain statistically indistinguishable. We would like to extend the analysis and investigate whether these institutionally-shaped preferences would be present also in a global dataset and across different social contexts.
 
@@ -66,7 +64,7 @@ Country-level: GDP per capita
 
 ### Bias and Identification
 
-canonical DiD: limited applicability because we don't have time varying survey data about economic preferences (outcome variable).
+The challenge will be to deal with the endogeneity problem. Both economic preferences and regimes may be driven by unobserved factors. To solve this problem we could apply country and cohort (age group) fixed effects.
 
 Also: reverse causality, strong pretrends
 
