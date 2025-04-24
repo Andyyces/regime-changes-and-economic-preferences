@@ -34,7 +34,7 @@ In the choice of the second dataset, we have two options:
 
 -   The initial proposed dataset is the **V-Dem** @coppedge_v-dem_2025 dataset, containing 531 V-Dem indicators and 245 indices + 60 other indicators for **195 countries**, published on **yearly basis** from **1789 till 2024**. From this dataset, we took the variable **Liberal democracy index** (v2x_libdem). This is also the dataset we have been working with so far.
 
--   We are also considering to change the V-Dem dataset for the **Polity IV** dataset, containing XXX.
+-   We are also considering to change the V-Dem dataset for the **Polity IV** dataset.
 
 Next step in our analysis involved **calculation of birth years** for all subjects withing the GPS dataset sample.
 
@@ -46,7 +46,7 @@ We are also planning to investigate if exposure to different political regime ov
 
 ## Empirical strategy
 
-We will be using DiD approach to examine the relationship between regime changes(=treatment) and economic preferences on individual level across multiple countries and time periods. This will allow us to compare the dynamics of economic preferences of different , using subjects from countries without regime changes as control groups.
+We will be using DiD approach to examine the relationship between regime changes(=treatment) and economic preferences on individual level across multiple countries and time periods. This will allow us to compare the dynamics of economic preferences of different, using subjects from countries without regime changes as control groups.
 
 ### Setting
 
