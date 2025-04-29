@@ -53,9 +53,9 @@ view(dfSummary(p5))
 
 Questions for meeting on 29.04. :
 
--   **How to decide on a threshold of assigning *generate_regime_change*?**
+-   **How to decide on a threshold of assigning *generate_regime_change*?** So far, we have been working with liberal democracy index from V-Dem, but there are more options -\> should we aggregate them into one?
 
--   **New variable capturing the "formative years" -\> 18 years of age? Or younger?**
+-   **New variable capturing the "formative years" -\> 18 years of age? Or younger? -\> Only assign treatment if regime changed in this time?**
 
 -   Controls
 
@@ -81,11 +81,13 @@ $\theta_a$ represents **age group/cohort** fixed effects
 
 $\varepsilon_{ict}$ is the error term
 
-| Staggered: Callaway Sant' Anna | Stacked: Cengiz et al. 2019 |
-|----|----|
-| R package "did" | no package for implementation |
+## Comparison DiD methods
+
+| Callaway Sant' Anna (2021) | Chaisemartin and D'Haultfoeuille (2020) |
+|------------------------------------|------------------------------------|
+| R package "did" | R package DIDmultiplegt |
+| Designed for treatment with absorbing state (once country adopts democracy, it stays democratic) -\> regime changes (democratization) tends to be more persistent? | handles treatment reversibility |
 |  |  |
-| Not possible to measure heterogeneity in the treatment effect along some covariates (can measure just at group level) | Can include covariates to investigate heterogeneity |
 
 ```{r}
 
@@ -154,4 +156,7 @@ Once units receive treatment, they remain treated throughout the observation per
 #package for staggered DiD
 #install.packages("did")
 library(did)
+
+#devtools::install_github("jonathandroth/pretrends")
+library(pretrends)
 ```
