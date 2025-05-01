@@ -8,21 +8,26 @@ output: html_document
 ## Preparation: data + packages
 
 ```{r loading packages, include=FALSE}
+#install.packages("pacman")
+library(pacman)
+p_load(haven,
+       here,
+       stargazer,
+       summarytools,
+       readxl,
+       dplyr,
+       lubridate,
+       ggplot2,
+       vdemdata,
+       summarytools,
+       devtools)
+
 #install.packages("summarytools")
 #install.packages("devtools")
+#devtools::install_github("vdeminstitute/vdemdata")
 
-library(haven)
-library(here)
-library(stargazer)
-library(summarytools)
-library(readxl)
-library(dplyr)
-library(lubridate)
-library(ggplot2)
 
 #Vdem data 
-#devtools::install_github("vdeminstitute/vdemdata")
-library(vdemdata)
 vdem <- vdemdata::vdem
 
 #opening datasets (individual survey)
@@ -55,54 +60,43 @@ Questions for meeting on 29.04. :
 
 -   **How to decide on a threshold of assigning *generate_regime_change*?** So far, we have been working with liberal democracy index from V-Dem, but there are more options -\> should we aggregate them into one?
 
--   **New variable capturing the "formative years" -\> 18 years of age? Or younger? -\> Only assign treatment if regime changed in this time?**
+    *answer whether its a sudden change or linear -\> which are better suited?*
 
--   Controls
+-   **New variable capturing the "formative years" -\> 18 years of age? Or younger? -\> Only assign treatment if regime changed in this time?** Yes, do it. If regime change until 25 years (1) -\> treated, if not -\> not treated (0)
 
-    Adding another variable capturing the **exposure** to different political regime over a very **long time horizon** -\> might influence the resident's economic preferences. Similar approach in paper @friehe_time_2020
+-   Adding another variable capturing the **exposure** to different political regime over a very **long time horizon** -\> might influence the resident's economic preferences. Similar approach in paper @friehe_time_2020 *No, dont do this*
 
-    Adding interaction term $TimeToTreatment_{c,t,k}$ as an indicator for being $k$ **periods away from the treatment** (regime change) in country $c$ at time $t$?
+*Restrict just to one schock: autoritative -\> democratic*
 
--   **Method**: **staggered/stacked DiD** (to account for time-varying treatment assignment)
+-   Adding interaction term $TimeToTreatment_{c,t,k}$ as an indicator for being $k$ **periods away from the treatment** (regime change) in country $c$ at time $t$?
 
-$$Y_{ict} = \beta_0 + \sum_{k} \beta_{1k}(RegimeChange_{c,t-k}) + \beta_2 X\_{ict} + \gamma_c + \delta_t + \theta_a + \varepsilon_{ict}$$ where:
+-   **Separate model for each preference / try to combine them?** *check for literature- maybe choose 2 based on this, if we use all of them, Lessmann will ask about multiple hypotheses testing :)*
 
-$Y_{ict}$ represents the economic preference outcome (trust, risk-taking, patience, etc.) for individual $i$ in country $c$ at time $t$ -\> **Separate model for each preference / try to combine them?**
+-   *potential counfounder: economic outcomes -\> include GDP data per year*
 
-$RegimeChange_{c,t-k}$ is a dummy variable indicating whether a country $c$ experienced a regime change $k$ periods before time $t$
+*time, age, cohort fixed effects*
 
-$X_{ict}$ is a vector of individual-level control variables (gender, math skills)
+*age/cohort effects could be problematic*
 
-$\gamma_c$ represents country fixed effects
+*net out age effect from economic preferences -\>whats the effect of risk aversion? (next step)*
 
-$\delta_t$ represents time/year fixed effects
+*submit .dta*
 
-$\theta_a$ represents **age group/cohort** fixed effects
-
-$\varepsilon_{ict}$ is the error term
-
-## Comparison DiD methods
-
-| Callaway Sant' Anna (2021) | Chaisemartin and D'Haultfoeuille (2020) |
-|------------------------------------|------------------------------------|
-| R package "did" | R package DIDmultiplegt |
-| Designed for treatment with absorbing state (once country adopts democracy, it stays democratic) -\> regime changes (democratization) tends to be more persistent? | handles treatment reversibility |
-|  |  |
+*if not DiD: mean comparisons -\> give up on causal effects -\> more about living under regime than regime changes -\>already dome evidence on this*
 
 ```{r}
-
 #selecting necessary columns
 vdem_sub <- vdem %>%
   select(country_name, year, v2x_libdem)
 
-#calculating birt_years and selecting necessary columns
+#calculating birth_years and selecting necessary columns
 gps_sub <- GPS_indiv %>%
   mutate(birth_year = year(date) - age) %>%
-  select(country, region, patience, risktaking, posrecip, negrecip, altruism, trust, subj_math_skills, gender, birth_year)
+  select(id_gallup, country, region, patience, risktaking, posrecip, negrecip, altruism, trust, subj_math_skills, gender, birth_year)
 
 
 #creating regime change function
-generate_regime_change <- function(data, threshold = 0.03) {
+generate_regime_change <- function(data, threshold) {
   data %>%
     arrange(country_name, year) %>%
     group_by(country_name) %>%
@@ -114,43 +108,68 @@ generate_regime_change <- function(data, threshold = 0.03) {
 }
 
 #then applying this function to our data , *threshold* is example, this number can be different.
-
 vdem_with_regimes <- generate_regime_change(vdem_sub, threshold = 0.03)
-
 head(vdem_with_regimes)
 
 
 #Imagine the person faced with democracy at 18
 gps_sub <- gps_sub %>%
-  mutate(year_at_18 = birth_year + 18)
+  mutate(year_adult = birth_year + 18) # Maybe we should base this decision (whether 18/25 any different age) on some literature? I will take a look.
 
 #merging data
 merged_data <- gps_sub %>%
   left_join(vdem_with_regimes, 
-            by = c("country" = "country_name", "year_at_18" = "year"))
+            by = c("country" = "country_name", "year_adult" = "year"))
+
+table(merged_data$regime_change)
+#This approach end up with some NA, I think it is assigning 1 only if the regime change happens in the year_adult -> does not capture the whole time period from birth until year_adult
+```
+
+```{r}
+# Function to identify if individuals experienced regime change during formative years
+generate_formative_regime_change <- function(democracy_data, gps_data, threshold) {
+  # Processing democracy data to identify regime changes (same like previous)
+  regime_change_years <- vdem_sub %>%
+    arrange(country_name, year) %>%
+    group_by(country_name) %>%
+    mutate(
+      libdem_diff = v2x_libdem - lag(v2x_libdem), # this approach does not capture linear change over few years, just sudden changes between years -> problematic? Maybe we can take into account a cumulative change over k years, to better separate the countries? Let's discuss :)
+      regime_change = ifelse(libdem_diff > threshold, 1, 0)) %>%
+  # filtering just for countries that experienced a regime change
+    filter(regime_change == 1) %>%
+    select(country_name, regime_change_year = year)
+  
+# Joining with individual level data and checking for formative years overlap
+  result <- gps_data %>%
+    left_join(regime_change_years,
+            by = c("country" = "country_name"),
+            relationship = "many-to-many") %>%
+    group_by(id_gallup) %>% # unique identifier for individuals
+    summarize(
+      formative_regime_change = as.numeric(
+      # This will be TRUE only if at least one regime change falls within formative years
+      # It will be FALSE if there are no regime changes or if none fall within the range
+      # The as.numeric() converts TRUE to 1 and FALSE to 0
+        any(regime_change_year >= birth_year & 
+              regime_change_year <= year_adult, 
+            na.rm = TRUE)
+        )
+      ) %>%
+    ungroup()
+
+# Merge back with original individual data to keep all variables
+  gps_data %>%
+    left_join(result, by = "id_gallup")
+}
+
+# Applying the function
+final_data <- generate_formative_regime_change(vdem_data, gps_sub, threshold = 0.03)
+
+# Checking how many individuals is in each group
+table(final_data$formative_regime_change)
 ```
 
 ### EDA
-
-```{r}
-view(dfSummary(merged_data))
-# Taking a look at number of untreated/treated observations
-table(merged_data$regime_change)
-
-
-```
-
-### Identifying assumptions
-
-#### Staggered treatment adoption
-
-Once units receive treatment, they remain treated throughout the observation period
-
-#### Parallel Trends assumption with never-treated units
-
--   Sufficiently large group of units, that have never received treatment
-
--   Never-treated units must be similar enough to the units that eventually receive treatment so that we can validly compare their outcomes
 
 ```{r}
 #package for staggered DiD
@@ -160,3 +179,25 @@ library(did)
 #devtools::install_github("jonathandroth/pretrends")
 library(pretrends)
 ```
+
+### Econometric model
+
+Meeting on 29.04.: try different estimators and compare the robustness -\> then decide which one is the best
+
+**Method**: **staggered DiD** (to account for time-varying treatment assignment)
+
+$$Y_{ict} = \beta_0 + \sum_{k} \beta_{1k}(RegimeChange_{c,t-k}) + \beta_2 X\_{ict} + \gamma_c + \delta_t + \theta_a + \varepsilon_{ict}$$ where:
+
+$Y_{ict}$ represents the economic preference outcome (trust, risk-taking, patience, etc.) for individual $i$ in country $c$ at time $t$
+
+$RegimeChange_{c,t-k}$ is a variable indicating whether a country $c$ experienced a regime change $k$ periods before time $t$
+
+$X_{ict}$ is a vector of individual-level control variables (gender, math skills)
+
+$\gamma_c$ represents country fixed effects
+
+$\delta_t$ represents time/year fixed effects
+
+$\theta_a$ represents **age group/cohort** fixed effects
+
+$\varepsilon_{ict}$ is the error term
