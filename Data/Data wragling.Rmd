@@ -92,7 +92,12 @@ vdem_sub <- vdem %>%
 #calculating birth_years and selecting necessary columns
 gps_sub <- GPS_indiv %>%
   mutate(birth_year = year(date) - age) %>%
-  select(id_gallup, country, region, patience, risktaking, posrecip, negrecip, altruism, trust, subj_math_skills, gender, birth_year)
+  select(id_gallup, age , date, country, region, patience, risktaking, posrecip, negrecip, altruism, trust, subj_math_skills, gender, birth_year)
+
+
+gps <- gps_sub %>%
+  mutate(year = year(date)) %>% select(!date)
+
 
 
 #creating regime change function
@@ -112,16 +117,15 @@ vdem_with_regimes <- generate_regime_change(vdem_sub, threshold = 0.03)
 head(vdem_with_regimes)
 
 
-#Imagine the person faced with democracy at 18
-gps_sub <- gps_sub %>%
-  mutate(year_adult = birth_year + 18) # Maybe we should base this decision (whether 18/25 any different age) on some literature? I will take a look.
+#Imagine the person faced with democracy at 25
+gps <- gps %>%
+  mutate(year_adult = birth_year + 25) # Maybe we should base this decision (whether 25 any different age) on some literature? I will take a look.
 
-#merging data
-merged_data <- gps_sub %>%
-  left_join(vdem_with_regimes, 
-            by = c("country" = "country_name", "year_adult" = "year"))
+gps <- gps %>%
+  rename(interview_year = year)
 
-table(merged_data$regime_change)
+
+
 #This approach end up with some NA, I think it is assigning 1 only if the regime change happens in the year_adult -> does not capture the whole time period from birth until year_adult
 ```
 
@@ -140,7 +144,7 @@ generate_formative_regime_change <- function(democracy_data, gps_data, threshold
     select(country_name, regime_change_year = year)
   
 # Joining with individual level data and checking for formative years overlap
-  result <- gps_data %>%
+  result <- gps %>%
     left_join(regime_change_years,
             by = c("country" = "country_name"),
             relationship = "many-to-many") %>%
@@ -158,15 +162,60 @@ generate_formative_regime_change <- function(democracy_data, gps_data, threshold
     ungroup()
 
 # Merge back with original individual data to keep all variables
-  gps_data %>%
+  gps %>%
     left_join(result, by = "id_gallup")
 }
 
 # Applying the function
-final_data <- generate_formative_regime_change(vdem_data, gps_sub, threshold = 0.03)
+final_data <- generate_formative_regime_change(vdem_data, gps, threshold = 0.03)
 
 # Checking how many individuals is in each group
 table(final_data$formative_regime_change)
+```
+
+
+
+
+
+```{r merging final data with gdp pc data}
+gdp_data <- read_excel(here("Data", "mpd2023_web_2.xlsx"))
+
+gdp_data <- gdp_data %>% 
+  filter(year== 2012 | year== 2013)
+
+
+final_data_gdp <- final_data %>%
+  left_join(gdp_data %>% select(country, year, gdppc),
+            by = c("country" = "country", "interview_year" = "year"))
+
+```
+
+
+
+
+
+```{r simple reg}
+c <-lm(trust ~ formative_regime_change + subj_math_skills + gender + log(gdppc), data = final_data_gdp)
+
+summary(c)
+
+
+
+
+#plot
+
+
+ggplot(final_data_gdp, aes(x = factor(formative_regime_change), y = trust)) +
+  geom_boxplot(fill = "skyblue") +
+  labs(
+    x = "Formative Regime Change (0 = No, 1 = Yes)",
+    y = "Trust",
+    title = "Trust levels by Regime Change Exposure"
+  )
+
+
+
+
 ```
 
 ### EDA
