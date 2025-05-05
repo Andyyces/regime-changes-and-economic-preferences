@@ -1,0 +1,33 @@
+---
+title: "Regime Changes and Economic Preferences: Global Evidence"
+subtitle: "Milestone 2: Data"
+author: "Andrea Češková and Elvin Mammadov"
+bibliography: references.bib
+format: pdf
+---
+
+# Sources
+
+-   Link to download
+
+-   Citation
+
+-   Sample period and how many times the units of the study appear
+
+-   Claimed reliability of each sample from a data quality point of view
+
+-   Table 1: table of endogenous, outcomes and control variables (each of them should include number of observations, min, max, mean, number of NAs)
+
+    If you have data across multiple years (e.g. pre and post treatment), then you should make two columns – one with these summary statistics before treatment and one after. If one of your key reference papers has a similar data setting to yours, copy the structure of their Table 1
+
+# Descriptive statistics
+
+-   Scatter plot of the raw data endogenous variable vs main outcomes
+
+-   histogram of the distribution of your key variables
+
+-   if applicable, a map showing the units you are working with in space
+
+-   If you have an instrument, a graph showing the relationship between the endogenous variable and the instrument across your sample period
+
+-   If you have DiD you can show a plot of the outcome across time highlighting the difference in the evolution of the variable between treated and non-treated units (parallel trends graph)
