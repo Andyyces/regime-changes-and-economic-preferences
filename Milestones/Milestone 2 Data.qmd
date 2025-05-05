@@ -8,9 +8,230 @@ format: pdf
 
 # Sources
 
--   Link to download
+In our project, we are making use of 3 datasets:
 
--   Citation
+-   Vdem (@coppedge_v-dem_2025) dataset comes also as an R package: `r vdem <- vdemdata::vdem`
+
+-   Global Preference Survey (@falk_global_2018) dataset was downloaded as a ZIP file from the [following website](https://gps.iza.org/downloads).
+
+-   Data on country's GDP's was downloaded from
+
+# Data
+
+```{r}
+#| include: false
+library(pacman)
+p_load(tidyverse,
+       patchwork,
+       ggthemes,
+       RColorBrewer,
+       gridExtra,
+       effectsize,
+       kableExtra,
+       sf,
+       rnaturalearth,
+       rnaturalearthdata,
+       viridis,
+       broom)
+
+
+```
+
+```{r}
+#| echo: false
+#plot
+ggplot(final_data_gdp, aes(x = formative_regime_change, y = trust)) +
+  geom_boxplot(fill = "skyblue") +
+  labs(
+    x = "Formative Regime Change (0 = No, 1 = Yes)",
+    y = "Trust",
+    title = "Trust levels by Regime Change Exposure"
+  )
+
+```
+
+```{r trust levels by birth decade}
+#| echo: false
+age_cohort_data <- final_data_gdp %>%
+  mutate(
+    birth_decade = floor(birth_year / 10) * 10,
+    age_group = case_when(
+      age < 30 ~ "18-29",
+      age < 40 ~ "30-39",
+      age < 50 ~ "40-49",
+      age < 60 ~ "50-59",
+      TRUE ~ "60+"
+    ),
+    age_group = factor(age_group, levels = c("18-29", "30-39", "40-49", "50-59", "60+"))
+  ) %>%
+  group_by(birth_decade, age_group, formative_regime_change) %>%
+  summarize(
+    avg_trust = mean(trust, na.rm = TRUE),
+    n = n(),
+    .groups = "drop"
+  ) %>%
+  # Filter to ensure adequate sample size in each cell
+  filter(n >= 5)
+
+age_cohort_heatmap <- ggplot(age_cohort_data, 
+                           aes(x = factor(birth_decade), y = age_group, fill = avg_trust)) +
+  facet_wrap(~ formative_regime_change) +
+  geom_tile() +
+  geom_text(aes(label = paste0("n=", n)), 
+            color = "white", size = 3) +
+  scale_fill_viridis_c(option = "D") +
+  labs(
+    title = "Trust Levels by Birth Decade, Age Group, and Regime Change Exposure",
+    subtitle = "Heatmap showing average trust scores with sample sizes",
+    x = "Birth Decade",
+    y = "Age Group",
+    fill = "Average\nTrust Score"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 14, face = "bold"),
+    strip.text = element_text(size = 12, face = "bold"),
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+
+age_cohort_heatmap
+
+```
+
+```{r}
+#| echo: false
+long_data <- final_data_gdp %>%
+  pivot_longer(
+    cols = c(trust, patience, risktaking, posrecip, negrecip, altruism),
+    names_to = "preference_type",
+    values_to = "value"
+  ) %>%
+  mutate(preference_type = str_to_title(preference_type))
+
+# Calculating group means and confidence intervals
+group_means <- long_data %>%
+  group_by(formative_regime_change, preference_type) %>%
+  summarise(
+    mean_value = mean(value, na.rm = TRUE),
+    se = sd(value, na.rm = TRUE) / sqrt(n()),
+    ci_lower = mean_value - 1.96 * se,
+    ci_upper = mean_value + 1.96 * se,
+    .groups = "drop"
+  )
+
+# Creating a parallel coordinates plot
+parallel_plot <- ggplot(group_means, aes(x = preference_type, y = mean_value, 
+                                      group = formative_regime_change, 
+                                      color = formative_regime_change)) +
+  geom_ribbon(aes(ymin = ci_lower, ymax = ci_upper, fill = formative_regime_change), 
+              alpha = 0.2, color = NA) +
+  geom_line(size = 1.2) +
+  geom_point(size = 3) +
+  geom_text(aes(label = round(mean_value, 2)), vjust = -1, size = 3) +
+  scale_color_brewer(palette = "Set1") +
+  scale_fill_brewer(palette = "Set1") +
+  labs(
+    title = "Mean Preference Profiles by Regime Change Exposure during formative years",
+    subtitle = "With 95% confidence intervals",
+    x = "Economic Preference",
+    y = "Mean Value",
+    color = "Formative Years",
+    fill = "Formative Years"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 14, face = "bold"),
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "bottom"
+  )
+
+print(parallel_plot)
+```
+
+```{r table of summary statistics}
+#| echo: false
+# Creating summary statistics table for all variables by treatment group
+summary_table <- final_data_gdp %>%
+  group_by(formative_regime_change) %>%
+  summarize(
+    # Summarizing economic preferences
+    across(
+      c(trust, patience, risktaking, posrecip, negrecip, altruism),
+      list(
+        mean = ~mean(., na.rm = TRUE),
+        sd = ~sd(., na.rm = TRUE),
+        min = ~min(., na.rm = TRUE),
+        max = ~max(., na.rm = TRUE),
+        n = ~sum(!is.na(.))
+      ),
+      .names = "{.col}_{.fn}"
+    ),
+    # Summarizing control variables
+    across(
+      c(subj_math_skills, gdppc, age),
+      list(
+        mean = ~mean(., na.rm = TRUE),
+        sd = ~sd(., na.rm = TRUE),
+        min = ~min(., na.rm = TRUE),
+        max = ~max(., na.rm = TRUE),
+        n = ~sum(!is.na(.))
+      ),
+      .names = "{.col}_{.fn}"
+    )
+    )%>%
+  ungroup()
+
+
+# Function to create formatted summary tables for the paper
+create_formatted_table <- function(data, vars, title) {
+  stats <- c("mean", "sd", "min", "max", "n")
+  
+  # Reshape the data
+  table_data <- data %>%
+    pivot_longer(
+      cols = contains(paste0(vars, "_")),
+      names_to = c("variable", "stat"),
+      names_pattern = "(.*)_(.*)",
+      values_to = "value"
+    ) %>%
+    # Filtering to include only the specified variables and stats
+    filter(
+      variable %in% vars,
+      stat %in% stats
+    ) %>%
+    pivot_wider(
+      id_cols = c(formative_regime_change, variable),
+      names_from = stat,
+      values_from = value
+    ) %>%
+    # Formatting values for display
+    mutate(
+      mean = round(mean, 2),
+      sd = round(sd, 2),
+      min = round(min, 2),
+      max = round(max, 2)
+    )
+  
+  # Return the table
+  return(table_data)
+}
+
+# Creating tables for preferences and controls
+preferences_table <- create_formatted_table(
+  summary_table, 
+  c("trust", "patience", "risktaking", "posrecip", "negrecip", "altruism"),
+  "Economic Preferences"
+)
+
+controls_table <- create_formatted_table(
+  summary_table, 
+  c("subj_math_skills", "gdppc", "age"),
+  "Control Variables"
+)
+
+preferences_table
+controls_table
+```
 
 -   Sample period and how many times the units of the study appear
 
@@ -19,6 +240,199 @@ format: pdf
 -   Table 1: table of endogenous, outcomes and control variables (each of them should include number of observations, min, max, mean, number of NAs)
 
     If you have data across multiple years (e.g. pre and post treatment), then you should make two columns – one with these summary statistics before treatment and one after. If one of your key reference papers has a similar data setting to yours, copy the structure of their Table 1
+
+```{r}
+#-----------------------------------------------------------------------
+# SCATTER PLOTS: ENDOGENOUS VARIABLES VS MAIN OUTCOMES
+#-----------------------------------------------------------------------
+
+# Democracy index vs trust by regime change status
+scatter_plot_trust <- ggplot(final_data_gdp, aes(x = trust, y = birth_year, color = formative_regime_change)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm", se = TRUE) +
+  labs(
+    title = "Relationship Between Birth Year and Trust",
+    subtitle = "By Regime Change Exposure",
+    x = "Trust Score",
+    y = "Birth Year",
+    color = "Formative Years"
+  ) +
+  scale_color_brewer(palette = "Set1") +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+
+# Multiple outcomes scatter plot matrix
+plot_outcomes <- final_data_gdp %>%
+  pivot_longer(
+    cols = c(trust, patience, risktaking, posrecip, negrecip, altruism),
+    names_to = "outcome",
+    values_to = "score"
+  ) %>%
+  mutate(outcome = str_to_title(outcome)) %>%
+  ggplot(aes(x = birth_year, y = score, color = formative_regime_change)) +
+  geom_point(alpha = 0.2) +
+  geom_smooth(method = "lm") +
+  facet_wrap(~ outcome, scales = "free_y") +
+  labs(
+    title = "Birth Year vs Economic Preferences",
+    subtitle = "Scatter plots with linear fit by regime change exposure",
+    x = "Birth Year",
+    y = "Preference Score",
+    color = "Formative Years"
+  ) +
+  scale_color_brewer(palette = "Set1") +
+  theme_minimal() +
+  theme(
+    strip.text = element_text(face = "bold"),
+    legend.position = "bottom"
+  )
+
+#-----------------------------------------------------------------------
+# HISTOGRAMS: DISTRIBUTION OF KEY VARIABLES
+#-----------------------------------------------------------------------
+
+# Function to create histograms with density overlays
+create_histogram <- function(data, var_name, title) {
+  ggplot(data, aes(x = !!sym(var_name), fill = formative_regime_change)) +
+    geom_histogram(aes(y = ..density..), alpha = 0.5, position = "identity", bins = 30) +
+    geom_density(alpha = 0.2, aes(color = formative_regime_change)) +
+    labs(
+      title = title,
+      x = str_to_title(var_name),
+      y = "Density",
+      fill = "Formative Years",
+      color = "Formative Years"
+    ) +
+    scale_fill_brewer(palette = "Set1") +
+    scale_color_brewer(palette = "Set1") +
+    theme_minimal() +
+    theme(legend.position = "bottom")
+}
+
+# Create histograms for key variables
+trust_hist <- create_histogram(final_data_gdp, "trust", "Distribution of Trust")
+patience_hist <- create_histogram(final_data_gdp, "patience", "Distribution of Patience")
+risk_hist <- create_histogram(final_data_gdp, "risktaking", "Distribution of Risk Taking")
+
+# Combine histograms
+histograms_combined <- trust_hist + patience_hist + risk_hist +
+  plot_layout(ncol = 3) +
+  plot_annotation(
+    title = "Distribution of Key Economic Preferences",
+    subtitle = "By regime change exposure during formative years",
+    theme = theme(plot.title = element_text(size = 16, face = "bold"))
+  )
+
+#-----------------------------------------------------------------------
+# DiD PARALLEL TRENDS GRAPH
+#-----------------------------------------------------------------------
+
+# For DiD analysis, we need to create a visualization showing the evolution of outcomes
+# across time for treatment and control groups
+
+did_data <- final_data_gdp %>%
+  mutate(birth_cohort = cut(birth_year, 
+                          breaks = seq(1920, 2010, by = 10),
+                          labels = paste0(seq(1920, 2000, by = 10), "s"),
+                          include.lowest = TRUE)) %>%
+  group_by(birth_cohort, formative_regime_change) %>%
+  summarize(
+    avg_trust = mean(trust, na.rm = TRUE),
+    se_trust = sd(trust, na.rm = TRUE) / sqrt(n()),
+    avg_patience = mean(patience, na.rm = TRUE),
+    se_patience = sd(patience, na.rm = TRUE) / sqrt(n()),
+    avg_risktaking = mean(risktaking, na.rm = TRUE),
+    se_risktaking = sd(risktaking, na.rm = TRUE) / sqrt(n()),
+    n = n(),
+    .groups = "drop"
+  )
+
+# Create a "parallel trends" plot for trust
+did_trust_plot <- ggplot(did_data, aes(x = birth_cohort, y = avg_trust, 
+                                  group = formative_regime_change, 
+                                  color = formative_regime_change)) +
+  geom_line(size = 1.2) +
+  geom_point(size = 3) +
+  geom_errorbar(aes(ymin = avg_trust - se_trust, ymax = avg_trust + se_trust), width = 0.2) +
+  geom_text(aes(label = paste0("n=", n)), vjust = -1, size = 3) +
+  labs(
+    title = "Trust by Birth Cohort and Regime Change Exposure",
+    subtitle = "Difference-in-Differences visualization with standard errors",
+    x = "Birth Cohort",
+    y = "Average Trust Score",
+    color = "Formative Years"
+  ) +
+  scale_color_brewer(palette = "Set1") +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "bottom",
+    plot.title = element_text(face = "bold")
+  )
+
+# Create a multi-panel DiD plot for multiple outcomes
+did_long <- did_data %>%
+  pivot_longer(
+    cols = c(avg_trust, avg_patience, avg_risktaking),
+    names_to = "outcome",
+    values_to = "avg_score"
+  ) %>%
+  pivot_longer(
+    cols = c(se_trust, se_patience, se_risktaking),
+    names_to = "se_type",
+    values_to = "se"
+  ) %>%
+  # Match outcome with corresponding standard error
+  filter(paste0("se_", str_remove(outcome, "avg_")) == se_type) %>%
+  mutate(
+    outcome_label = case_when(
+      outcome == "avg_trust" ~ "Trust",
+      outcome == "avg_patience" ~ "Patience",
+      outcome == "avg_risktaking" ~ "Risk Taking"
+    )
+  )
+
+# Create multiple outcome DiD plot
+did_multi_plot <- ggplot(did_long, aes(x = birth_cohort, y = avg_score, 
+                                   group = formative_regime_change, 
+                                   color = formative_regime_change)) +
+  geom_line(size = 1) +
+  geom_point(size = 2) +
+  geom_errorbar(aes(ymin = avg_score - se, ymax = avg_score + se), width = 0.2) +
+  facet_wrap(~ outcome_label, scales = "free_y") +
+  labs(
+    title = "Economic Preferences by Birth Cohort and Regime Change",
+    subtitle = "Difference-in-Differences visualization with standard errors",
+    x = "Birth Cohort",
+    y = "Average Score",
+    color = "Formative Years"
+  ) +
+  scale_color_brewer(palette = "Set1") +
+  theme_minimal() +
+  theme(
+    strip.text = element_text(face = "bold"),
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "bottom",
+    plot.title = element_text(face = "bold")
+  )
+
+#-----------------------------------------------------------------------
+# PRINT THE VISUALIZATIONS
+#-----------------------------------------------------------------------
+
+# Print key visualizations
+
+# Scatter plots
+print(scatter_plot_trust)
+print(plot_outcomes)
+
+# Histograms
+print(histograms_combined)
+
+# DiD plots
+print(did_trust_plot)
+print(did_multi_plot)
+```
 
 # Descriptive statistics
 

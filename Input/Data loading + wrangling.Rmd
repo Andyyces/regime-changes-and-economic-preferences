@@ -164,6 +164,13 @@ generate_formative_regime_change <- function(democracy_data, gps_data, threshold
 # Applying the function
 final_data <- generate_formative_regime_change(vdem_data, gps, threshold = 0.03)
 
+
+#Turning formative_regime_change int oa labeled factor
+final_data <- final_data %>%
+  mutate(formative_regime_change = factor(formative_regime_change, 
+                                          levels = c(0, 1),
+                                          labels = c("No Regime Change", "Regime Change")))
+
 # Checking how many individuals is in each group
 table(final_data$formative_regime_change)
 ```
@@ -183,26 +190,7 @@ final_data_gdp <- final_data %>%
 
 ```{r simple reg}
 c <-lm(trust ~ formative_regime_change + subj_math_skills + gender + log(gdppc), data = final_data_gdp)
-
 summary(c)
-
-
-
-
-#plot
-
-
-ggplot(final_data_gdp, aes(x = factor(formative_regime_change), y = trust)) +
-  geom_boxplot(fill = "skyblue") +
-  labs(
-    x = "Formative Regime Change (0 = No, 1 = Yes)",
-    y = "Trust",
-    title = "Trust levels by Regime Change Exposure"
-  )
-
-
-
-
 ```
 
 ### EDA
