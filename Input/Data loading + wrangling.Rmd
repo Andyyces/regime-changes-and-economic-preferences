@@ -112,9 +112,9 @@ vdem_with_regimes <- generate_regime_change(vdem_sub, threshold = 0.03)
 head(vdem_with_regimes)
 
 
-#Imagine the person faced with democracy at 25
+#Imagine the person faced with democracy at 21
 gps <- gps %>%
-  mutate(year_adult = birth_year + 25) # Maybe we should base this decision (whether 25 any different age) on some literature? I will take a look.
+  mutate(year_adult = birth_year + 21) # Maybe we should base this decision (whether 25 any different age) on some literature? I will take a look.
 
 gps <- gps %>%
   rename(interview_year = year)
@@ -169,7 +169,7 @@ final_data <- generate_formative_regime_change(vdem_data, gps, threshold = 0.03)
 final_data <- final_data %>%
   mutate(formative_regime_change = factor(formative_regime_change, 
                                           levels = c(0, 1),
-                                          labels = c("No Regime Change", "Regime Change")))
+                                          labels = c("No Regime Change experience", "Regime Change experience")))
 
 # Checking how many individuals is in each group
 table(final_data$formative_regime_change)
