@@ -7,6 +7,8 @@ format: pdf
 ---
 
 ```{r}
+if (!require("pacman")) install.packages("pacman")
+library(pacman)
 p_load(haven,
        here,
        stargazer,
@@ -28,13 +30,12 @@ GPS_indiv <- GPS_indiv %>%
   mutate(across(where(is.character), ~ iconv(., from = "", to = "UTF-8")))
 #selecting necessary columns
 vdem_sub <- vdem %>%
-  select(country_name, year, v2x_libdem)
+  select(country_name,country_text_id, year, v2x_libdem)
 
 #calculating birth_years and selecting necessary columns
 gps_sub <- GPS_indiv %>%
   mutate(birth_year = year(date) - age) %>%
-  select(id_gallup, age , date, country, region, patience, risktaking, posrecip, negrecip, altruism, trust, subj_math_skills, gender, birth_year)
-
+  select(id_gallup, age , date, country,isocode, region, patience, risktaking, posrecip, negrecip, altruism, trust, subj_math_skills, gender, birth_year)
 
 gps <- gps_sub %>%
   mutate(year = year(date)) %>% select(!date)
@@ -44,11 +45,12 @@ gps <- gps %>%
 gps <- gps %>%
   rename(interview_year = year)
 # Function to identify if individuals experienced regime change during formative years
+# Function to identify if individuals experienced regime change during formative years
 generate_formative_regime_change <- function(democracy_data, gps_data, threshold) {
   # Processing democracy data to identify regime changes (same like previous)
   regime_change_years <- vdem_sub %>%
-    arrange(country_name, year) %>%
-    group_by(country_name) %>%
+    arrange(country_text_id, year) %>%
+    group_by(country_text_id) %>%
     mutate(
       libdem_diff = v2x_libdem - lag(v2x_libdem), # this approach does not capture linear change over few years, just sudden changes between years -> problematic? Maybe we can take into account a cumulative change over k years, to better separate the countries? Let's discuss :)
       regime_change = ifelse(libdem_diff > threshold, 1, 0)) %>%
@@ -59,7 +61,7 @@ generate_formative_regime_change <- function(democracy_data, gps_data, threshold
 # Joining with individual level data and checking for formative years overlap
   result <- gps %>%
     left_join(regime_change_years,
-            by = c("country" = "country_name"),
+            by = c("isocode" = "country_text_id"),
             relationship = "many-to-many") %>%
     group_by(id_gallup) %>% # unique identifier for individuals
     summarize(
@@ -80,7 +82,8 @@ generate_formative_regime_change <- function(democracy_data, gps_data, threshold
 }
 
 # Applying the function
-final_data <- generate_formative_regime_change(vdem_data, gps, threshold = 0.03)
+final_data <- generate_formative_regime_change(vdem_sub, gps, threshold = 0.03)
+
 
 
 #Turning formative_regime_change int oa labeled factor
@@ -88,6 +91,8 @@ final_data <- final_data %>%
   mutate(formative_regime_change = factor(formative_regime_change, 
                                           levels = c(0, 1),
                                           labels = c("No Regime Change experience", "Regime Change experience")))
+
+
 gdp_data <- read_excel(here("Input", "mpd2023_web_2.xlsx"))
 
 gdp_data <- gdp_data %>% 
@@ -95,8 +100,11 @@ gdp_data <- gdp_data %>%
 
 
 final_data_gdp <- final_data %>%
-  left_join(gdp_data %>% select(country, year, gdppc),
-            by = c("country" = "country", "interview_year" = "year"))
+  left_join(gdp_data %>% select(countrycode, year, gdppc),
+            by = c("isocode" = "countrycode", "interview_year" = "year"))
+
+final_data_gdp <- na.omit(final_data_gdp)
+
 ```
 
 # Sources
@@ -138,71 +146,6 @@ Assigning the threshold to 21 years results to the following number of observati
 table(final_data$formative_regime_change)
 ```
 
-```{r}
-#| echo: false
-#plot
-ggplot(final_data_gdp, aes(x = formative_regime_change, y = trust)) +
-  geom_boxplot(fill = "skyblue") +
-  labs(
-    x = "Formative Regime Change (0 = No, 1 = Yes)",
-    y = "Trust",
-    title = "Trust levels by Regime Change Exposure"
-  )
-
-```
-
-As we discussed in the previous meeting, we would be deciding for **2 economic preferences** as outcome variables from the GPS dataset. **We chose to analyse the effect of regime changes on patience and trust**. We based our decision on the following plot of mean comparisons. We assume that by using these two variables, that have larger differences between the treated and untreated groups, we will be able to gain more statistical power in our analysis.
-
-```{r}
-#| echo: false
-long_data <- final_data_gdp %>%
-  pivot_longer(
-    cols = c(trust, patience, risktaking, posrecip, negrecip, altruism),
-    names_to = "preference_type",
-    values_to = "value"
-  ) %>%
-  mutate(preference_type = str_to_title(preference_type))
-
-# Calculating group means and confidence intervals
-group_means <- long_data %>%
-  group_by(formative_regime_change, preference_type) %>%
-  summarise(
-    mean_value = mean(value, na.rm = TRUE),
-    se = sd(value, na.rm = TRUE) / sqrt(n()),
-    ci_lower = mean_value - 1.96 * se,
-    ci_upper = mean_value + 1.96 * se,
-    .groups = "drop"
-  )
-
-# Creating a parallel coordinates plot
-parallel_plot <- ggplot(group_means, aes(x = preference_type, y = mean_value, 
-                                      group = formative_regime_change, 
-                                      color = formative_regime_change)) +
-  geom_ribbon(aes(ymin = ci_lower, ymax = ci_upper, fill = formative_regime_change), 
-              alpha = 0.2, color = NA) +
-  geom_line(size = 1.2) +
-  geom_point(size = 3) +
-  geom_text(aes(label = round(mean_value, 2)), vjust = -1, size = 3) +
-  scale_color_brewer(palette = "Set1") +
-  scale_fill_brewer(palette = "Set1") +
-  labs(
-    title = "Mean Preference Profiles by Regime Change Exposure during formative years",
-    subtitle = "With 95% confidence intervals",
-    x = "Economic Preference",
-    y = "Mean Value",
-    color = "Formative Years",
-    fill = "Formative Years"
-  ) +
-  theme_minimal() +
-  theme(
-    plot.title = element_text(size = 14, face = "bold"),
-    axis.text.x = element_text(angle = 45, hjust = 1),
-    legend.position = "bottom"
-  )
-
-print(parallel_plot)
-```
-
 ## Sample period
 
 Our sample period is defined by the birth years of the indviduals, captured in the GPS dataset.
@@ -216,7 +159,9 @@ Our sample period is defined by the birth years of the indviduals, captured in t
 -   Table 1: table of endogenous, outcomes and control variables (each of them should include number of observations, min, max, mean, number of NAs)
 -   For completness, we include table of summary statistics for all 6 economic preferences.
 
-```{r table of summary statistics}
+The Table below shows the **summary statistics** of preference and controls table:
+
+```{r}
 #| echo: false
 # Creating summary statistics table for all variables by treatment group
 summary_table <- final_data_gdp %>%
@@ -301,22 +246,6 @@ preferences_table
 controls_table
 ```
 
-```         
-If you have data across multiple years (e.g. pre and post treatment), then you should make two columns – one with these summary statistics before treatment and one after. If one of your key reference papers has a similar data setting to yours, copy the structure of their Table 1
-```
-
-# Descriptive statistics
-
--   Scatter plot of the raw data endogenous variable vs main outcomes
-
--   histogram of the distribution of your key variables
-
--   if applicable, a map showing the units you are working with in space
-
--   If you have an instrument, a graph showing the relationship between the endogenous variable and the instrument across your sample period
-
--   If you have DiD you can show a plot of the outcome across time highlighting the difference in the evolution of the variable between treated and non-treated units (parallel trends graph)
-
 ```{r}
 age_cohort_data <- final_data_gdp %>%
   mutate(
@@ -362,6 +291,100 @@ age_cohort_heatmap <- ggplot(age_cohort_data,
 
 age_cohort_heatmap
 ```
+
+Our main key variable is **`TRUST.`** Here below it shows the average **`TRUST`** of countries in *2012* and *2013*.
+
+```{r}
+
+
+country_trust <- final_data_gdp %>%
+  group_by(country, isocode) %>%
+  summarise(mean_trust = mean(trust, na.rm = TRUE))
+
+world <- ne_countries(scale = "medium", returnclass = "sf")
+world_data <- left_join(world, country_trust, by = c("name" = "country"))
+
+
+ggplot(data = world_data) +
+  geom_sf(aes(fill = mean_trust), color = "white") +
+  scale_fill_viridis_c(option = "C", na.value = "grey90") +
+  labs(title = "Average Trust Level by Country",
+       fill = "Mean Trust") +
+  theme_minimal()
+
+
+```
+
+Here is shows that the **Trust levels by Regime Change Exposure**
+
+```{r}
+#| echo: false
+#plot
+ggplot(final_data_gdp, aes(x = formative_regime_change, y = trust)) +
+  geom_boxplot(fill = "skyblue") +
+  labs(
+    x = "Formative Regime Change (0 = No, 1 = Yes)",
+    y = "Trust",
+    title = "Trust levels by Regime Change Exposure"
+  )
+
+```
+
+As we discussed in the previous meeting, we would be deciding for **2 economic preferences** as outcome variables from the GPS dataset. **We chose to analyse the effect of regime changes on patience and trust**. We based our decision on the following plot of mean comparisons. We assume that by using these two variables, that have larger differences between the treated and untreated groups, we will be able to gain more statistical power in our analysis.
+
+```{r}
+#| echo: false
+long_data <- final_data_gdp %>%
+  pivot_longer(
+    cols = c(trust, patience, risktaking, posrecip, negrecip, altruism),
+    names_to = "preference_type",
+    values_to = "value"
+  ) %>%
+  mutate(preference_type = str_to_title(preference_type))
+
+# Calculating group means and confidence intervals
+group_means <- long_data %>%
+  group_by(formative_regime_change, preference_type) %>%
+  summarise(
+    mean_value = mean(value, na.rm = TRUE),
+    se = sd(value, na.rm = TRUE) / sqrt(n()),
+    ci_lower = mean_value - 1.96 * se,
+    ci_upper = mean_value + 1.96 * se,
+    .groups = "drop"
+  )
+
+# Creating a parallel coordinates plot
+parallel_plot <- ggplot(group_means, aes(x = preference_type, y = mean_value, 
+                                      group = formative_regime_change, 
+                                      color = formative_regime_change)) +
+  geom_ribbon(aes(ymin = ci_lower, ymax = ci_upper, fill = formative_regime_change), 
+              alpha = 0.2, color = NA) +
+  geom_line(size = 1.2) +
+  geom_point(size = 3) +
+  geom_text(aes(label = round(mean_value, 2)), vjust = -1, size = 3) +
+  scale_color_brewer(palette = "Set1") +
+  scale_fill_brewer(palette = "Set1") +
+  labs(
+    title = "Mean Preference Profiles by Regime Change Exposure during formative years",
+    subtitle = "With 95% confidence intervals",
+    x = "Economic Preference",
+    y = "Mean Value",
+    color = "Formative Years",
+    fill = "Formative Years"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 14, face = "bold"),
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "bottom"
+  )
+
+print(parallel_plot)
+```
+
+# **Descriptive statistics**
+
+The following figures present a detailed **visual overview of the descriptive statistics**, including scatter plots of key variables, distribution histograms, group-level comparisons, and difference-in-differences style visualizations highlighting trends across cohorts.
 
 ```{r}
 #-----------------------------------------------------------------------
@@ -409,41 +432,6 @@ plot_outcomes <- final_data_gdp %>%
     legend.position = "bottom"
   )
 
-#-----------------------------------------------------------------------
-# HISTOGRAMS: DISTRIBUTION OF KEY VARIABLES
-#-----------------------------------------------------------------------
-
-# Function to create histograms with density overlays
-create_histogram <- function(data, var_name, title) {
-  ggplot(data, aes(x = !!sym(var_name), fill = formative_regime_change)) +
-    geom_histogram(aes(y = ..density..), alpha = 0.5, position = "identity", bins = 30) +
-    geom_density(alpha = 0.2, aes(color = formative_regime_change)) +
-    labs(
-      title = title,
-      x = str_to_title(var_name),
-      y = "Density",
-      fill = "Formative Years",
-      color = "Formative Years"
-    ) +
-    scale_fill_brewer(palette = "Set1") +
-    scale_color_brewer(palette = "Set1") +
-    theme_minimal() +
-    theme(legend.position = "bottom")
-}
-
-# Create histograms for key variables
-trust_hist <- create_histogram(final_data_gdp, "trust", "Distribution of Trust")
-patience_hist <- create_histogram(final_data_gdp, "patience", "Distribution of Patience")
-risk_hist <- create_histogram(final_data_gdp, "risktaking", "Distribution of Risk Taking")
-
-# Combine histograms
-histograms_combined <- trust_hist + patience_hist + risk_hist +
-  plot_layout(ncol = 3) +
-  plot_annotation(
-    title = "Distribution of Key Economic Preferences",
-    subtitle = "By regime change exposure during formative years",
-    theme = theme(plot.title = element_text(size = 16, face = "bold"))
-  )
 
 #-----------------------------------------------------------------------
 # DiD PARALLEL TRENDS GRAPH
@@ -539,6 +527,44 @@ did_multi_plot <- ggplot(did_long, aes(x = birth_cohort, y = avg_score,
   )
 
 #-----------------------------------------------------------------------
+# HISTOGRAMS: DISTRIBUTION OF KEY VARIABLES
+#-----------------------------------------------------------------------
+
+# Function to create histograms with density overlays
+create_histogram <- function(data, var_name, title) {
+  ggplot(data, aes(x = !!sym(var_name), fill = formative_regime_change)) +
+    geom_histogram(aes(y = ..density..), alpha = 0.5, position = "identity", bins = 30) +
+    geom_density(alpha = 0.2, aes(color = formative_regime_change)) +
+    labs(
+      title = title,
+      x = str_to_title(var_name),
+      y = "Density",
+      fill = "Formative Years",
+      color = "Formative Years"
+    ) +
+    scale_fill_brewer(palette = "Set1") +
+    scale_color_brewer(palette = "Set1") +
+    theme_minimal() +
+    theme(legend.position = "bottom")
+}
+
+# Create histograms for key variables
+trust_hist <- create_histogram(final_data_gdp, "trust", "Distribution of Trust")
+patience_hist <- create_histogram(final_data_gdp, "patience", "Distribution of Patience")
+risk_hist <- create_histogram(final_data_gdp, "risktaking", "Distribution of Risk Taking")
+
+# Combine histograms
+histograms_combined <- trust_hist + patience_hist + risk_hist +
+  plot_layout(ncol = 3) +
+  plot_annotation(
+    title = "Distribution of Key Economic Preferences",
+    subtitle = "By regime change exposure during formative years",
+    theme = theme(plot.title = element_text(size = 16, face = "bold"))
+  )
+
+
+
+#-----------------------------------------------------------------------
 # PRINT THE VISUALIZATIONS
 #-----------------------------------------------------------------------
 
@@ -554,4 +580,43 @@ print(histograms_combined)
 # DiD plots
 print(did_trust_plot)
 print(did_multi_plot)
+```
+
+The following figures present additional visualizations of our data.
+
+```{r}
+
+
+democracy_2012 <- vdem_sub %>%
+  filter(year == 2012) %>%
+  select(country_name,country_text_id, v2x_libdem)
+
+plot_data <- left_join(country_trust, democracy_2012, by =c ("isocode"= "country_text_id"))
+
+
+ggplot(final_data_gdp, aes(x = age, y = trust, color = formative_regime_change)) + 
+  geom_smooth(method = "loess", se = FALSE, size = 1.2) +
+  theme_minimal() +
+  labs(title = "Trust Score by Age and Regime Change Exposure",
+       x = "Age",
+       y = "Trust Score",
+       color = "Formative Regime Change")
+```
+
+```{r}
+
+
+
+# Merge democracy index into the individual-level dataset
+mixed_plot_data <- left_join(final_data_gdp, democracy_2012, by =c ("country"= "country_name"))
+
+
+
+ggplot(mixed_plot_data, aes(x = subj_math_skills, y = trust, color = formative_regime_change)) + 
+  geom_smooth(method = "loess", se = FALSE, size = 1.2) +
+  theme_minimal() +
+  labs(title = "Trust Score vs. Subjective Math Skills by Regime Change Exposure",
+       x = "Subjective Math Skills",
+       y = "Trust",
+       color = "Formative Regime Change")
 ```

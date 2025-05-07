@@ -82,12 +82,12 @@ Questions for meeting on 29.04. :
 ```{r}
 #selecting necessary columns
 vdem_sub <- vdem %>%
-  select(country_name, year, v2x_libdem)
+  select(country_name,country_text_id, year, v2x_libdem)
 
 #calculating birth_years and selecting necessary columns
 gps_sub <- GPS_indiv %>%
   mutate(birth_year = year(date) - age) %>%
-  select(id_gallup, age , date, country, region, patience, risktaking, posrecip, negrecip, altruism, trust, subj_math_skills, gender, birth_year)
+  select(id_gallup, age , date, country,isocode, region, patience, risktaking, posrecip, negrecip, altruism, trust, subj_math_skills, gender, birth_year)
 
 
 gps <- gps_sub %>%
@@ -95,23 +95,7 @@ gps <- gps_sub %>%
 
 
 
-#creating regime change function
-generate_regime_change <- function(data, threshold) {
-  data %>%
-    arrange(country_name, year) %>%
-    group_by(country_name) %>%
-    mutate(
-      libdem_diff = v2x_libdem - lag(v2x_libdem),
-      regime_change = ifelse(libdem_diff > threshold, 1, 0)
-    ) %>%
-    ungroup()
-}
-
-#then applying this function to our data , *threshold* is example, this number can be different.
-vdem_with_regimes <- generate_regime_change(vdem_sub, threshold = 0.03)
-head(vdem_with_regimes)
-
-
+#
 #Imagine the person faced with democracy at 21
 gps <- gps %>%
   mutate(year_adult = birth_year + 21) # Maybe we should base this decision (whether 25 any different age) on some literature? I will take a look.
@@ -129,8 +113,8 @@ gps <- gps %>%
 generate_formative_regime_change <- function(democracy_data, gps_data, threshold) {
   # Processing democracy data to identify regime changes (same like previous)
   regime_change_years <- vdem_sub %>%
-    arrange(country_name, year) %>%
-    group_by(country_name) %>%
+    arrange(country_text_id, year) %>%
+    group_by(country_text_id) %>%
     mutate(
       libdem_diff = v2x_libdem - lag(v2x_libdem), # this approach does not capture linear change over few years, just sudden changes between years -> problematic? Maybe we can take into account a cumulative change over k years, to better separate the countries? Let's discuss :)
       regime_change = ifelse(libdem_diff > threshold, 1, 0)) %>%
@@ -141,7 +125,7 @@ generate_formative_regime_change <- function(democracy_data, gps_data, threshold
 # Joining with individual level data and checking for formative years overlap
   result <- gps %>%
     left_join(regime_change_years,
-            by = c("country" = "country_name"),
+            by = c("isocode" = "country_text_id"),
             relationship = "many-to-many") %>%
     group_by(id_gallup) %>% # unique identifier for individuals
     summarize(
@@ -162,7 +146,8 @@ generate_formative_regime_change <- function(democracy_data, gps_data, threshold
 }
 
 # Applying the function
-final_data <- generate_formative_regime_change(vdem_data, gps, threshold = 0.03)
+final_data <- generate_formative_regime_change(vdem_sub, gps, threshold = 0.03)
+
 
 
 #Turning formative_regime_change int oa labeled factor
@@ -183,8 +168,10 @@ gdp_data <- gdp_data %>%
 
 
 final_data_gdp <- final_data %>%
-  left_join(gdp_data %>% select(country, year, gdppc),
-            by = c("country" = "country", "interview_year" = "year"))
+  left_join(gdp_data %>% select(countrycode, year, gdppc),
+            by = c("isocode" = "countrycode", "interview_year" = "year"))
+
+final_data_gdp<- na.omit(final_data_gdp)
 
 ```
 
