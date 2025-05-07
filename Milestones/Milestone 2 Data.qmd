@@ -214,7 +214,15 @@ Our sample period is defined by the birth years of the indviduals, captured in t
 ## Variables
 
 -   Table 1: table of endogenous, outcomes and control variables (each of them should include number of observations, min, max, mean, number of NAs)
+
 -   For completness, we include table of summary statistics for all 6 economic preferences.
+
+    | Controls on individual level | Controls on country level | Outcome |
+    |----|----|----|
+    | Subject's math skills (integer values from 0 till 10) | GDP per capita in year of the interview (2012 or 2013) | Patience (values from -1.4 to 2.8) |
+    | Age |  | Trust (values from -2 till 1.8) |
+    | Country |  |  |
+    | Gender |  |  |
 
 ```{r table of summary statistics}
 #| echo: false
