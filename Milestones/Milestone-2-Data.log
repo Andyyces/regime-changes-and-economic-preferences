@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999997 (TeX Live 2025) (preloaded format=xelatex 2025.5.7)  7 MAY 2025 21:06
+This is XeTeX, Version 3.141592653-2.6-0.999997 (TeX Live 2025) (preloaded format=xelatex 2025.5.7)  7 MAY 2025 21:07
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -461,8 +461,15 @@ Package: threeparttable 2003/06/13  v 3.0
 \@tempboxb=\box74
 ) (c:/Users/mvideo/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/threeparttablex/threeparttablex.sty
 Package: threeparttablex 2013/07/23 v0.3 by daleif
+(c:/Users/mvideo/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/environ/environ.sty
+Package: environ 2014/05/04 v0.3 A new way to define environments
+(c:/Users/mvideo/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/trimspaces/trimspaces.sty
+Package: trimspaces 2009/09/17 v1.1 Trim spaces around a token list
+))
+\TPTL@width=\skip85
+)
 
-! LaTeX Error: File `environ.sty' not found.
+! LaTeX Error: File `ulem.sty' not found.
 
 Type X to quit or <RETURN> to proceed,
 or enter new name. (Default extension: sty)
@@ -471,16 +478,16 @@ Enter file name:
 ! Emergency stop.
 <read *> 
          
-l.26 ^^M
-        
+l.156 \usepackage
+                 {makecell}^^M
 *** (cannot \read from terminal in nonstop modes)
 
  
 Here is how much of TeX's memory you used:
- 14122 strings out of 472264
- 292700 string characters out of 5527674
+ 14208 strings out of 472264
+ 294685 string characters out of 5527674
  917530 words of memory out of 5000000
- 40519 multiletter control sequences out of 15000+600000
+ 40597 multiletter control sequences out of 15000+600000
  626841 words of font info for 42 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  108i,1n,107p,10911b,271s stack positions out of 10000i,1000n,20000p,200000b,200000s
