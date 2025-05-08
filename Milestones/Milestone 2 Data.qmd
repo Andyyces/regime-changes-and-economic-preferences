@@ -20,7 +20,12 @@ p_load(haven,
        ggplot2,
        vdemdata,
        summarytools,
-       devtools)
+       devtools,
+       tidyr,
+       kableExtra,
+       gt)
+
+
 vdem <- vdemdata::vdem
 
 #opening datasets (individual survey)
@@ -87,7 +92,7 @@ final_data <- generate_formative_regime_change(vdem_sub, gps, threshold = 0.03)
 
 
 
-#Turning formative_regime_change int oa labeled factor
+#Turning formative_regime_change into a labeled factor
 final_data <- final_data %>%
   mutate(formative_regime_change = factor(formative_regime_change, 
                                           levels = c(0, 1),
@@ -112,9 +117,9 @@ final_data_gdp <- na.omit(final_data_gdp)
 
 In our project, we are making use of 3 datasets:
 
--   Vdem (@coppedge_v-dem_2025) dataset comes also as an R package: `r vdem <- vdemdata::vdem`. This dataset contains various democracy indicators for XXX countries starting of year XXX. We will be using the Liberal democracy index which combines many of these indicators into a single number for each country/year.
+-   Vdem (@coppedge_v-dem_2025) dataset comes also as an R package:`vdemdata`. This dataset contains various democracy indicators for 202 countries starting of year 1789. We will be using the Liberal democracy index which combines many of these indicators into a single number for each country/year.
 
--   Global Preference Survey (@falk_global_2018) dataset was downloaded as a ZIP file from the [following website](https://gps.iza.org/downloads). This dataset contains information about economic preferences of 80337 individuals from XX countries. The survey was conducted between 2012 and 2013.
+-   Global Preference Survey (@falk_global_2018) dataset was downloaded as a ZIP file from the [following website](https://gps.iza.org/downloads). This dataset contains information about economic preferences of 80337 individuals from 76 countries. The survey was conducted between 2012 and 2013.
 
 -   Data on country's GDP's was downloaded from
 
@@ -134,30 +139,26 @@ p_load(tidyverse,
        rnaturalearth,
        rnaturalearthdata,
        viridis,
-       broom)
+       broom,
+       gridExtra)
 ```
 
-Since we have information about age of each individual during the time of interview in the GPS survey, we were able to calculate their birth years. Then we could determine whether they experienced a regime change during their formative years. For this, we had to link the V-Dem dataset with the GPS survey data. Our goal was to separate the treated and untreated group of individuals based on the change of liberal democracy index from the V-Dem dataset. **The treated group in our analysis consists of individuals, who experienced a regime change before turning 21 years old**. We are still considering a range of 18-21 years, since this range aligns with legal adulthood in many countries. We are planning to test multiple thresholds, to see if our results will be robust across different specifications. **The regime change is determined as a year over year change in the Liberal democracy index**. Here we also had to decide on a **threshold**, which we think is rather arbitrary. That is why we are considering a different approach, to capture linear changes of the index, not just sudden changes over years.
+Since we have information about age of each individual during the time of interview in the GPS survey, we were able to calculate their birth years. Then we could determine whether they experienced a regime change during their formative years. For this, we had to link the V-Dem dataset with the GPS survey data. Our goal was to separate the treated and control group of individuals based on the change of liberal democracy index from the V-Dem dataset. **The treated group in our analysis consists of individuals, who experienced a regime change before turning 21 years old**. We are still considering a range of 18-21 years, since this range aligns with legal adulthood in many countries. We are planning to test multiple thresholds, to see if our results will be robust across different specifications. **The regime change is determined as a year over year change in the Liberal democracy index**. Here we also had to decide on a **threshold**, which we think is rather arbitrary. That is why we are considering a different approach, to capture linear changes of the index, not just sudden changes over years.
 
 Assigning the formative years threshold to 21 years results to the following number of observations in both groups:
-
 ```{r}
 #| echo: false
 table(final_data$formative_regime_change)
 ```
-
 ## Sample period
 
-Our sample period is defined by the birth years of the indviduals, captured in the GPS dataset. Each study unit (=individual) appears once. We have data of 80337 individuals.
-
--   and how many times the units of the study appear
+Our sample period is defined by the birth years of the indviduals, which we calculated based on the age information in the GPS dataset. Each study unit (=individual) appears once. We have data for 80337 individuals.
 
 -   Claimed reliability of each sample from a data quality point of view
 
 ## Variables
 
-As we discussed in the previous meeting, we would be deciding for **2 economic preferences** as outcome variables from the GPS dataset. **We chose to analyse the effect of regime changes on patience and trust**. We based our decision on the following plot of mean comparisons. We assume that by using these two variables, that have larger differences between the treated and untreated groups, we will be able to gain more statistical power in our analysis.
-
+As we discussed in the previous meeting, we would be deciding for **2 economic preferences** as outcome variables from the GPS dataset. **We chose to analyse the effect of regime changes on patience and trust**. We based our decision on the following plot of mean comparisons. We assume that by using these two variables, that have larger differences between the treated and control groups, we will be able to gain more statistical power in our analysis.
 ```{r}
 #| echo: false
 long_data <- final_data_gdp %>%
@@ -167,6 +168,14 @@ long_data <- final_data_gdp %>%
     values_to = "value"
   ) %>%
   mutate(preference_type = str_to_title(preference_type))
+
+# Change the formative_regime_change factor levels and labels
+long_data <- long_data %>%
+  mutate(formative_regime_change = case_when(
+    formative_regime_change == "No Regime Change experience" ~ "Control",
+    formative_regime_change == "Regime Change experience" ~ "Treated",
+    TRUE ~ as.character(formative_regime_change)
+  ))
 
 # Calculating group means and confidence intervals
 group_means <- long_data %>%
@@ -179,37 +188,48 @@ group_means <- long_data %>%
     .groups = "drop"
   )
 
+# Order factors to make Treated come FIRST so it gets the first color (red in Set1)
+group_means$formative_regime_change <- factor(
+  group_means$formative_regime_change,
+  levels = c("Treated", "Control")
+)
+
 # Creating a parallel coordinates plot
-parallel_plot <- ggplot(group_means, aes(x = preference_type, y = mean_value, 
-                                      group = formative_regime_change, 
-                                      color = formative_regime_change)) +
-  geom_ribbon(aes(ymin = ci_lower, ymax = ci_upper, fill = formative_regime_change), 
+parallel_plot <- ggplot(group_means, aes(x = preference_type, y = mean_value,
+                        group = formative_regime_change,
+                        color = formative_regime_change)) +
+  geom_ribbon(aes(ymin = ci_lower, ymax = ci_upper, fill = formative_regime_change),
               alpha = 0.2, color = NA) +
   geom_line(size = 1.2) +
   geom_point(size = 3) +
-  geom_text(aes(label = round(mean_value, 2)), vjust = -1, size = 3) +
-  scale_color_brewer(palette = "Set1") +
-  scale_fill_brewer(palette = "Set1") +
+  # Only add labels to points on the plot, not in the legend
+  geom_text(aes(label = round(mean_value, 2)), vjust = -1, size = 3, show.legend = FALSE) +
+  # Using Set1 palette - first color (index 1) is red, second (index 2) is blue
+  scale_color_brewer(palette = "Set1", name = "Group") +
+  scale_fill_brewer(palette = "Set1", name = "Group") +
   labs(
-    title = "Mean Preference Profiles by Regime Change Exposure during formative years",
+    title = "Mean Preference Profiles by Regime Change Exposure",
     subtitle = "With 95% confidence intervals",
     x = "Economic Preference",
-    y = "Mean Value",
-    color = "Formative Years",
-    fill = "Formative Years"
+    y = "Mean Value"
   ) +
   theme_minimal() +
   theme(
-    plot.title = element_text(size = 14, face = "bold"),
+    plot.title = element_text(size = 14, face = "bold", margin = margin(b = 10)),
     axis.text.x = element_text(angle = 45, hjust = 1),
-    legend.position = "bottom"
+    legend.position = "bottom",
+    plot.title.position = "plot",
+    plot.margin = margin(t = 15, r = 15, b = 15, l = 15)
+  ) +
+  # Use guides to override any legend keys
+  guides(
+    color = guide_legend(override.aes = list(label = NULL)),
+    fill = guide_none()  # Hide the fill legend since it's redundant
   )
 
 print(parallel_plot)
 ```
-
-For completeness, we include **summary statistics** for all 6 economic preferences in Table XX.
-
+For completeness, we include **summary statistics** for all 6 economic preferences in Table 1. Table 2 depicts the summary statistics for our control variables.
 ```{r table of summary statistics}
 #| echo: false
 # Creating summary statistics table for all variables by treatment group
@@ -290,11 +310,70 @@ controls_table <- create_formatted_table(
   c("subj_math_skills", "gdppc", "age"),
   "Control Variables"
 )
+```
+
+```{r}
+#| echo: false
+# Function to create improved formatted tables for the paper
+create_formatted_table <- function(data, vars, title, caption = NULL) {
+  # Reshape the data as in your original function
+  table_data <- data %>%
+    pivot_longer(
+      cols = contains(paste0(vars, "_")),
+      names_to = c("variable", "stat"),
+      names_pattern = "(.*?)_(.*)",
+      values_to = "value"
+    ) %>%
+    filter(
+      variable %in% vars,
+      stat %in% c("mean", "sd", "min", "max", "n")
+    ) %>%
+    pivot_wider(
+      id_cols = c(formative_regime_change, variable),
+      names_from = stat,
+      values_from = value
+    ) %>%
+    mutate(
+      mean = round(mean, 2),
+      sd = round(sd, 2),
+      min = round(min, 2),
+      max = round(max, 2)
+    )
+  
+  # Format using kableExtra for better PDF output
+  formatted_table <- table_data %>%
+    kbl(caption = caption,
+        col.names = c("Regime Change Experience", "Variable", "Mean", "SD", "Min", "Max", "N"),
+        align = c("l", "l", "r", "r", "r", "r", "r"),
+        booktabs = TRUE) %>%
+    kable_styling(latex_options = c("striped", "scale_down", "hold_position"),
+                 full_width = FALSE,
+                 position = "center") %>%
+    row_spec(0, bold = TRUE) %>%
+    pack_rows(index = table(table_data$formative_regime_change)) %>%
+    add_header_above(c(" " = 2, "Summary Statistics" = 5))
+  
+  return(formatted_table)
+}
+
+# Creating improved tables for preferences and controls
+preferences_table <- create_formatted_table(
+  summary_table,
+  c("trust", "patience", "risktaking", "posrecip", "negrecip", "altruism"),
+  "Economic Preferences",
+  caption = "Table 1: Summary Statistics of Economic Preferences by Regime Change Experience"
+)
+
+controls_table <- create_formatted_table(
+  summary_table,
+  c("subj_math_skills", "gdppc", "age"),
+  "Control Variables",
+  caption = "Table 2: Summary Statistics of Control Variables by Regime Change Experience"
+)
 
 preferences_table
 controls_table
 ```
-
 ```{r}
 #| echo: false
 age_cohort_data <- final_data_gdp %>%
@@ -342,40 +421,48 @@ age_cohort_heatmap <- ggplot(age_cohort_data,
 age_cohort_heatmap
 ```
 
-Our main key variable is **`TRUST.`** The graph below depicts the average **`TRUST`** values grouped by country in *2012* and *2013*.
+Our main key variable is **`TRUST`** and **`PATIENCE.`**The graphs below depict the average values grouped by country in *2012* and *2013*.
 
-```{r}
+
+```{r mean comparison maps}
 #| echo: false
 country_trust <- final_data_gdp %>%
   group_by(country, isocode) %>%
   summarise(mean_trust = mean(trust, na.rm = TRUE))
 
+country_patience <- final_data_gdp %>%
+  group_by(country, isocode) %>%
+  summarise(mean_patience = mean(patience, na.rm = TRUE))
+
+# Getting world map data
 world <- ne_countries(scale = "medium", returnclass = "sf")
-world_data <- left_join(world, country_trust, by = c("name" = "country"))
 
+# Creating two separate datasets
+world_trust <- left_join(world, country_trust, by = c("name" = "country"))
+world_patience <- left_join(world, country_patience, by = c("name" = "country"))
 
-ggplot(data = world_data) +
+# Creating the plots separately and combining with grid.arrange using longer approach
+# Trust map
+p1 <- ggplot(data = world_trust) +
   geom_sf(aes(fill = mean_trust), color = "white") +
   scale_fill_viridis_c(option = "C", na.value = "grey90") +
   labs(title = "Average Trust Level by Country",
        fill = "Mean Trust") +
   theme_minimal()
 
-country_patience <- final_data_gdp %>%
-  group_by(country, isocode) %>%
-  summarise(mean_patience = mean(patience, na.rm = TRUE))
-
-world <- ne_countries(scale = "medium", returnclass = "sf")
-world_data <- left_join(world, country_patience, by = c("name" = "country"))
-
-
-ggplot(data = world_data) +
+# Patience map
+p2 <- ggplot(data = world_patience) +
   geom_sf(aes(fill = mean_patience), color = "white") +
-  scale_fill_viridis_c(option = "C", na.value = "grey90") +
+  scale_fill_viridis_c(option = "B", na.value = "grey90") +
   labs(title = "Average Patience Level by Country",
        fill = "Mean Patience") +
   theme_minimal()
+
+# Combining
+combined_plot <- grid.arrange(p1, p2, ncol = 1)
+
 ```
+
 
 The following graph depicts the **Trust levels by Regime Change Exposure**
 
