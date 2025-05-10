@@ -144,13 +144,6 @@ generate_formative_regime_change <- function(democracy_data, gps_data, threshold
 final_data <- generate_formative_regime_change(vdem_sub, gps, threshold = 0.03)
 
 
-
-#Turning formative_regime_change int oa labeled factor
-final_data <- final_data %>%
-  mutate(formative_regime_change = factor(formative_regime_change, 
-                                          levels = c(0, 1),
-                                          labels = c("No Regime Change experience", "Regime Change experience")))
-
 # Checking how many individuals is in each group
 table(final_data$formative_regime_change)
 ```
