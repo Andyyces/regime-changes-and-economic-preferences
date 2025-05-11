@@ -2,40 +2,46 @@
 title: "Regime Changes and Economic Preferences: Global Evidence"
 subtitle: "Milestone 3: Econometric Approach"
 author: "Andrea Češková and Elvin Mammadov"
-crossref:
-  fig-title: "Figure"
-  lot-title: "List of figures"
-bibliography: references.bib
 format: 
   pdf:
     reference-location: document
+number-sections: true
+toc: true
+crossref:
+  fig-title: "Figure"
+  tbl-title: "Table"
+  eq-title: "Equation"
+  lot-title: "List of figures"
+bibliography: references.bib
+link-citations: true
 ---
 
-
-
-
-
-
-
-
-
-
-
 # Economic model
-Economic model of reference taken from the literature (e.g. if you measure impact of train delay on school grades, then it could be a theory model showing how school performance is a function of many things, and one of them is school behavior – which itself is a function of punctuality)
 
+*Economic model of reference taken from the literature (e.g. if you measure impact of train delay on school grades, then it could be a theory model showing how school performance is a function of many things, and one of them is school behavior – which itself is a function of punctuality)*
+
+As Detlefsen et al. [-@detlefsen_are_2024] points out, the formation of economic preferences in **childhood** and **adolescence** has a long-term consequences for life outcomes. To provide an example, patience can impact one's school performance, which can later translate to education attainment and labor market outcomes. The same way can risk preference impact one's financial decisions [@detlefsen_are_2024].
+
+According to the National Library of Medicine, childhood is defined as a stage from **3-11 years** and adolescence as a stage from **12-18 years**[@balasundaram2025]. But what factors can have an impact on economic preferences?
 
 # Setting
-How many treated and non-treated units you observe in which part of the sample period and how treatment is defined. Which is your endogenous variable and which the main outcomes?
+
+*How many treated and non-treated units you observe in which part of the sample period and how treatment is defined. Which is your endogenous variable and which the main outcomes?*
 
 # Mechanism
-What do you think is the story that explains the relationship between your independent and dependent variables? Do you think there is a way to directly test for it? If yes, how do you plan to do it? If no, why?
+
+*What do you think is the story that explains the relationship between your independent and dependent variables? Do you think there is a way to directly test for it? If yes, how do you plan to do it? If no, why?*
 
 # Source of Bias and Identification
-Which are the potential biases and limitations of your study, what is the intuition you leverage on to build your identification strategy? If you think there is going to be a bias stemming from the setting or a data characteristic, then in which direction do you think it is?
+
+*Which are the potential biases and limitations of your study, what is the intuition you leverage on to build your identification strategy? If you think there is going to be a bias stemming from the setting or a data characteristic, then in which direction do you think it is?*
 
 # Formulas
-State as formulas the baseline OLS/LM equation and the chosen further identification strategy specification(s).
+
+*State as formulas the baseline OLS/LM equation and the chosen further identification strategy specification(s).*
 
 # Identified types of effects
-Which type of treatment are your results supposed to identify? Are you identifying a causal relationship? If yes, which are the identification assumptions that should hold?
+
+*Which type of treatment are your results supposed to identify? Are you identifying a causal relationship? If yes, which are the identification assumptions that should hold?*
+
+# References
