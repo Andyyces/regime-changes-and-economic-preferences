@@ -45,15 +45,15 @@ vdem_sub <- vdem %>%
 
 #calculating birth_years and selecting necessary columns
 gps_sub <- GPS_indiv %>%
-  mutate(birth_year = year(date) - age) %>%
-  select(id_gallup, age , date, country,isocode, region, patience, risktaking, posrecip, negrecip, altruism, trust, subj_math_skills, gender, birth_year)
+  mutate(birth_year = year(date) - age ) %>% mutate(year_3= birth_year + 3) %>% 
+  select(id_gallup, age , date, country,isocode, region, patience, risktaking, posrecip, negrecip, altruism, trust, subj_math_skills, gender, birth_year, year_3)
 
 gps_sub <- gps_sub %>%
   mutate(year = year(date)) %>% select(!date)
 
-#Imagine the person faced with democracy at 21
+#Imagine the person faced with democracy at 18
 gps_sub <- gps_sub %>%
-  mutate(year_adult = birth_year + 21) 
+  mutate(year_adult = birth_year + 18) 
 
 gps_sub <- gps_sub %>%
   rename(interview_year = year)
@@ -181,8 +181,8 @@ generate_formative_regime_change <- function(democracy_data, gps_data, threshold
     # Creating a temporary variable to identify formative regime changes
     mutate(
       is_formative_regime_change = formative_regime_change == 1 & 
-                                  regime_change_year >= birth_year & 
-                                  regime_change_year < (birth_year + 21)
+                                  regime_change_year >= year_3 & 
+                                  regime_change_year < year_adult
     ) %>%
     # First identifying individuals with formative regime changes
     group_by(id_gallup) %>%
@@ -241,10 +241,13 @@ final_data_gdp <- final_data %>%
 final_data_gdp <- final_data_gdp %>%
   rename(gdppc_2012 = gdppc)
 # Assigning observations as treated only if they were older than 2 years in year of regime change
-final_data_gdp$formative_regime_change[final_data_gdp$age_at_regime_change < 2] <- 0
+final_data_gdp$formative_regime_change[final_data_gdp$age_at_regime_change < 3] <- 0
 table(final_data_gdp$formative_regime_change)
 
-c <-lm(trust ~ formative_regime_change + subj_math_skills + gender + log(gdppc_2012), data = final_data_gdp)
+
+ final_data_gdp <- final_data_gdp %>% mutate(years_spend_regimes = age - age_at_regime_change)
+
+c <-lm(trust ~ formative_regime_change + subj_math_skills + gender + log(gdppc_2012) , data = final_data_gdp)
 summary(c)
 #package for staggered DiD
 #install.packages("did")

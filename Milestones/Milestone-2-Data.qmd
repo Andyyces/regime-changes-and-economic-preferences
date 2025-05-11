@@ -12,115 +12,19 @@ format:
 ---
 
 ```{r}
-#| label: setup
-#| include: false
-if (!require("pacman")) install.packages("pacman")
-library(pacman)
-p_load(tidyverse,
-       patchwork,
-       ggthemes,
-       haven,
-       here,
-       stargazer,
-       summarytools,
-       readxl,
-       dplyr,
-       lubridate,
-       ggplot2,
-       vdemdata,
-       tidyr,
-       RplotExtra,
-       gt,
-       cowplot,
-       pacman,
-       gridExtra,
-       RColorBrewer,
-       effectsize,
-       kableExtra,
-       knitr,
-       sf,
-       rnaturalearth,
-       rnaturalearthdata,
-       viridis,
-       broom,
-       viridis)
+#| warning: false
+#| echo: false
+#| message: false
+#| include: true
+#  Load the function from extract_codes.R
+source("../Input/extract_codes.R")
 
-vdem <- vdemdata::vdem
+#  Use it to extract code from the Rmd into an R script
+extract_r_code_from_rmd("../Input/Data loading + wrangling.Rmd", "../Input/data_wrangle.R")
 
-#opening datasets (individual survey)
-unzip(here("Input","GPS_Dataset.zip"))
-unzip(here("Input", "GPS_dataset_individual_level.zip"))
-GPS_indiv <- read_dta(here("Input","individual_v11_new.dta"))
-GPS_indiv <- GPS_indiv %>%
-  mutate(across(where(is.character), ~ iconv(., from = "", to = "UTF-8")))
-#selecting necessary columns
-vdem_sub <- vdem %>%
-  select(country_name,country_text_id, year, v2x_libdem)
+#  Run the extracted R code
+source("../Input/data_wrangle.R")
 
-#calculating birth_years and selecting necessary columns
-gps_sub <- GPS_indiv %>%
-  mutate(birth_year = year(date) - age) %>%
-  select(id_gallup, age , date, country,isocode, region, patience, risktaking, posrecip, negrecip, altruism, trust, subj_math_skills, gender, birth_year)
-
-gps <- gps_sub %>%
-  mutate(year = year(date)) %>% select(!date)
-gps <- gps %>%
-  mutate(year_adult = birth_year + 21) # Maybe we should base this decision (whether 25 any different age) on some literature? I will take a look.
-
-gps <- gps %>%
-  rename(interview_year = year)
-# Function to identify if individuals experienced regime change during formative years
-# Function to identify if individuals experienced regime change during formative years
-generate_formative_regime_change <- function(democracy_data, gps_data, threshold) {
-  # Processing democracy data to identify regime changes (same like previous)
-  regime_change_years <- vdem_sub %>%
-    arrange(country_text_id, year) %>%
-    group_by(country_text_id) %>%
-    mutate(
-      libdem_diff = v2x_libdem - lag(v2x_libdem), # this approach does not capture linear change over few years, just sudden changes between years -> problematic? Maybe we can take into account a cumulative change over k years, to better separate the countries? Let's discuss :)
-      regime_change = ifelse(libdem_diff > threshold, 1, 0)) %>%
-  # filtering just for countries that experienced a regime change
-    filter(regime_change == 1) %>%
-    select(country_name, regime_change_year = year)
-  
-# Joining with individual level data and checking for formative years overlap
-  result <- gps %>%
-    left_join(regime_change_years,
-            by = c("isocode" = "country_text_id"),
-            relationship = "many-to-many") %>%
-    group_by(id_gallup) %>% # unique identifier for individuals
-    summarize(
-      formative_regime_change = as.numeric(
-      # This will be TRUE only if at least one regime change falls within formative years
-      # It will be FALSE if there are no regime changes or if none fall within the range
-      # The as.numeric() converts TRUE to 1 and FALSE to 0
-        any(regime_change_year >= birth_year & 
-              regime_change_year <= year_adult, 
-            na.rm = TRUE)
-        )
-      ) %>%
-    ungroup()
-
-# Merge back with original individual data to keep all variables
-  gps %>%
-    left_join(result, by = "id_gallup")
-}
-
-# Applying the function
-final_data <- generate_formative_regime_change(vdem_sub, gps, threshold = 0.03)
-
-
-gdp_data <- read_excel(here("Input", "mpd2023_web_2.xlsx"))
-
-gdp_data <- gdp_data %>% 
-  filter(year== 2012 | year== 2013)
-
-
-final_data_gdp <- final_data %>%
-  left_join(gdp_data %>% select(countrycode, year, gdppc),
-            by = c("isocode" = "countrycode", "interview_year" = "year"))
-
-final_data_gdp <- na.omit(final_data_gdp)
 
 ```
 
@@ -138,54 +42,63 @@ In our project, we are making use of 3 datasets:
 
 The following table shows how were the economic preferences from the GPS survey (@falk_global_2018) measured.
 
-+--------------------------+---------------------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| Preference               | Measurement Approach                  | Description                                                                                                 | Scale (min–max) |
-+:=========================+:======================================+:============================================================================================================+:================+
-| Time Preference/Patience | Combined quantitative and qualitative | • Quantitative: Five binary choices between immediate vs. delayed financial rewards (today or in 12 months) | -1.3 – 2.8      |
-|                          |                                       |                                                                                                             |                 |
-|                          |                                       | • Qualitative: Self-assessment on willingness to wait (11-point Likert scale)                               |                 |
-+--------------------------+---------------------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| Risk Preference          | Combined quantitative and qualitative | • Quantitative: Five binary choices between fixed lottery and varying sure payments                         | -1.9 – 2.5      |
-|                          |                                       |                                                                                                             |                 |
-|                          |                                       | • Qualitative: Self-assessment (11-point Likert scale)                                                      |                 |
-+--------------------------+---------------------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| Positive Reciprocity     | Combined quantitative and qualitative | • Quantitative: Scenario about giving a gift to a helpful stranger (choice of presents worth 5-30 euros)    | -3.8 – 1.3      |
-|                          |                                       |                                                                                                             |                 |
-|                          |                                       | • Qualitative: Self-assessment on willingness to return favors (11-point Likert scale)                      |                 |
-+--------------------------+---------------------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| Negative Reciprocity     | Three qualitative self-assessments    | • Willingness to take revenge at personal cost                                                              | -1.6 – 2.3      |
-|                          |                                       |                                                                                                             |                 |
-|                          |                                       | • Willingness to punish unfair behavior toward self                                                         |                 |
-|                          |                                       |                                                                                                             |                 |
-|                          |                                       | • Willingness to punish unfair behavior toward others (prosocial punishment)                                |                 |
-+--------------------------+---------------------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| Altruism                 | Combined quantitative and qualitative | • Quantitative: Hypothetical donation scenario (how much of 1,000 euros would be donated)                   | -2.6 – 1.7      |
-|                          |                                       |                                                                                                             |                 |
-|                          |                                       | • Qualitative: Self-assessment on willingness to give without expecting returns (11-point Likert scale)     |                 |
-+--------------------------+---------------------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
-| Trust                    | Single qualitative item               | • Self-assessment on whether others have the best intentions (11-point Likert scale)                        | -2 – 1.7        |
-+--------------------------+---------------------------------------+-------------------------------------------------------------------------------------------------------------+-----------------+
++--------------------------+---------------------------------------+-------------------------------------------------------------------------------------------------------------+------------------+
+| Preference               | Measurement Approach                  | Description                                                                                                 | Scale (min--max) |
++:=========================+:======================================+:============================================================================================================+:=================+
+| Time Preference/Patience | Combined quantitative and qualitative | • Quantitative: Five binary choices between immediate vs. delayed financial rewards (today or in 12 months) | -1.3 -- 2.8      |
+|                          |                                       |                                                                                                             |                  |
+|                          |                                       | • Qualitative: Self-assessment on willingness to wait (11-point Likert scale)                               |                  |
++--------------------------+---------------------------------------+-------------------------------------------------------------------------------------------------------------+------------------+
+| Risk Preference          | Combined quantitative and qualitative | • Quantitative: Five binary choices between fixed lottery and varying sure payments                         | -1.9 -- 2.5      |
+|                          |                                       |                                                                                                             |                  |
+|                          |                                       | • Qualitative: Self-assessment (11-point Likert scale)                                                      |                  |
++--------------------------+---------------------------------------+-------------------------------------------------------------------------------------------------------------+------------------+
+| Positive Reciprocity     | Combined quantitative and qualitative | • Quantitative: Scenario about giving a gift to a helpful stranger (choice of presents worth 5-30 euros)    | -3.8 -- 1.3      |
+|                          |                                       |                                                                                                             |                  |
+|                          |                                       | • Qualitative: Self-assessment on willingness to return favors (11-point Likert scale)                      |                  |
++--------------------------+---------------------------------------+-------------------------------------------------------------------------------------------------------------+------------------+
+| Negative Reciprocity     | Three qualitative self-assessments    | • Willingness to take revenge at personal cost                                                              | -1.6 -- 2.3      |
+|                          |                                       |                                                                                                             |                  |
+|                          |                                       | • Willingness to punish unfair behavior toward self                                                         |                  |
+|                          |                                       |                                                                                                             |                  |
+|                          |                                       | • Willingness to punish unfair behavior toward others (prosocial punishment)                                |                  |
++--------------------------+---------------------------------------+-------------------------------------------------------------------------------------------------------------+------------------+
+| Altruism                 | Combined quantitative and qualitative | • Quantitative: Hypothetical donation scenario (how much of 1,000 euros would be donated)                   | -2.6 -- 1.7      |
+|                          |                                       |                                                                                                             |                  |
+|                          |                                       | • Qualitative: Self-assessment on willingness to give without expecting returns (11-point Likert scale)     |                  |
++--------------------------+---------------------------------------+-------------------------------------------------------------------------------------------------------------+------------------+
+| Trust                    | Single qualitative item               | • Self-assessment on whether others have the best intentions (11-point Likert scale)                        | -2 -- 1.7        |
++--------------------------+---------------------------------------+-------------------------------------------------------------------------------------------------------------+------------------+
 
-+--------------------------------------+------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------+
-| Value                                | Measurement approach                                                   | Description                                                                                                                                                                                | Scale (min – max)                                                    |
-+======================================+========================================================================+============================================================================================================================================================================================+======================================================================+
-| Liberal democracy index (v2x_libdem) | Aggregation of **55 unique indicators** using Bayesian factor analysis | The indicators come from the Liberal Democracy index and Liberal component index. [Here](https://www.v-dem.net/documents/57/structureofaggregation.pdf) you can find the exact indicators. | **0**(least liberal democratic) **–** **1**(most liberal democratic) |
-+--------------------------------------+------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------+
++--------------------------------------+------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------+
+| Value                                | Measurement approach                                                   | Description                                                                                                                                                                                | Scale (min -- max)                                                    |
++======================================+========================================================================+============================================================================================================================================================================================+=======================================================================+
+| Liberal democracy index (v2x_libdem) | Aggregation of **55 unique indicators** using Bayesian factor analysis | The indicators come from the Liberal Democracy index and Liberal component index. [Here](https://www.v-dem.net/documents/57/structureofaggregation.pdf) you can find the exact indicators. | **0**(least liberal democratic) **--** **1**(most liberal democratic) |
++--------------------------------------+------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------+
 
-Since we have information about age of each individual during the time of interview in the GPS survey, we were able to calculate their birth years. Then we could determine whether they experienced a regime change during their formative years. For this, we had to link the V-Dem dataset with the GPS survey data. Our goal was to separate the treated and control group of individuals based on the change of liberal democracy index from the V-Dem dataset. **The treated group in our analysis consists of individuals, who experienced a regime change before turning 21 years old**. We are still considering a range of 18-21 years, since this range aligns with legal adulthood in many countries. We are planning to test multiple thresholds, to see if our results will be robust across different specifications. **The regime change is determined as a year over year change in the Liberal democracy index**. Here we also had to decide on a **threshold**, which we think is rather arbitrary. That is why we are considering a different approach, to capture linear changes of the index, not just sudden changes over years.
+#####                                                           
 
-Assigning the formative years threshold to 21 years results to the following number of observations in both groups
+::: {#tbl-libdem .tbl-caption}
+**Table 1:** Economic preferences of GPS
+:::
+
+Since we have information about the age of each individual during the time of interview in the GPS survey, we were able to calculate their birth years. Then we could determine whether they experienced a regime change during their formative years, which we define following the literature as the period between 3 and 18 years of age. This definition aligns with the National Library of Medicine, which considers childhood as the stage from 3--11 years and adolescence from 12--18 years [@balasundaram2025]. Research also supports that the formation of economic preferences such as patience and risk-taking during childhood and adolescence has lasting consequences for life outcomes, including educational attainment and financial decision-making [@detlefsen_are_2024].
+
+To implement this classification, we linked the V-Dem dataset with the GPS survey data. Our objective was to separate individuals into treated and control groups based on the **Liberal Democracy Index (v2x_libdem)** from the V-Dem dataset. The treated group consists of individuals who experienced a regime change during their formative years (ages 3--18), while the control group did not. Also we calculated the amount of years spend after regime changes.
+
+Following the methodology proposed by @luhrmann_autocratization_2020, we define regime change as a **substantial and statistically significant change in the Liberal Democracy Index over a 10-year period**. Specifically, we compute the difference between the index value at time **`t`** and time **`t–10`**. A change is considered *substantial* if the absolute value of the change exceeds **0.05**, and *significant* if the confidence intervals at time ***`t`*** and **`t–10`** do not overlap. This procedure captures both sudden and gradual transformations in regime type. 
 
 ```{r}
 #| echo: false
 #| label: tbl-c
+#| tbl-cap: Number of treatment variables
 #| tbl-pos: "H"
 table(final_data$formative_regime_change)
 ```
 
 ## Sample period
 
-Our sample period is defined by the birth years of the indviduals, which we calculated based on the age information in the GPS dataset. Each study unit (=individual) appears once. We have data for 80337 individuals.
+Our sample period is defined by the birth years of the indviduals, which we calculated based on the age information in the GPS dataset. Each study unit (=individual) appears once. We had data for 80337 individuals. After merging and removing NAs it reduced to 75468.
 
 ## Variables
 
@@ -269,7 +182,6 @@ grouped_bar_plot <- ggplot(group_means, aes(x = preference_type, y = mean_value,
 # Print the plot
 print(grouped_bar_plot)
 ```
-
 
 In the @fig-a you can see simple mean comparison graph between Treated and Control group for all 6 economic preferences.For completeness, we include **summary statistics** table for all 6 economic preferences in @tbl-preferences. @tbl-controls depicts the summary statistics for our control variables.
 
@@ -397,7 +309,7 @@ preferences_table
 #| tbl-cap: "Control Variables Comparison by Group"
 #| tbl-pos: "H"
 # Create the table
-controls_vars <- c("age", "gdppc", "subj_math_skills")
+controls_vars <- c("age", "gdppc_2012", "subj_math_skills")
 controls_table <- create_ttest_table(final_data_gdp, controls_vars)
 
 # Render the table
@@ -406,7 +318,7 @@ controls_table
 
 The @fig-b below depict the average values grouped by country in *2012* and *2013*.
 
-```{r mean comparison maps}
+```{r}
 #| echo: false
 #| label: fig-b
 #| warning: false
@@ -423,6 +335,10 @@ country_patience <- final_data_gdp %>%
   summarise(mean_patience = mean(patience, na.rm = TRUE))
 
 # Getting world map data
+#install.packages("rnaturalearth")
+library(sf)
+library(rnaturalearth)
+
 world <- ne_countries(scale = "medium", returnclass = "sf")
 
 # Creating two separate datasets
@@ -445,6 +361,10 @@ p2 <- ggplot(data = world_patience) +
   theme_minimal()
 
 # Combining
+
+#install.packages("gridExtra")
+library(gridExtra)
+
 combined_plot <- grid.arrange(p1, p2, ncol = 1)
 
 ```
@@ -453,7 +373,7 @@ combined_plot <- grid.arrange(p1, p2, ncol = 1)
 
 The following figures present a detailed **visual overview of the descriptive statistics**, including distribution histograms, group-level comparisons, and difference-in-differences style visualizations highlighting trends across cohorts.
 
-```{r histograms}
+```{r}
 #| echo: false
 #| warning: false
 #| fig-pos: "H"
@@ -465,12 +385,7 @@ The following figures present a detailed **visual overview of the descriptive st
 create_histogram <- function(data, var_name, title) {
   ggplot(data, aes(x = !!sym(var_name), fill = formative_regime_change, color = formative_regime_change)) +
     geom_histogram(aes(y = after_stat(density)), alpha = 0.5, position = "identity", bins = 30) +
-    geom_density(alpha = 0.2) +
-    labs(
-      title = title,
-      x = str_to_title(var_name),
-      y = "Density"
-    ) +
+     
     scale_fill_brewer(palette = "Set1", name = "Formative Years") +
     scale_color_brewer(palette = "Set1", name = "Formative Years") +
     theme_minimal()
@@ -481,16 +396,23 @@ trust_hist <- create_histogram(final_data_gdp, "trust", "Distribution of Trust")
 patience_hist <- create_histogram(final_data_gdp, "patience", "Distribution of Patience")
 risk_hist <- create_histogram(final_data_gdp, "risktaking", "Distribution of Risk Taking")
 
-# Combine histograms with a shared legend at the bottom
-histograms_combined <- trust_hist + patience_hist + risk_hist +
-  plot_layout(ncol = 3, guides = "collect") +  # This collects all guides into one legend
+
+
+library(patchwork)
+
+
+# Combine the plots correctly with patchwork
+histograms_combined <- (trust_hist + patience_hist + risk_hist) +
+  plot_layout(ncol = 3, guides = "collect") +
   plot_annotation(
-    subtitle = "By regime change exposure during formative years (<21 years)",
+    title = "Distribution of Key Economic Preferences",
+    subtitle = "By regime change exposure during formative years ",
     theme = theme(plot.title = element_text(size = 16, face = "bold"))
   ) &
-  theme(legend.position = "bottom")  # This places the collected legend at the bottom
+  theme(legend.position = "bottom")
 
-print(histograms_combined)
+# Show the plot
+histograms_combined
 
 ```
 
@@ -533,6 +455,16 @@ patience_by_age <- final_data_gdp %>%
   filter(n >= 10)
 
 #Plot
+
+#| echo: false
+#| warning: false
+#| fig-pos: "H"
+#| label: fig-d
+#| results: 'asis'
+#| fig-cap: "Trust by Age Cohort and Regime Change Experience"
+#| fig-cap-location: top
+# Function to create histograms with density overlays
+
 ggplot(trust_by_age, aes(x = age_group, y = mean_trust, 
                          group = formative_regime_change, 
                          color = formative_regime_change)) +
@@ -551,6 +483,15 @@ ggplot(trust_by_age, aes(x = age_group, y = mean_trust,
         legend.text = element_text(size = 8))
 
 #Plot
+
+#| echo: false
+#| warning: false
+#| fig-pos: "H"
+#| label: fig-e
+#| results: 'asis'
+#| fig-cap: "Patience by Age Cohort and Regime Change Experience"
+#| fig-cap-location: top
+# Function to create histograms with density overlays
 ggplot(patience_by_age, aes(x = age_group, y = mean_patience,
                       group = formative_regime_change,
                       color = formative_regime_change)) +
@@ -587,7 +528,12 @@ ggplot(mixed_plot_data, aes(x = subj_math_skills, y = trust, color = formative_r
        color = "Formative Regime Change")
 ```
 
-### References
+# List of Tables
+
+::: lot
+:::
+
+# *References*
 
 ::: {#refs}
 :::
