@@ -16,9 +16,25 @@ bibliography: references.bib
 link-citations: true
 ---
 
+```{r}
+#| message: false
+#| warning: false
+#| include: false
+#  Load the function from extract_codes.R
+
+source("../Input/extract_codes.R")
+
+#  Use it to extract code from the Rmd into an R script
+extract_r_code_from_rmd("../Input/Data loading + wrangling.Rmd", "../Input/data_wrangle.R")
+
+#  Run the extracted R code
+source("../Input/data_wrangle.R")
+
+```
+
 # Economic model
 
-*Economic model of reference taken from the literature (e.g. if you measure impact of train delay on school grades, then it could be a theory model showing how school performance is a function of many things, and one of them is school behavior – which itself is a function of punctuality)*
+*Economic model of reference taken from the literature (e.g. if you measure impact of train delay on school grades, then it could be a theory model showing how school performance is a function of many things, and one of them is school behavior -- which itself is a function of punctuality)*
 
 As Detlefsen et al. [-@detlefsen_are_2024] points out, the formation of economic preferences in **childhood** and **adolescence** has a long-term consequences for life outcomes. To provide an example, patience can impact one's school performance, which can later translate to education attainment and labor market outcomes. The same way can risk preference impact one's financial decisions [@detlefsen_are_2024].
 
@@ -36,25 +52,70 @@ We followed similar methodology as described in [@luhrmann_autocratization_2020]
 
 -   If regime change in a country at time t is identified, we take a look into the gps dataset and **assign the treatment to individuals, who are between 3-18 years at the time of regime change in their country**.
 
-# Mechanism
+## Mechanism
 
-*What do you think is the story that explains the relationship between your independent and dependent variables? Do you think there is a way to directly test for it? If yes, how do you plan to do it? If no, why?*
+Our core hypothesis is that political regime changes during formative years (ages 3--18) have lasting impacts on non-cognitive preferences. This aligns with psychosocial development theory [@balasundaram_human_2025; @detlefsen_are_2024].
 
-# Source of Bias and Identification
+We cannot test the mechanism directly, but we test its implications through a Difference-in-Differences (DiD) approach:
 
-*Which are the potential biases and limitations of your study, what is the intuition you leverage on to build your identification strategy? If you think there is going to be a bias stemming from the setting or a data characteristic, then in which direction do you think it is?*
+-   Individuals are assigned to treatment if they experienced a regime change during their formative years.
+-   All individuals are surveyed in the same period (2012--2013), minimizing confounding from external shocks.
 
-# Formulas
+This setup controls for country-specific time-invariant factors and period shocks. Our methodology is similar to cohort-based DiD approaches used by [@friehe_time_2020] and [@fuchs-schundeln_endogeneity_2015].
 
-*State as formulas the baseline OLS/LM equation and the chosen further identification strategy specification(s).*
+We additionally test the intensity of treatment by examining whether the number of years spent under the new regime correlates with preference scores.
 
-@callaway_difference--differences_2024 :if we assume regime changes are permanent @de_chaisemartin_two-way_2020 : if we model regime changes also in reverse (treatments turn on and off)
+## Source of Bias and Identification
 
-@borusyak_revisiting_2024 :permanent regime changes
+Our identification strategy leverages a DiD design comparing cohorts within countries based on exposure to regime change during formative years. We estimate the **Average Treatment Effect on the Treated (ATT)**, assuming parallel trends.
 
-# Identified types of effects
+### Potential Biases and Mitigation
 
-*Which type of treatment are your results supposed to identify? Are you identifying a causal relationship? If yes, which are the identification assumptions that should hold?*
+-   **Endogeneity of regime change exposure:**\
+    Exposure is not random, but we exploit birth year variation within countries. Similar to the quasi-experimental setup in [@fuchs-schundeln_endogeneity_2015].
+
+-   **Time-invariant country-level confounding:**\
+    Fixed effects absorb differences in culture, geography, or historical institutions.
+
+-   **Measurement of regime change:**\
+    Defined as statistically significant changes in LDI over a 10-year span, [@luhrmann_autocratization_2020].
+
+-   **Residual selection bias:**\
+    Countries with frequent regime changes may differ systematically (e.g., lower GDP), leading to downward bias in preference measures.
+
+## Formulas
+
+Following [@fuchs-schundeln_endogeneity_2015] and [@friehe_time_2020], we estimate the following model:
+
+$$
+Y_{ict} = \alpha + \beta \cdot \text{FormativeRegimeChange}_{ic} + \gamma_c + \delta_t + X_{ict}'\theta + \varepsilon_{ict}
+$$
+
+Where:
+
+-   ( Y\_{ict} ): Preference outcome (trust, patience, etc.) for individual ( i ), country ( c ), birth cohort ( t )
+-   ( \text{FormativeRegimeChange}\_{ic} ): Treatment indicator (1 if experienced regime change between ages 3--18)
+-   ( \gamma\_c ): Country fixed effects
+-   ( \delta\_t ): Birth cohort fixed effects
+-   ( X\_{ict} ): Controls (e.g., age, GDP per capita, subjective math skills)
+-   ( \beta ): Causal effect of interest
+
+See also: [@callaway_difference--differences_2024], [@borusyak_revisiting_2024], [@de_chaisemartin_two-way_2020] for recent methodological advancements.
+
+## Identified Types of Effects
+
+We use DiD to estimate the **ATT**: the effect of regime change exposure on those who actually experienced it.
+
+### Identification Assumptions
+
+-   **Parallel Trends**:\
+    Absent treatment, treated and control groups would evolve similarly over time.
+
+-   **No Spillovers**:\
+    Regime changes in one country do not affect individuals in another.
+
+-   **Common Shocks**:\
+    Global events impact both groups equally. Year-fixed effects help address this.
 
 # Questions for meeting on 12.3.
 
@@ -62,7 +123,7 @@ We followed similar methodology as described in [@luhrmann_autocratization_2020]
 
 -   Regarding the methodology as described in "Setting": We are capturing democratization/autocratization as a regime change. But maybe not all democratization/autocratization process must necessarily mean the regime has changed? Should we consider another criterion which at the end evaluates if the value of LDI is: above 0.5 -\> liberal democracy, below 0.5 -\> autocracy?
 
--   
+-   How do we calculate the years that have passed since the new regime change? For example, maybe a person changed regimes twice in his formative years? How do we calculate this? Or just we count from the first change?
 
 -   
 
