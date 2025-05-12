@@ -74,9 +74,11 @@ The following table @tbl-gps shows how were the economic preferences from the GP
 Economic preferences from the Global Preference Survey
 :::
 
-| Value | Measurement approach | Description | Scale (min -- max) |
-|----|----|----|----|
++--------------------------------------+------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------+
+| Value                                | Measurement approach                                                   | Description                                                                                                                                                                                | Scale (min -- max)                                                    |
++======================================+========================================================================+============================================================================================================================================================================================+=======================================================================+
 | Liberal democracy index (v2x_libdem) | Aggregation of **55 unique indicators** using Bayesian factor analysis | The indicators come from the Liberal Democracy index and Liberal component index. [Here](https://www.v-dem.net/documents/57/structureofaggregation.pdf) you can find the exact indicators. | **0**(least liberal democratic) **--** **1**(most liberal democratic) |
++--------------------------------------+------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------+
 
 ::: {#tbl-libdem .tbl-Liberal}
 Liberal democracy index information
@@ -318,14 +320,14 @@ controls_table <- create_ttest_table(final_data_gdp, controls_vars)
 controls_table
 ```
 
-The @fig-b below depict the average values grouped by country in *2012* and *2013*.
+The @fig-b and @fig-o below depict the average values grouped by country in *2012* and *2013*.
 
 ```{r}
 #| echo: false
 #| label: fig-b
 #| warning: false
 #| results: 'asis'
-#| fig-cap: "Average Economic Preference Values by Country"
+#| fig-cap: "Average Economic Preference Values by Country: Trust, Patience, Altruism"
 #| fig-cap-location: top
 #| fig-pos: "H"
 country_trust <- final_data_gdp %>%
@@ -335,6 +337,22 @@ country_trust <- final_data_gdp %>%
 country_patience <- final_data_gdp %>%
   group_by(country, isocode) %>%
   summarise(mean_patience = mean(patience, na.rm = TRUE))
+
+country_altruism <- final_data_gdp %>%
+  group_by(country, isocode) %>%
+  summarise(mean_altruism = mean(altruism, na.rm = TRUE))
+
+country_risktaking <- final_data_gdp %>%
+  group_by(country, isocode) %>%
+  summarise(mean_risktaking = mean(risktaking, na.rm = TRUE))
+
+country_posrecip <- final_data_gdp %>%
+  group_by(country, isocode) %>%
+  summarise(mean_posrecip = mean(posrecip, na.rm = TRUE))
+
+country_negrecip <- final_data_gdp %>%
+  group_by(country, isocode) %>%
+  summarise(mean_negrecip = mean(negrecip, na.rm = TRUE))
 
 # Getting world map data
 #install.packages("rnaturalearth")
@@ -346,30 +364,77 @@ world <- ne_countries(scale = "medium", returnclass = "sf")
 # Creating two separate datasets
 world_trust <- left_join(world, country_trust, by = c("name" = "country"))
 world_patience <- left_join(world, country_patience, by = c("name" = "country"))
+world_altruism <- left_join(world, country_altruism, by = c("name" = "country"))
+world_risktaking<- left_join(world, country_risktaking, by = c("name" = "country"))
+world_posrecip <- left_join(world, country_posrecip, by = c("name" = "country"))
+world_negrecip <- left_join(world, country_negrecip, by = c("name" = "country"))
 
 # Creating the plots separately and combining with grid.arrange using longer approach
 # Trust map
 p1 <- ggplot(data = world_trust) +
   geom_sf(aes(fill = mean_trust), color = "white") +
   scale_fill_viridis_c(option = "C", na.value = "grey90") +
-  labs(fill = "Mean Trust") +
+  labs(fill = "Mean trust",
+       title = "Mean Trust values grouped by country") +
   theme_minimal()
 
 # Patience map
 p2 <- ggplot(data = world_patience) +
   geom_sf(aes(fill = mean_patience), color = "white") +
-  scale_fill_viridis_c(option = "B", na.value = "grey90") +
-  labs(fill = "Mean Patience") +
+  scale_fill_viridis_c(option = "C", na.value = "grey90") +
+  labs(fill = "Mean patience",
+       title = "Mean Patience values grouped by country") +
   theme_minimal()
 
+# Altruism map
+p3 <- ggplot(data = world_altruism) +
+  geom_sf(aes(fill = mean_altruism), color = "white") +
+  scale_fill_viridis_c(option = "C", na.value = "grey90") +
+  labs(fill = "Mean altruism",
+       title = "Mean Altruism values grouped by country") +
+  theme_minimal()
+
+# Risktaking map
+p4 <- ggplot(data = world_risktaking) +
+  geom_sf(aes(fill = mean_risktaking), color = "white") +
+  scale_fill_viridis_c(option = "C", na.value = "grey90") +
+  labs(fill = "Mean risktaking",
+       title = "Mean Risk taking values grouped by country") +
+  theme_minimal()
+
+# Posrecip map
+p5 <- ggplot(data = world_posrecip) +
+  geom_sf(aes(fill = mean_posrecip), color = "white") +
+  scale_fill_viridis_c(option = "C", na.value = "grey90") +
+  labs(fill = "Mean posrecip",
+       title = "Mean Positive Reciprocity values grouped by country") +
+  theme_minimal()
+
+# Negrecip map
+p6 <- ggplot(data = world_negrecip) +
+  geom_sf(aes(fill = mean_negrecip), color = "white") +
+  scale_fill_viridis_c(option = "C", na.value = "grey90") +
+  labs(fill = "Mean negrecip",
+       title = "Mean Negative Reciprocity values grouped by country") +
+  theme_minimal()
 # Combining
 
 #install.packages("gridExtra")
 library(gridExtra)
 
-combined_plot <- grid.arrange(p1, p2, ncol = 1)
-
+combined_plot <- grid.arrange(p1, p2, p3, ncol = 1)
 ```
+```{r}
+#| echo: false
+#| label: fig-o
+#| warning: false
+#| results: 'asis'
+#| fig-cap: "Average Economic Preference Values by Country: Risk, Negative and Positive reciprocity"
+#| fig-cap-location: top
+#| fig-pos: "H"
+combined_plot2 <- grid.arrange(p4, p5, p6, ncol = 1)
+```
+
 
 # **Descriptive statistics**
 

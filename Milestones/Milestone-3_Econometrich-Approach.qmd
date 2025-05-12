@@ -32,7 +32,7 @@ Treatment definition was one of our main tasks until now. Our goal was to captur
 
 We followed similar methodology as described in [@luhrmann_autocratization_2020], which is based on the evaluating differences of the LDI at time ***t*** and time ***t-10.*** Afterwards, following steps are executed:
 
--   Computation of standard errors and **confidence intervals** of the respective changes.If the confidence intervals **don't overlap**, the change in LDI is recognized as significant and identified as regime change.
+-   Computation of standard errors and **confidence intervals** of the respective changes.If the **confidence intervals don't overlap** andthe **absolute value of the change in LDI is higher than 0.05**, the change in LDI is recognized as significant and identified as regime change.
 
 -   If regime change in a country at time t is identified, we take a look into the gps dataset and **assign the treatment to individuals, who are between 3-18 years at the time of regime change in their country**.
 
@@ -47,6 +47,10 @@ We followed similar methodology as described in [@luhrmann_autocratization_2020]
 # Formulas
 
 *State as formulas the baseline OLS/LM equation and the chosen further identification strategy specification(s).*
+
+@callaway_difference--differences_2024 :if we assume regime changes are permanent @de_chaisemartin_two-way_2020 : if we model regime changes also in reverse (treatments turn on and off)
+
+@borusyak_revisiting_2024 :permanent regime changes
 
 # Identified types of effects
 
