@@ -28,6 +28,14 @@ According to the National Library of Medicine, childhood is defined as a stage f
 
 *How many treated and non-treated units you observe in which part of the sample period and how treatment is defined. Which is your endogenous variable and which the main outcomes?*
 
+Treatment definition was one of our main tasks until now. Our goal was to capture both **sudden** and **gradual regime changes** and direction of change (democratization/autocratization) according to changes in **LDI** (Liberal Democracy Index).
+
+We followed similar methodology as described in [@luhrmann_autocratization_2020], which is based on the evaluating differences of the LDI at time ***t*** and time ***t-10.*** Afterwards, following steps are executed:
+
+-   Computation of standard errors and **confidence intervals** of the respective changes.If the confidence intervals **don't overlap**, the change in LDI is recognized as significant and identified as regime change.
+
+-   If regime change in a country at time t is identified, we take a look into the gps dataset and **assign the treatment to individuals, who are between 3-18 years at the time of regime change in their country**.
+
 # Mechanism
 
 *What do you think is the story that explains the relationship between your independent and dependent variables? Do you think there is a way to directly test for it? If yes, how do you plan to do it? If no, why?*
@@ -43,5 +51,15 @@ According to the National Library of Medicine, childhood is defined as a stage f
 # Identified types of effects
 
 *Which type of treatment are your results supposed to identify? Are you identifying a causal relationship? If yes, which are the identification assumptions that should hold?*
+
+# Questions for meeting on 12.3.
+
+-   After running the basic regression -\> effect of formative_regime_change significant but low R2
+
+-   Regarding the methodology as described in "Setting": We are capturing democratization/autocratization as a regime change. But maybe not all democratization/autocratization process must necessarily mean the regime has changed? Should we consider another criterion which at the end evaluates if the value of LDI is: above 0.5 -\> liberal democracy, below 0.5 -\> autocracy?
+
+-   
+
+-   
 
 # References

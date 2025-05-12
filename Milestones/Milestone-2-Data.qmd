@@ -4,18 +4,18 @@ subtitle: "Milestone 2: Data"
 author: "Andrea Češková and Elvin Mammadov"
 crossref:
   fig-title: "Figure"
-  lot-title: "List of figures"
+  tbl-title: "Table"
 bibliography: references.bib
 format: 
   pdf:
     reference-location: document
+link-citations: true
 ---
 
 ```{r}
-#| warning: false
-#| echo: false
 #| message: false
-#| include: true
+#| warning: false
+#| include: false
 #  Load the function from extract_codes.R
 source("../Input/extract_codes.R")
 
@@ -40,7 +40,7 @@ In our project, we are making use of 3 datasets:
 
 # Data
 
-The following table shows how were the economic preferences from the GPS survey (@falk_global_2018) measured.
+The following table @tbl-gps shows how were the economic preferences from the GPS survey (@falk_global_2018) measured. The table @tbl-libdem shows how the LDI was calculated.
 
 +--------------------------+---------------------------------------+-------------------------------------------------------------------------------------------------------------+------------------+
 | Preference               | Measurement Approach                  | Description                                                                                                 | Scale (min--max) |
@@ -70,23 +70,29 @@ The following table shows how were the economic preferences from the GPS survey 
 | Trust                    | Single qualitative item               | • Self-assessment on whether others have the best intentions (11-point Likert scale)                        | -2 -- 1.7        |
 +--------------------------+---------------------------------------+-------------------------------------------------------------------------------------------------------------+------------------+
 
-+--------------------------------------+------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------+
-| Value                                | Measurement approach                                                   | Description                                                                                                                                                                                | Scale (min -- max)                                                    |
-+======================================+========================================================================+============================================================================================================================================================================================+=======================================================================+
-| Liberal democracy index (v2x_libdem) | Aggregation of **55 unique indicators** using Bayesian factor analysis | The indicators come from the Liberal Democracy index and Liberal component index. [Here](https://www.v-dem.net/documents/57/structureofaggregation.pdf) you can find the exact indicators. | **0**(least liberal democratic) **--** **1**(most liberal democratic) |
-+--------------------------------------+------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------+
-
-#####                                                           
-
-::: {#tbl-libdem .tbl-caption}
-**Table 1:** Economic preferences of GPS
+::: {#tbl-gps .tbl-Economic}
+Economic preferences from the Global Preference Survey
 :::
 
-Since we have information about the age of each individual during the time of interview in the GPS survey, we were able to calculate their birth years. Then we could determine whether they experienced a regime change during their formative years, which we define following the literature as the period between 3 and 18 years of age. This definition aligns with the National Library of Medicine, which considers childhood as the stage from 3--11 years and adolescence from 12--18 years [@balasundaram2025]. Research also supports that the formation of economic preferences such as patience and risk-taking during childhood and adolescence has lasting consequences for life outcomes, including educational attainment and financial decision-making [@detlefsen_are_2024].
+| Value | Measurement approach | Description | Scale (min -- max) |
+|----|----|----|----|
+| Liberal democracy index (v2x_libdem) | Aggregation of **55 unique indicators** using Bayesian factor analysis | The indicators come from the Liberal Democracy index and Liberal component index. [Here](https://www.v-dem.net/documents/57/structureofaggregation.pdf) you can find the exact indicators. | **0**(least liberal democratic) **--** **1**(most liberal democratic) |
+
+::: {#tbl-libdem .tbl-Liberal}
+Liberal democracy index information
+:::
+
+## Sample period
+
+Our sample period is defined by the birth years of the indviduals, which we calculated based on the age information in the GPS dataset. Each study unit (=individual) appears once. We had data for 80337 individuals. After merging and removing NAs it reduced to 75468.
+
+## Treatment calculation
+
+Since we have information about the age of each individual during the time of interview in the GPS survey, we were able to calculate their birth years. Then we could determine whether they experienced a regime change during their formative years, which we define following the literature as the period between 3 and 18 years of age. This definition aligns with the National Library of Medicine, which considers childhood as the stage from 3--11 years and adolescence from 12--18 years [@balasundaram_human_2025]. Research also supports that the formation of economic preferences such as patience and risk-taking during childhood and adolescence has lasting consequences for life outcomes, including educational attainment and financial decision-making [@detlefsen_are_2024].
 
 To implement this classification, we linked the V-Dem dataset with the GPS survey data. Our objective was to separate individuals into treated and control groups based on the **Liberal Democracy Index (v2x_libdem)** from the V-Dem dataset. The treated group consists of individuals who experienced a regime change during their formative years (ages 3--18), while the control group did not. Also we calculated the amount of years spend after regime changes.
 
-Following the methodology proposed by @luhrmann_autocratization_2020, we define regime change as a **substantial and statistically significant change in the Liberal Democracy Index over a 10-year period**. Specifically, we compute the difference between the index value at time **`t`** and time **`t–10`**. A change is considered *substantial* if the absolute value of the change exceeds **0.05**, and *significant* if the confidence intervals at time ***`t`*** and **`t–10`** do not overlap. This procedure captures both sudden and gradual transformations in regime type. 
+Following the methodology proposed by @luhrmann_autocratization_2020, we define regime change as a **substantial and statistically significant change in the Liberal Democracy Index over a 10-year period**. Specifically, we compute the difference between the index value at time **`t`** and time **`t–10`**. A change is considered *substantial* if the absolute value of the change exceeds **0.05**, and *significant* if the confidence intervals at time ***`t`*** and **`t–10`** do not overlap. This procedure captures both sudden and gradual transformations in regime type. After that, we gain following number of observations in each group, as shows in table @tbl-c.
 
 ```{r}
 #| echo: false
@@ -95,10 +101,6 @@ Following the methodology proposed by @luhrmann_autocratization_2020, we define 
 #| tbl-pos: "H"
 table(final_data$formative_regime_change)
 ```
-
-## Sample period
-
-Our sample period is defined by the birth years of the indviduals, which we calculated based on the age information in the GPS dataset. Each study unit (=individual) appears once. We had data for 80337 individuals. After merging and removing NAs it reduced to 75468.
 
 ## Variables
 
@@ -273,7 +275,7 @@ create_ttest_table <- function(data, vars) {
       booktabs = TRUE,
       col.names = c("", "Control Group", "Treatment Group", "Difference"),
       align = c("l", "c", "c", "c"),
-      escape = FALSE) %>%
+      escape = TRUE) %>%
     kable_styling() %>%
     add_header_above(c(" " = 1, "Mean (SD)" = 3)) %>%
     column_spec(1, width = "2.5cm") %>%
@@ -282,7 +284,7 @@ create_ttest_table <- function(data, vars) {
              symbol = c("*** p<0.001, ** p<0.01, * p<0.05, + p<0.1"),
              threeparttable = TRUE,
              general_title = "Note:",
-             escape = FALSE)
+             escape = TRUE)
 }
 ```
 
@@ -405,7 +407,6 @@ library(patchwork)
 histograms_combined <- (trust_hist + patience_hist + risk_hist) +
   plot_layout(ncol = 3, guides = "collect") +
   plot_annotation(
-    title = "Distribution of Key Economic Preferences",
     subtitle = "By regime change exposure during formative years ",
     theme = theme(plot.title = element_text(size = 16, face = "bold"))
   ) &
@@ -416,46 +417,93 @@ histograms_combined
 
 ```
 
-The following figures present additional visualizations of our data. In the following two graphs we are aiming to evaluate the **parallel trends assumption**.
-
-The patience graph shows largely parallel trends for middle-aged groups (30-65), supporting the DiD assumption for these cohorts. A notable divergence appears in older ages (65+), where the no-regime-change group shows sharp decline while the regime-change group remains stable, suggesting potential long-term protective effects of early regime exposure on patience.
-
-The trust graph reveals consistently higher trust levels among those without regime change experience across most age groups.The significant trust gap in youngest cohorts (15-25) provides some evidence supporting the hypothesis that experiencing regime changes during formative years negatively impacts trust development. Interestingly, this gap narrows and even reverses in the oldest cohorts (65+), suggesting possible delayed resilience effects.
+The following figures present additional visualizations of our data. In the following graphs @fig-d, @fig-e, @fig-f, @fig-g, @fig-h, @fig-i we are aiming to examine the **parallel trends assumption** between treated and control groups in all 6 economic preferences.
 
 ```{r}
-#| echo: false
 #| warning: false
-#| fig-pos: "H"
+#| fig-pos: H
+#| include: false
+
 #Creating age groups for visualization
 final_data_gdp <- final_data_gdp %>%
   mutate(
     age_group = cut(age, breaks = seq(15, 75, by = 5), include.lowest = TRUE)
   )
+analyze_by_age_regime <- function(data, variable_name, min_group_size = 10, 
+                                 label_format = "%.2f", 
+                                 label_offset = 0.05,
+                                 # New parameters for label positioning
+                                 first_level_label_position = "above",  # Options: "above" or "below"
+                                 colors = c("#1F77B4", "#D62728"),            # Colors for the two groups
+                                 group_labels = c("No", "Yes")) {      # Labels for the legend
+  
+  # Analysis part
+  result_data <- data %>%
+    filter(!is.na(get(variable_name)), !is.na(formative_regime_change), !is.na(age_group)) %>%
+    group_by(age_group, formative_regime_change) %>%
+    summarize(
+      mean_value = mean(get(variable_name), na.rm = TRUE),
+      se_value = sd(get(variable_name), na.rm = TRUE) / sqrt(n()),
+      n = n(),
+      .groups = 'drop'
+    ) %>%
+    filter(n >= min_group_size)  # only including groups with sufficient observations
+  
+  # Format the labels for display
+  result_data$label <- sprintf(label_format, result_data$mean_value)
+  
+  # Convert formative_regime_change to factor to ensure it's treated as discrete
+  result_data$formative_regime_change <- as.factor(result_data$formative_regime_change)
+  
+  # Determine positioning based on the function parameter
+  if (first_level_label_position == "above") {
+    # First level (1) gets labels above, second level (2) gets labels below
+    result_data <- result_data %>%
+      mutate(
+        label_position = ifelse(as.integer(formative_regime_change) == 1, 
+                               mean_value + label_offset + se_value*0.5,  # Above for first level
+                               mean_value - label_offset - se_value*0.5), # Below for second level
+        vjust_value = ifelse(as.integer(formative_regime_change) == 1, 0, 1)
+      )
+  } else {
+    # First level (1) gets labels below, second level (2) gets labels above
+    result_data <- result_data %>%
+      mutate(
+        label_position = ifelse(as.integer(formative_regime_change) == 1, 
+                               mean_value - label_offset - se_value*0.5,  # Below for first level
+                               mean_value + label_offset + se_value*0.5), # Above for second level
+        vjust_value = ifelse(as.integer(formative_regime_change) == 1, 1, 0)
+      )
+  }
+  
+  # Visualization part
+  plot <- ggplot(result_data, aes(x = age_group, y = mean_value,
+                                 group = formative_regime_change,
+                                 color = formative_regime_change)) +
+    geom_line(linewidth = 1) +
+    geom_point(size = 3) +
+    geom_errorbar(aes(ymin = mean_value - 1.96*se_value,
+                      ymax = mean_value + 1.96*se_value),
+                 width = 0.2) +
+    # Add labels with custom positioning
+    geom_text(aes(label = label, y = label_position, vjust = vjust_value), 
+              size = 3, show.legend = FALSE) +
+    labs(x = "Age Group",
+         y = paste("Mean", variable_name),
+         color = "Regime Change Experience") +
+    # Manually set the color scale with appropriate labels
+    scale_color_manual(values = colors, labels = group_labels) +
+    theme_minimal() +
+    theme(legend.position = "bottom",
+          axis.text.x = element_text(angle = 45, hjust = 1),
+          legend.text = element_text(size = 8))
+  
+  # Return both the data and the plot
+  return(list(data = result_data, plot = plot))
+}
+```
 
-trust_by_age <- final_data_gdp %>%
-  filter(!is.na(trust), !is.na(formative_regime_change), !is.na(age_group)) %>%
-  group_by(age_group, formative_regime_change) %>%
-  summarize(
-    mean_trust = mean(trust, na.rm = TRUE),
-    se_trust = sd(trust, na.rm = TRUE) / sqrt(n()),
-    n = n(),
-    .groups = 'drop'
-  ) %>%
-  filter(n >= 10)  # Only including groups with sufficient observations
-
-patience_by_age <- final_data_gdp %>%
-  filter(!is.na(patience), !is.na(formative_regime_change), !is.na(age_group)) %>%
-  group_by(age_group, formative_regime_change) %>%
-  summarize(
-    mean_patience = mean(patience),
-    se_patience = sd(patience) / sqrt(n()),
-    n = n(),
-    .groups = 'drop'
-  ) %>%
-  filter(n >= 10)
-
-#Plot
-
+```{r}
 #| echo: false
 #| warning: false
 #| fig-pos: "H"
@@ -463,27 +511,13 @@ patience_by_age <- final_data_gdp %>%
 #| results: 'asis'
 #| fig-cap: "Trust by Age Cohort and Regime Change Experience"
 #| fig-cap-location: top
-# Function to create histograms with density overlays
 
-ggplot(trust_by_age, aes(x = age_group, y = mean_trust, 
-                         group = formative_regime_change, 
-                         color = formative_regime_change)) +
-  geom_line(linewidth = 1) +
-  geom_point(size = 3) +
-  geom_errorbar(aes(ymin = mean_trust - 1.96*se_trust, 
-                    ymax = mean_trust + 1.96*se_trust), 
-                width = 0.2) +
-  labs(title = "Trust by Age Cohort and Regime Change Experience",
-       x = "Age Group",
-       y = "Mean Trust",
-       color = "Regime Change Experience") +
-  theme_minimal() +
-  theme(legend.position = "bottom", 
-        axis.text.x = element_text(angle = 45, hjust = 1),
-        legend.text = element_text(size = 8))
+trust_results <- analyze_by_age_regime(final_data_gdp, "trust", first_level_label_position = "above")
 
-#Plot
+trust_results$plot 
+```
 
+```{r}
 #| echo: false
 #| warning: false
 #| fig-pos: "H"
@@ -491,28 +525,66 @@ ggplot(trust_by_age, aes(x = age_group, y = mean_trust,
 #| results: 'asis'
 #| fig-cap: "Patience by Age Cohort and Regime Change Experience"
 #| fig-cap-location: top
-# Function to create histograms with density overlays
-ggplot(patience_by_age, aes(x = age_group, y = mean_patience,
-                      group = formative_regime_change,
-                      color = formative_regime_change)) +
-  geom_line(linewidth = 1, na.rm = TRUE) +
-  geom_point(size = 3, na.rm = TRUE) +
-  geom_errorbar(aes(ymin = mean_patience - 1.96*se_patience,
-                    ymax = mean_patience + 1.96*se_patience),
-                width = 0.2, na.rm = TRUE) +
-  labs(title = "Patience by Age Cohort and Regime Change Experience",
-       x = "Age group",
-       y = "Mean Patience",
-       color = "Regime Change Experience") +
-  theme_minimal() +
-  theme(legend.position = "bottom",
-        axis.text.x = element_text(angle = 45, hjust = 1),
-        legend.text = element_text(size = 8))
+patience_results <- analyze_by_age_regime(final_data_gdp, "patience")
 
+patience_results$plot 
 ```
 
 ```{r}
 #| echo: false
+#| warning: false
+#| fig-pos: "H"
+#| label: fig-f
+#| results: 'asis'
+#| fig-cap: "Risk Taking by Age Cohort and Regime Change Experience"
+#| fig-cap-location: top
+risktaking_results <- analyze_by_age_regime(final_data_gdp, "risktaking")
+
+risktaking_results$plot 
+```
+
+```{r}
+#| echo: false
+#| warning: false
+#| fig-pos: "H"
+#| label: fig-g
+#| results: 'asis'
+#| fig-cap: "Altruism by Age Cohort and Regime Change Experience"
+#| fig-cap-location: top
+altruism_results <- analyze_by_age_regime(final_data_gdp, "altruism")
+
+altruism_results$plot 
+```
+
+```{r}
+#| echo: false
+#| warning: false
+#| fig-pos: "H"
+#| label: fig-h
+#| results: 'asis'
+#| fig-cap: "Negative Reciprocity by Age Cohort and Regime Change Experience"
+#| fig-cap-location: top
+negrecip_results <- analyze_by_age_regime(final_data_gdp, "negrecip")
+
+negrecip_results$plot 
+```
+
+```{r}
+#| echo: false
+#| warning: false
+#| fig-pos: "H"
+#| label: fig-i
+#| results: 'asis'
+#| fig-cap: "Positive Reciprocity by Age Cohort and Regime Change Experience"
+#| fig-cap-location: top
+posrecip_results <- analyze_by_age_regime(final_data_gdp, "posrecip")
+
+posrecip_results$plot 
+```
+
+```{r}
+#| eval: false
+#| include: false
 democracy_2012 <- vdem_sub %>%
   filter(year == 2012) %>%
   select(country_name,country_text_id, v2x_libdem)
@@ -528,12 +600,7 @@ ggplot(mixed_plot_data, aes(x = subj_math_skills, y = trust, color = formative_r
        color = "Formative Regime Change")
 ```
 
-# List of Tables
-
-::: lot
-:::
-
-# *References*
+# References
 
 ::: {#refs}
 :::
