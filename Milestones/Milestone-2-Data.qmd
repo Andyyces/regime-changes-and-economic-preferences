@@ -423,8 +423,9 @@ p6 <- ggplot(data = world_negrecip) +
 
 #install.packages("gridExtra")
 library(gridExtra)
+library(patchwork)
+combined_plot <- p1 / p2 / p3 
 
-combined_plot <- grid.arrange(p1, p2, p3, ncol = 1)
 ```
 ```{r}
 #| echo: false
