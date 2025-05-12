@@ -52,7 +52,7 @@ We followed similar methodology as described in [@luhrmann_autocratization_2020]
 
 -   If regime change in a country at time t is identified, we take a look into the gps dataset and **assign the treatment to individuals, who are between 3-18 years at the time of regime change in their country**.
 
-## Mechanism
+# Mechanism
 
 Our core hypothesis is that political regime changes during formative years (ages 3--18) have lasting impacts on non-cognitive preferences. This aligns with psychosocial development theory [@balasundaram_human_2025; @detlefsen_are_2024].
 
@@ -65,7 +65,7 @@ This setup controls for country-specific time-invariant factors and period shock
 
 We additionally test the intensity of treatment by examining whether the number of years spent under the new regime correlates with preference scores.
 
-## Source of Bias and Identification
+# Source of Bias and Identification
 
 Our identification strategy leverages a DiD design comparing cohorts within countries based on exposure to regime change during formative years. We estimate the **Average Treatment Effect on the Treated (ATT)**, assuming parallel trends.
 
@@ -83,7 +83,7 @@ Our identification strategy leverages a DiD design comparing cohorts within coun
 -   **Residual selection bias:**\
     Countries with frequent regime changes may differ systematically (e.g., lower GDP), leading to downward bias in preference measures.
 
-## Formulas
+# Formulas
 
 Following [@fuchs-schundeln_endogeneity_2015] and [@friehe_time_2020], we estimate the following model:
 
@@ -102,7 +102,7 @@ Where:
 
 See also: [@callaway_difference--differences_2024], [@borusyak_revisiting_2024], [@de_chaisemartin_two-way_2020] for recent methodological advancements.
 
-## Identified Types of Effects
+# Identified Types of Effects
 
 We use DiD to estimate the **ATT**: the effect of regime change exposure on those who actually experienced it.
 
