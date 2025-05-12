@@ -34,21 +34,17 @@ source("../Input/data_wrangle.R")
 
 # Economic model
 
-*Economic model of reference taken from the literature (e.g. if you measure impact of train delay on school grades, then it could be a theory model showing how school performance is a function of many things, and one of them is school behavior -- which itself is a function of punctuality)*
-
 As Detlefsen et al. [-@detlefsen_are_2024] points out, the formation of economic preferences in **childhood** and **adolescence** has a long-term consequences for life outcomes. To provide an example, patience can impact one's school performance, which can later translate to education attainment and labor market outcomes. The same way can risk preference impact one's financial decisions [@detlefsen_are_2024].
 
 According to the National Library of Medicine, childhood is defined as a stage from **3-11 years** and adolescence as a stage from **12-18 years**[@balasundaram2025]. But what factors can have an impact on economic preferences?
 
 # Setting
 
-*How many treated and non-treated units you observe in which part of the sample period and how treatment is defined. Which is your endogenous variable and which the main outcomes?*
-
 Treatment definition was one of our main tasks until now. Our goal was to capture both **sudden** and **gradual regime changes** and direction of change (democratization/autocratization) according to changes in **LDI** (Liberal Democracy Index).
 
 We followed similar methodology as described in [@luhrmann_autocratization_2020], which is based on the evaluating differences of the LDI at time ***t*** and time ***t-10.*** Afterwards, following steps are executed:
 
--   Computation of standard errors and **confidence intervals** of the respective changes.If the **confidence intervals don't overlap** andthe **absolute value of the change in LDI is higher than 0.05**, the change in LDI is recognized as significant and identified as regime change.
+-   Computation of standard errors and **confidence intervals** of the respective changes.If the **confidence intervals don't overlap** and the **absolute value of the change in LDI is higher than 0.05**, the change in LDI is recognized as significant and identified as regime change.
 
 -   If regime change in a country at time t is identified, we take a look into the gps dataset and **assign the treatment to individuals, who are between 3-18 years at the time of regime change in their country**.
 
@@ -64,6 +60,8 @@ We cannot test the mechanism directly, but we test its implications through a Di
 This setup controls for country-specific time-invariant factors and period shocks. Our methodology is similar to cohort-based DiD approaches used by [@friehe_time_2020] and [@fuchs-schundeln_endogeneity_2015].
 
 We additionally test the intensity of treatment by examining whether the number of years spent under the new regime correlates with preference scores.
+
+Possible estimators: [@callaway_difference-differences_2024], [@borusyak_revisiting_2024], [@de_chaisemartin_two-way_2020]. In our current setting, the treatment assignment happens just once.
 
 # Source of Bias and Identification
 
@@ -83,7 +81,11 @@ Our identification strategy leverages a DiD design comparing cohorts within coun
 -   **Residual selection bias:**\
     Countries with frequent regime changes may differ systematically (e.g., lower GDP), leading to downward bias in preference measures.
 
-# Formulas
+    <div>
+
+    # Formulas
+
+    </div>
 
 Following [@fuchs-schundeln_endogeneity_2015] and [@friehe_time_2020], we estimate the following model:
 
@@ -93,14 +95,12 @@ $$
 
 Where:
 
--   ( Y\_{ict} ): Preference outcome (trust, patience, etc.) for individual ( i ), country ( c ), birth cohort ( t )
--   ( \text{FormativeRegimeChange}\_{ic} ): Treatment indicator (1 if experienced regime change between ages 3--18)
--   ( \gamma\_c ): Country fixed effects
--   ( \delta\_t ): Birth cohort fixed effects
--   ( X\_{ict} ): Controls (e.g., age, GDP per capita, subjective math skills)
--   ( \beta ): Causal effect of interest
-
-See also: [@callaway_difference--differences_2024], [@borusyak_revisiting_2024], [@de_chaisemartin_two-way_2020] for recent methodological advancements.
+-   ( $Y\_{ict}$ ): Preference outcome (trust, patience, etc.) for individual ( i ), country ( c ), birth cohort ( t )
+-   ( $\text{FormativeRegimeChange}\_{ic}$ ): Treatment indicator (1 if experienced regime change between ages 3--18)
+-   ( $\gamma\_c$ ): Country fixed effects
+-   ( $\delta\_t$ ): Birth cohort fixed effects
+-   ( $X\_{ict}$ ): Controls (e.g., age, GDP per capita, subjective math skills)
+-   ( $\beta$ ): Causal effect of interest
 
 # Identified Types of Effects
 
@@ -123,8 +123,10 @@ We use DiD to estimate the **ATT**: the effect of regime change exposure on thos
 
 -   Regarding the methodology as described in "Setting": We are capturing democratization/autocratization as a regime change. But maybe not all democratization/autocratization process must necessarily mean the regime has changed? Should we consider another criterion which at the end evaluates if the value of LDI is: above 0.5 -\> liberal democracy, below 0.5 -\> autocracy?
 
+-   Treatment assignment: With the current approach, there is a lot of observations who, according to our function, experience regime change at age 0. It is because the function evaluates just the first democratization/autocratization occurence. But I keep thinking there could be more such episodes? Should we aim to capture also other episodes OR change the confidence intervals threshold? This problem also connects to the next question:
+
 -   How do we calculate the years that have passed since the new regime change? For example, maybe a person changed regimes twice in his formative years? How do we calculate this? Or just we count from the first change?
 
--   
+-   Adding interaction term $TimeToTreatment_{c,t,k}$ as an indicator for being $k$ **periods away from the treatment** (regime change) in country $c$ at time $t$?
 
 # References
