@@ -330,6 +330,8 @@ The @fig-b and @fig-o below depict the average values grouped by country in *201
 #| fig-cap: "Average Economic Preference Values by Country: Trust, Patience, Altruism"
 #| fig-cap-location: top
 #| fig-pos: "H"
+
+
 country_trust <- final_data_gdp %>%
   group_by(country, isocode) %>%
   summarise(mean_trust = mean(trust, na.rm = TRUE))
@@ -432,6 +434,7 @@ combined_plot <- grid.arrange(p1, p2, p3, ncol = 1)
 #| fig-cap: "Average Economic Preference Values by Country: Risk, Negative and Positive reciprocity"
 #| fig-cap-location: top
 #| fig-pos: "H"
+
 combined_plot2 <- grid.arrange(p4, p5, p6, ncol = 1)
 ```
 
@@ -448,6 +451,7 @@ The following figures present a detailed **visual overview of the descriptive st
 #| results: 'asis'
 #| fig-cap: "Distribution of Key Economic Preferences"
 #| fig-cap-location: top
+#| 
 # Function to create histograms with density overlays
 create_histogram <- function(data, var_name, title) {
   ggplot(data, aes(x = !!sym(var_name), fill = formative_regime_change, color = formative_regime_change)) +
