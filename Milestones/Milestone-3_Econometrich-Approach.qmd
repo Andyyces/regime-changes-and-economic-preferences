@@ -30,6 +30,8 @@ extract_r_code_from_rmd("../Input/Data loading + wrangling.Rmd", "../Input/data_
 #  Run the extracted R code
 source("../Input/data_wrangle.R")
 
+write_dta(final_data_gdp, path = "../Input/final_data_gdp.dta")
+
 ```
 
 # Economic model
