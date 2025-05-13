@@ -129,4 +129,15 @@ We use DiD to estimate the **ATT**: the effect of regime change exposure on thos
 
 -   Adding interaction term $TimeToTreatment_{c,t,k}$ as an indicator for being $k$ **periods away from the treatment** (regime change) in country $c$ at time $t$?
 
+average democratization between 16-25 -\> treatment just when its sudden germany how much change in vdem in 1990? capture sudden changes rather than trends average vdem score the individual experience in formative years -\> maybe more feasible democratization/autocratization dummy as a treatment regress econ preferences on average vdem scores experienced in youth average GDP between birthy-year and year adult -\> as control age effects and cohort effects -\> use just one we can use both pseudo panel -\> event study -\> rather go with cross sections -\> vdem index in formative years influences preferences country conditial independence assumption -\> still can be causal
+
+math skills can also be an outcome
+
+change just to regime_change
+
+simple OLS just cross section -\> if we trust conditional independence assumption -\> how to make use of different cohorts in the dataset -\> instrument?
+
+focus on average vdem index in formative years
+staggered DiD: years relative to treatment
+
 # References
