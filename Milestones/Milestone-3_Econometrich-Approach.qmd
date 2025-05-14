@@ -50,6 +50,231 @@ We followed similar methodology as described in [@luhrmann_autocratization_2020]
 
 -   If regime change in a country at time t is identified, we take a look into the gps dataset and **assign the treatment to individuals, who are between 3-18 years at the time of regime change in their country**.
 
+```{r}
+#| echo: false
+#| label: tbl-c
+#| tbl-cap: Number of treatment variables
+#| tbl-pos: "H"
+table(final_data$formative_regime_change)
+```
+
+```{r}
+#| echo: false
+#| label: fig-a
+#| warning: false
+#| results: 'asis'
+#| fig-cap: "Mean Preference Profiles by Regime Change Exposure"
+#| fig-cap-location: top
+#| fig-pos: "H"
+p_load(dplyr,
+       kableExtra)
+long_data <- final_data_gdp %>%
+  pivot_longer(
+    cols = c(trust, patience, risktaking, posrecip, negrecip, altruism),
+    names_to = "preference_type",
+    values_to = "value"
+  ) %>%
+  mutate(preference_type = str_to_title(preference_type))
+
+# Change the formative_regime_change factor levels and labels
+long_data <- long_data %>%
+  mutate(formative_regime_change = case_when(
+    formative_regime_change == 0 ~ "Control",
+    formative_regime_change == 1 ~ "Treated",
+    TRUE ~ as.character(formative_regime_change)
+  ))
+
+# Calculating group means and confidence intervals
+group_means <- long_data %>%
+  group_by(formative_regime_change, preference_type) %>%
+  summarise(
+    mean_value = mean(value, na.rm = TRUE),
+    se = sd(value, na.rm = TRUE) / sqrt(n()),
+    ci_lower = mean_value - 1.96 * se,
+    ci_upper = mean_value + 1.96 * se,
+    .groups = "drop"
+  )
+
+# Order factors to make Treated come FIRST so it gets the first color (red in Set1)
+group_means$formative_regime_change <- factor(
+  group_means$formative_regime_change,
+  levels = c("Treated", "Control")
+)
+
+# Ordering from smallest to highest differences between groups
+differences <- group_means %>%
+  select(preference_type, formative_regime_change, mean_value) %>%
+  pivot_wider(names_from = formative_regime_change, values_from = mean_value) %>%
+  mutate(difference = abs(Treated - Control)) %>%
+  arrange(difference) %>%
+  select(preference_type, difference)
+
+# Create ordered factor for preference_type based on differences
+group_means$preference_type <- factor(group_means$preference_type, 
+                                      levels = differences$preference_type)
+
+grouped_bar_plot <- ggplot(group_means, aes(x = preference_type, y = mean_value, fill = formative_regime_change)) +
+  geom_bar(stat = "identity", position = position_dodge(width = 0.8), width = 0.7) +
+  geom_text(aes(label = round(mean_value, 3)), 
+            position = position_dodge(width = 0.8), 
+            vjust = ifelse(group_means$mean_value >= 0, -0.3, 1.2),
+            size = 3.5,
+            fontface = "bold") +
+  scale_fill_manual(values = c("Treated" = "#D62728", "Control" = "#1F77B4"),
+                    name = "Group") +
+  scale_y_continuous(expand = expansion(mult = c(0.1, 0.1))) +  # Add space for labels
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 14, face = "bold"),
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    axis.title = element_text(size = 12),
+    legend.position = "top"
+  ) +
+  labs(
+    caption = "Mean values displayed above/below bars",
+    x = element_blank(),
+    y = "Mean Value"
+  ) +
+  geom_hline(yintercept = 0, linetype = "dotted", color = "gray50", size = 0.5)
+
+# Print the plot
+print(grouped_bar_plot)
+```
+
+In the table @tbl-preferences we examine the difference in mean in mean on a more formal level. We perform t-tests of the differences. All of them seems to be statistically significant on a 0.001 confidence level. This points out in a direction for our analysis.
+
+```{r}
+#| include: false
+# Function to perform t-tests and format results
+create_ttest_table <- function(data, vars) {
+  
+  # Initialize results list
+  results <- list()
+  
+  # Ensure formative_regime_change is numeric
+  data$formative_regime_change <- as.numeric(data$formative_regime_change)
+  
+  # Control vs Treatment indicators
+  control_group <- data$formative_regime_change == 0
+  treatment_group <- data$formative_regime_change == 1
+  
+  # Check that we have both groups
+  if(sum(control_group) == 0) stop("No control group (formative_regime_change = 0) found")
+  if(sum(treatment_group) == 0) stop("No treatment group (formative_regime_change = 1) found")
+  
+  # For each variable, perform t-test and extract statistics
+  for(var in vars) {
+    # Extract values for control and treatment
+    control_vals <- data[[var]][control_group]
+    treat_vals <- data[[var]][treatment_group]
+    
+    # Remove NA values
+    control_vals <- control_vals[!is.na(control_vals)]
+    treat_vals <- treat_vals[!is.na(treat_vals)]
+    
+    # Calculate means and SDs
+    control_mean <- mean(control_vals)
+    control_sd <- sd(control_vals)
+    treat_mean <- mean(treat_vals)
+    treat_sd <- sd(treat_vals)
+    
+    # Perform t-test
+    t_test <- t.test(treat_vals, control_vals)
+    diff <- treat_mean - control_mean
+    p_value <- t_test$p.value
+    
+    # Add significance stars
+    stars <- ifelse(p_value < 0.001, "***",
+                   ifelse(p_value < 0.01, "**",
+                         ifelse(p_value < 0.05, "*",
+                               ifelse(p_value < 0.1, "+", ""))))
+    
+    # Format the results
+    control_text <- sprintf("%.3f\n(%.3f)", control_mean, control_sd)
+    treat_text <- sprintf("%.3f\n(%.3f)", treat_mean, treat_sd)
+    diff_text <- sprintf("%.3f%s\n(%.3f)", diff, stars, t_test$stderr)
+    
+    # Store results
+    results[[var]] <- c(
+      Variable = var,
+      Control = control_text,
+      Treatment = treat_text,
+      Difference = diff_text
+    )
+  }
+  
+  # Convert to data frame
+  table_df <- do.call(rbind, results)
+  row.names(table_df) <- NULL
+  
+  # Create the table using kableExtra for PDF output
+  require(kableExtra)
+  
+  # Clean variable names for display
+  display_names <- c(
+    trust = "Trust",
+    patience = "Patience",
+    risktaking = "Risk Taking",
+    posrecip = "Positive Reciprocity",
+    negrecip = "Negative Reciprocity",
+    altruism = "Altruism",
+    subj_math_skills = "Subjective Math Skills"
+  )
+  
+  # Replace variable names with display names
+  table_df[,1] <- ifelse(table_df[,1] %in% names(display_names), 
+                        display_names[table_df[,1]], 
+                        table_df[,1])
+  
+  # Create styled table (without caption - handle in document)
+  kbl(table_df, 
+      booktabs = TRUE,
+      col.names = c("", "Control Group", "Treatment Group", "Difference"),
+      align = c("l", "c", "c", "c"),
+      escape = TRUE) %>%
+    kable_styling() %>%
+    add_header_above(c(" " = 1, "Mean (SD)" = 3)) %>%
+    column_spec(1, width = "2.5cm") %>%
+    column_spec(2:4, width = "2cm") %>%
+    footnote(general = "Standard deviations in parentheses. Standard errors for differences in parentheses.",
+             symbol = c("*** p<0.001, ** p<0.01, * p<0.05, + p<0.1"),
+             threeparttable = TRUE,
+             general_title = "Note:",
+             escape = TRUE)
+}
+```
+
+```{r}
+#| echo: false
+#| label: tbl-preferences
+#| warning: false
+#| results: 'asis'
+#| tbl-cap: "Economic Preferences Comparison by Group"
+#| tbl-pos: "H"
+# Create the table
+preferences_vars <- c("trust", "patience", "risktaking", "posrecip", "negrecip", "altruism")
+preferences_table <- create_ttest_table(final_data_gdp, preferences_vars)
+
+# Render the table
+preferences_table
+```
+
+```{r}
+#| label: tbl-controls
+#| eval: false
+#| warning: false
+#| include: false
+#| results: asis
+#| tbl-cap: Control Variables Comparison by Group
+#| tbl-pos: H
+# Create the table
+controls_vars <- c("age", "gdppc_2012", "subj_math_skills")
+controls_table <- create_ttest_table(final_data_gdp, controls_vars)
+
+# Render the table
+controls_table
+```
+
 # Mechanism
 
 Our core hypothesis is that political regime changes during formative years (ages 3--18) have lasting impacts on non-cognitive preferences. This aligns with psychosocial development theory [@balasundaram_human_2025; @detlefsen_are_2024].
@@ -83,26 +308,31 @@ Our identification strategy leverages a DiD design comparing cohorts within coun
 -   **Residual selection bias:**\
     Countries with frequent regime changes may differ systematically (e.g., lower GDP), leading to downward bias in preference measures.
 
-    <div>
+# Formulas
 
-    # Formulas
-
-    </div>
-
-Following [@fuchs-schundeln_endogeneity_2015] and [@friehe_time_2020], we estimate the following model:
+The equation of our main baseline model is as following:
 
 $$
-Y_{ict} = \alpha + \beta \cdot \text{FormativeRegimeChange}_{ic} + \gamma_c + \delta_t + X_{ict}'\theta + \varepsilon_{ict}
-$$
+Y_{ict} = \alpha + \beta \cdot \text{RegimeChange}_{ic} + \gamma_c + \delta_t + X_{ict} \cdot \text{(Controls)} + \varepsilon_{ict}
+$$ Where:
 
-Where:
+-   **Outcome:** $Y_{ict}$: Economic preference outcome (trust, patience, etc.) for **individual** ( i ), **region** ( r ), **birth cohort** ( t )
 
--   ( $Y\_{ict}$ ): Preference outcome (trust, patience, etc.) for individual ( i ), country ( c ), birth cohort ( t )
--   ( $\text{FormativeRegimeChange}\_{ic}$ ): Treatment indicator (1 if experienced regime change between ages 3--18)
--   ( $\gamma\_c$ ): Country fixed effects
--   ( $\delta\_t$ ): Birth cohort fixed effects
--   ( $X\_{ict}$ ): Controls (e.g., age, GDP per capita, subjective math skills)
--   ( $\beta$ ): Causal effect of interest
+-   **Treatment:** $\text{RegimeChange}_{ic}$: Binary treatment indicator (1 if experienced democratization/autocratization during formative years, 0 otherwise)
+
+-   $\delta_t$ : Birth cohort fixed effects
+
+-   $\gamma_r$ : Region fixed effects
+
+-   $X_{ict}$ : **Controls** including:
+
+    -   Average V-Dem democracy index score experienced during formative years (ages 3-18)
+
+    -   Average GDP of the country of residence during formative years (ages 3-18)
+
+    -   Subjective math skills
+
+    We acknowledge that including the "Subjective math skills" as a part of the control variables might be problematic, because of the reverse causality problem.
 
 # Identified Types of Effects
 
@@ -110,14 +340,7 @@ We use DiD to estimate the **ATT**: the effect of regime change exposure on thos
 
 ### Identification Assumptions
 
--   **Parallel Trends**:\
-    Absent treatment, treated and control groups would evolve similarly over time.
-
--   **No Spillovers**:\
-    Regime changes in one country do not affect individuals in another.
-
--   **Common Shocks**:\
-    Global events impact both groups equally. Year-fixed effects help address this.
+The TWFE estimator is still able to provide evidence on causal inference, as long as the **conditional independence assumption** holds. In our case it means the following:
 
 # Questions for meeting on 12.3.
 

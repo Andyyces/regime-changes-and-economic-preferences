@@ -225,7 +225,7 @@ generate_formative_regime_change <- function(democracy_data, gps_data, threshold
 }
 
 # Applying the function
-final_data <- generate_formative_regime_change(vdem_sub, gps_sub, threshold = 0.05)
+final_data <- generate_formative_regime_change(vdem_sub, gps_sub, threshold = 0.1)
 table(final_data$formative_regime_change)
 gdp_data <- read_excel(here("Input", "mpd2023_web_2.xlsx"))
 

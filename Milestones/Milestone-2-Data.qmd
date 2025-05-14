@@ -74,11 +74,9 @@ The following table @tbl-gps shows how were the economic preferences from the GP
 Economic preferences from the Global Preference Survey
 :::
 
-+--------------------------------------+------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------+
-| Value                                | Measurement approach                                                   | Description                                                                                                                                                                                | Scale (min -- max)                                                    |
-+======================================+========================================================================+============================================================================================================================================================================================+=======================================================================+
+| Value | Measurement approach | Description | Scale (min -- max) |
+|----|----|----|----|
 | Liberal democracy index (v2x_libdem) | Aggregation of **55 unique indicators** using Bayesian factor analysis | The indicators come from the Liberal Democracy index and Liberal component index. [Here](https://www.v-dem.net/documents/57/structureofaggregation.pdf) you can find the exact indicators. | **0**(least liberal democratic) **--** **1**(most liberal democratic) |
-+--------------------------------------+------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------+
 
 ::: {#tbl-libdem .tbl-Liberal}
 Liberal democracy index information
@@ -427,6 +425,7 @@ p6 <- ggplot(data = world_negrecip) +
 library(gridExtra)
 combined_plot <- grid.arrange(p1, p2, p3, ncol = 1)
 ```
+
 ```{r}
 #| echo: false
 #| label: fig-o
@@ -440,7 +439,6 @@ combined_plot <- grid.arrange(p1, p2, p3, ncol = 1)
 
 combined_plot2 <- grid.arrange(p4, p5, p6, ncol = 1)
 ```
-
 
 # **Descriptive statistics**
 
