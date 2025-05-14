@@ -38,7 +38,7 @@ write_dta(final_data_gdp, path = "../Input/final_data_gdp.dta")
 
 As Detlefsen et al. [-@detlefsen_are_2024] points out, the formation of economic preferences in **childhood** and **adolescence** has a long-term consequences for life outcomes. To provide an example, patience can impact one's school performance, which can later translate to education attainment and labor market outcomes. The same way can risk preference impact one's financial decisions [@detlefsen_are_2024].
 
-According to the National Library of Medicine, childhood is defined as a stage from **3-11 years** and adolescence as a stage from **12-18 years**[@balasundaram2025]. But what factors can have an impact on economic preferences?
+According to the National Library of Medicine, childhood is defined as a stage from **3-11 years** and adolescence as a stage from **12-18 years**[@balasundaram2025]. But what factors can have an impact on economic preferences? Tha
 
 # Setting
 
@@ -48,13 +48,33 @@ Treatment definition was one of our main tasks until now. Our goal was to captur
 
 We followed a methodology similar to that described in [@luhrmann_autocratization_2020], which identifies regime changes by evaluating differences in the LDI between year $t$ and year $t-10$. However, while the original study used a threshold of **0.05**, we adopted a stricter threshold of **0.1**. This modification was made intentionally to focus on more **sudden and substantial regime shifts**, rather than more gradual changes.
 
-The process includes computing standard errors and confidence intervals of LDI changes. A regime change is considered statistically significant if the confidence intervals of the LDI values do not overlap and the absolute change in LDI exceeds our chosen threshold of 0.1:
+The regime changes are identified first on a country level according to the V-Dem dataset and then combined with the individual level data from the General Preference Survey. Goal is to **differenciate between individuals who experienced a regime change during their formative years** and individuals, who didn't.
 
-$$
-|\Delta \text{LDI}_{t}| = |\text{LDI}_{t} - \text{LDI}_{t-10}| > 0.1
-$$
+The detailed workflow is as follows:
 
-Once a regime change is identified for a specific country and year, we link this information to the GPS dataset and assign treatment to individuals who were between the ages of 3 and 18 during the year of regime change in their respective countries.
+1.  First we compute the change in a country's Liberal Democracy Index according to the following notation: $\Delta\text{LDI} = \text{LDI}_t - \text{LDI}_{t-10}$. This creates a rolling comparison rather than a fixed window, allowing us to evaluate changes for every available year in the dataset.
+
+2.  In the next step, we evaluate the following condition: $|\Delta\text{LDI}| > 0.1$. This is our threshold to what we consider a "substantial " change. The absolute value means we are measuring the magnitude of change regardless of direction (democratization or autocratization). A change greater than this threshold represents a meaningful shift in democratic quality that exceed typical measurement noise or minor fluctuations.
+
+3.  In the next step we test the statistical significance of the change. The expression for significance:
+
+$\text{CI}_t = [\text{LDI}_t - \text{ME}_t, \text{LDI}_t + \text{ME}_t]$
+
+$\text{CI}_{t-10} = [\text{LDI}_{t-10} - \text{ME}_{t-10}, \text{LDI}_{t-10} + \text{ME}_{t-10}]$
+
+$\text{Significant if: } \text{CI}_t \cap \text{CI}_{t-10} = \emptyset$
+
+When the Confidence Intervals don't overlap, we can be statistically confident on a 0.05 probability level, that the observed change represents a genuine shift in democratic quality.
+
+determines, whether the observed change is statistically significant. This test directly evaluates whether the confidence intervals of the two measurements (current and 10 years ago) overlap
+
+Margin Error is calculated in the following way: $\text{ME} = z \times \frac{\sigma}{\sqrt{n}}$
+
+In this step we also differenciate between the direction of the change, either from **autocracy to democracy** and from **democracy to autocracy.**
+
+4.  In the next step we move on to the **individual level** data from the **General Preference Survey**. We evaluate each individual living at the year determined in previous step in a given country. If the individual was in his **formative years (between 3-18 years old)** at this time, he is assigned the **treatment**.
+
+Our control group on the other hand consists of individuals, who never experienced a regime change.
 
 ```{r}
 #| echo: false
@@ -313,9 +333,6 @@ This specification helps address unobserved heterogeneity across space and time.
 -   **Common cohort shocks:**\
     Birth cohort fixed effects capture common temporal shocks (e.g., global crises) that may affect preferences across all individuals born in a given year.
 
--   **Measurement of regime change:**\
-    Regime change is defined as a statistically significant change in LDI over a 10-year window, following [@luhrmann_autocratization_2020], with a stricter threshold of 0.1 applied to capture more sudden transitions.
-
 -   **Residual selection bias:**\
     Countries or regions with more frequent regime changes may also differ economically or politically (e.g., lower GDP per capita). Including controls such as average GDP PC during formative years of individuals along with fixed effects, helps mitigate this concern.
 
@@ -343,7 +360,7 @@ $$ Where:
 
     -   Subjective math skills
 
-    We acknowledge that including the "Subjective math skills" as a part of the control variables might be problematic, because of the reverse causality problem.
+We acknowledge that including the "Subjective math skills" as a part of the control variables might be problematic, because of the reverse causality problem.
 
 # Identified Types of Effects
 
