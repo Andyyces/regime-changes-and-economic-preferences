@@ -42,13 +42,19 @@ According to the National Library of Medicine, childhood is defined as a stage f
 
 # Setting
 
-Treatment definition was one of our main tasks until now. Our goal was to capture both **sudden** and **gradual regime changes** and direction of change (democratization/autocratization) according to changes in **LDI** (Liberal Democracy Index).
+## Treatment Definition
 
-We followed similar methodology as described in [@luhrmann_autocratization_2020], which is based on the evaluating differences of the LDI at time ***t*** and time ***t-10.*** Afterwards, following steps are executed:
+Treatment definition was one of our main tasks until now. Our goal was to capture both sudden and gradual regime changes, as well as the direction of change (democratization or autocratization), based on changes in the Liberal Democracy Index (LDI).
 
--   Computation of standard errors and **confidence intervals** of the respective changes.If the **confidence intervals don't overlap** and the **absolute value of the change in LDI is higher than 0.05**, the change in LDI is recognized as significant and identified as regime change.
+We followed a methodology similar to that described in [@luhrmann_autocratization_2020], which identifies regime changes by evaluating differences in the LDI between year $t$ and year $t-10$. However, while the original study used a threshold of **0.05**, we adopted a stricter threshold of **0.1**. This modification was made intentionally to focus on more **sudden and substantial regime shifts**, rather than more gradual changes.
 
--   If regime change in a country at time t is identified, we take a look into the gps dataset and **assign the treatment to individuals, who are between 3-18 years at the time of regime change in their country**.
+The process includes computing standard errors and confidence intervals of LDI changes. A regime change is considered statistically significant if the confidence intervals of the LDI values do not overlap and the absolute change in LDI exceeds our chosen threshold of 0.1:
+
+$$
+|\Delta \text{LDI}_{t}| = |\text{LDI}_{t} - \text{LDI}_{t-10}| > 0.1
+$$
+
+Once a regime change is identified for a specific country and year, we link this information to the GPS dataset and assign treatment to individuals who were between the ages of 3 and 18 during the year of regime change in their respective countries.
 
 ```{r}
 #| echo: false
@@ -279,34 +285,39 @@ controls_table
 
 Our core hypothesis is that political regime changes during formative years (ages 3--18) have lasting impacts on non-cognitive preferences. This aligns with psychosocial development theory [@balasundaram_human_2025; @detlefsen_are_2024].
 
-We cannot test the mechanism directly, but we test its implications through a Difference-in-Differences (DiD) approach:
+We cannot test the mechanism directly, but we test its implications through a Two-way fixed effects (2FE):
 
 -   Individuals are assigned to treatment if they experienced a regime change during their formative years.
 -   All individuals are surveyed in the same period (2012--2013), minimizing confounding from external shocks.
 
-This setup controls for country-specific time-invariant factors and period shocks. Our methodology is similar to cohort-based DiD approaches used by [@friehe_time_2020] and [@fuchs-schundeln_endogeneity_2015].
+We apply a **two-way fixed effects (TWFE)** approach, including region and birth cohort fixed effects. This allows us to account for both: - unobserved heterogeneity across regions, and - time-specific effects common to individuals born in the same period.
 
-We additionally test the intensity of treatment by examining whether the number of years spent under the new regime correlates with preference scores.
+Causal interpretation is valid under the **conditional independence assumption**, which implies that---after controlling for observable covariates and fixed effects---the treatment assignment is as good as random.
 
 Possible estimators: [@callaway_difference-differences_2024], [@borusyak_revisiting_2024], [@de_chaisemartin_two-way_2020]. In our current setting, the treatment assignment happens just once.
 
 # Source of Bias and Identification
 
-Our identification strategy leverages a DiD design comparing cohorts within countries based on exposure to regime change during formative years. We estimate the **Average Treatment Effect on the Treated (ATT)**, assuming parallel trends.
+Our identification strategy leverages variation in individuals' exposure to regime change during their formative years (ages 3--18). We estimate the **Average Treatment Effect on the Treated (ATT)** using a two-way fixed effects (TWFE) framework, which includes region and birth cohort fixed effects.
+
+This specification helps address unobserved heterogeneity across space and time. Causal inference relies on the **conditional independence assumption**---i.e., after controlling for observed covariates and fixed effects, regime change exposure is as good as random.
 
 ### Potential Biases and Mitigation
 
 -   **Endogeneity of regime change exposure:**\
-    Exposure is not random, but we exploit birth year variation within countries. Similar to the quasi-experimental setup in [@fuchs-schundeln_endogeneity_2015].
+    Exposure is not randomly assigned. However, we exploit variation in **birth year within regions**, similar to the quasi-experimental logic in [@fuchs-schundeln_endogeneity_2015].
 
--   **Time-invariant country-level confounding:**\
-    Fixed effects absorb differences in culture, geography, or historical institutions.
+-   **Time-invariant region-level confounding:**\
+    Region fixed effects absorb structural differences across space, such as geography, long-term culture or historical institutions.
+
+-   **Common cohort shocks:**\
+    Birth cohort fixed effects capture common temporal shocks (e.g., global crises) that may affect preferences across all individuals born in a given year.
 
 -   **Measurement of regime change:**\
-    Defined as statistically significant changes in LDI over a 10-year span, [@luhrmann_autocratization_2020].
+    Regime change is defined as a statistically significant change in LDI over a 10-year window, following [@luhrmann_autocratization_2020], with a stricter threshold of 0.1 applied to capture more sudden transitions.
 
 -   **Residual selection bias:**\
-    Countries with frequent regime changes may differ systematically (e.g., lower GDP), leading to downward bias in preference measures.
+    Countries or regions with more frequent regime changes may also differ economically or politically (e.g., lower GDP per capita). Including controls such as average GDP PC during formative years of individuals along with fixed effects, helps mitigate this concern.
 
 # Formulas
 
@@ -328,7 +339,7 @@ $$ Where:
 
     -   Average V-Dem democracy index score experienced during formative years (ages 3-18)
 
-    -   Average GDP of the country of residence during formative years (ages 3-18)
+    -   Average GDPPC of the country of residence during formative years (ages 3-18)
 
     -   Subjective math skills
 
@@ -336,11 +347,17 @@ $$ Where:
 
 # Identified Types of Effects
 
-We use DiD to estimate the **ATT**: the effect of regime change exposure on those who actually experienced it.
+We estimate the **Average Treatment Effect on the Treated (ATT)** using a two-way fixed effects (TWFE) model. This allows us to identify the effect of regime change exposure on individuals who actually experienced such changes during their formative years (ages 3--18).
 
 ### Identification Assumptions
 
-The TWFE estimator is still able to provide evidence on causal inference, as long as the **conditional independence assumption** holds. In our case it means the following:
+The TWFE estimator provides valid causal inference under the **conditional independence assumption**. In our context, this assumption implies:
+
+-   Conditional on observed covariates, region fixed effects, and birth cohort fixed effects, exposure to regime change is **as good as random**.
+-   There are **no unobserved confounders** that vary simultaneously with both treatment assignment and the preference outcomes.
+-   Individuals not exposed to regime change during formative years serve as a valid control group for those who were exposed.
+
+We control for key observed characteristics (e.g., GDP per capita, subjective math skills) and absorb unobserved heterogeneity at the region and cohort levels to satisfy this assumption as closely as possible.
 
 # Questions for meeting on 12.3.
 
