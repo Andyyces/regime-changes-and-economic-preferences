@@ -38,19 +38,51 @@ write_dta(final_data_gdp, path = "../Input/final_data_gdp.dta")
 
 As Detlefsen et al. [-@detlefsen_are_2024] points out, the formation of economic preferences in **childhood** and **adolescence** has a long-term consequences for life outcomes. To provide an example, patience can impact one's school performance, which can later translate to education attainment and labor market outcomes. The same way can risk preference impact one's financial decisions [@detlefsen_are_2024].
 
-According to the National Library of Medicine, childhood is defined as a stage from **3-11 years** and adolescence as a stage from **12-18 years**[@balasundaram2025]. But what factors can have an impact on economic preferences? Tha
+According to the National Library of Medicine, childhood is defined as a stage from **3-11 years** and adolescence as a stage from **12-18 years**[@balasundaram_human_2025].
+
+Building on the foundational work of [@fuchs-schundeln_endogeneity_2015], we propose a theoretical framework to understand how regime changes during formative years shape economic preferences through multiple channels.
+
+Economic preferences $(P)$ of an individual $i$ from country $c$ born in year $t$ can be represented as: $P_{i,c,t} = f(I_{c,t+a}, E_{c,t+a}, S_{c,t+a}, X_i)$
+
+Where:
+
+-   $I_{c,t+a}$ represents institutional quality during formative years (ages $a \in [3,18]$)
+
+-   $E_{c,t+a}$ represents economic conditions during formative years (GDP per capita)
+
+-   $X_i$ represents individual characteristics (subjevtice math skills)
+
+Specifically, regime changes represent significant shifts in $I_{c,t+a}$, which create discontinuous changes in institutional environments experienced during critical developmental periods. This framework builds upon studies showing preference malleability during early life [@falk_global_2018; @kosse_formation_2020] and extends them to the domain of political institutions. According to the research of @detlefsen_are_2024, the years of childhood and adolescence are particularly sensitive for economic preference formation.
+
+When a regime change occurs, we hypothesize several mechanisms through which preferences are affected:
+
+-   **Trust mechanism**: Sudden institutional changes may create uncertainty about rule enforcement, potentially reducing interpersonal trust.
+
+-   **Risk preference mechanism**: Experiencing regime instability may alter risk perception through changes in perceived environmental predictability.
+
+-   **Time preference mechanism**: Political instability can change discount rates by affecting perceptions of future stability.
+
+-   **Social preference mechanism**: Shifts in social norms and expectations during regime changes may influence altruism and reciprocity.
 
 # Setting
 
-## Treatment Definition
+## Data Sources and Sample
 
-Treatment definition was one of our main tasks until now. Our goal was to capture both sudden and gradual regime changes, as well as the direction of change (democratization or autocratization), based on changes in the Liberal Democracy Index (LDI).
+Our analysis combines two primary data sources:
 
-We followed a methodology similar to that described in [@luhrmann_autocratization_2020], which identifies regime changes by evaluating differences in the LDI between year $t$ and year $t-10$. However, while the original study used a threshold of **0.05**, we adopted a stricter threshold of **0.1**. This modification was made intentionally to focus on more **sudden and substantial regime shifts**, rather than more gradual changes.
+-   **Vdem** [@coppedge_v-dem_2025] dataset comes also as an R package:`vdemdata`. This dataset contains various democracy indicators for 202 countries starting of year 1789. We will be using the **Liberal democracy index** which combines many of these indicators into a single number for each country/year.
+
+-   **Global Preference Survey** [@falk_global_2018] dataset was downloaded as a ZIP file from the [following website](https://gps.iza.org/downloads). This dataset contains information about economic preferences of 80337 individuals from 76 countries. The survey was conducted between 2012 and 2013.
+
+## Endogenous Variable: Regime Change exposure
+
+Our main endogenous variable is a **binary indicator** for experiencing a significant regime change during formative years (ages 3-18). We define regime changes using the **Liberal Democracy Index** **(LDI)** from V-Dem, which measures the extent to which democratic principles are respected in a country on a scale from **0 (autocracy) to 1 (liberal democracy)**. Together with the binary indicator we also capture the **direction of change** (democratization or autocratization).
+
+We identify significant regime changes using a stricter threshold ($|\Delta\text{LDI}| > 0.1$ over a 10-year period) than previous literature [@luhrmann_autocratization_2020] to focus on **substantial political transformations rather than gradual changes**. This modification allows us to capture more disruptive institutional changes that are more likely to affect preference formation.
 
 The regime changes are identified first on a country level according to the V-Dem dataset and then combined with the individual level data from the General Preference Survey. Goal is to **differenciate between individuals who experienced a regime change during their formative years** and individuals, who didn't.
 
-The detailed workflow is as follows:
+The precise identification follows this procedure:
 
 1.  First we compute the change in a country's Liberal Democracy Index according to the following notation: $\Delta\text{LDI} = \text{LDI}_t - \text{LDI}_{t-10}$. This creates a rolling comparison rather than a fixed window, allowing us to evaluate changes for every available year in the dataset.
 
@@ -64,25 +96,43 @@ $\text{CI}_{t-10} = [\text{LDI}_{t-10} - \text{ME}_{t-10}, \text{LDI}_{t-10} + \
 
 $\text{Significant if: } \text{CI}_t \cap \text{CI}_{t-10} = \emptyset$
 
-When the Confidence Intervals don't overlap, we can be statistically confident on a 0.05 probability level, that the observed change represents a genuine shift in democratic quality.
-
-determines, whether the observed change is statistically significant. This test directly evaluates whether the confidence intervals of the two measurements (current and 10 years ago) overlap
-
 Margin Error is calculated in the following way: $\text{ME} = z \times \frac{\sigma}{\sqrt{n}}$
 
-In this step we also differenciate between the direction of the change, either from **autocracy to democracy** and from **democracy to autocracy.**
+In this step we also differenciate between the **direction of the change**, either from **autocracy to democracy** and from **democracy to autocracy.**
 
 4.  In the next step we move on to the **individual level** data from the **General Preference Survey**. We evaluate each individual living at the year determined in previous step in a given country. If the individual was in his **formative years (between 3-18 years old)** at this time, he is assigned the **treatment**.
 
-Our control group on the other hand consists of individuals, who never experienced a regime change.
+Our **control group** on the other hand consists of **individuals, who never experienced a regime change**. Applying this algorithm on our data, we receive the following number of observations in each category:
 
 ```{r}
 #| echo: false
 #| label: tbl-c
-#| tbl-cap: Number of treatment variables
+#| tbl-cap: Number of observations in treatment and control group
 #| tbl-pos: "H"
 table(final_data$formative_regime_change)
 ```
+
+## Outcome Variables: Economic Preferences
+
+Our main outcome variables are six standardized economic preferences from the GPS:
+
+1.  **Trust**: Willingness to trust others in social interactions
+
+2.  **Patience**: Willingness to forego immediate rewards for larger future rewards
+
+3.  **Risk-Taking**: Willingness to take risks in various domains
+
+4.  **Positive Reciprocity**: Willingness to reward kind actions
+
+5.  **Negative Reciprocity**: Willingness to punish unkind actions
+
+6.  **Altruism**: Willingness to give to others without expecting returns
+
+Each preference is standardized to have a mean of 0 and standard deviation of 1 in the global sample, allowing us to compare across preferences and countries.
+
+## Preliminary evidence
+
+In the next step, we examined the magnitude of the differences in economic preferences between the treatment and control group. In the following @fig-a we visualize the mean preference profiles of the two groups.
 
 ```{r}
 #| echo: false
@@ -167,7 +217,7 @@ grouped_bar_plot <- ggplot(group_means, aes(x = preference_type, y = mean_value,
 print(grouped_bar_plot)
 ```
 
-In the table @tbl-preferences we examine the difference in mean in mean on a more formal level. We perform t-tests of the differences. All of them seems to be statistically significant on a 0.001 confidence level. This points out in a direction for our analysis.
+In the table @tbl-preferences we examine the difference in mean in mean on a more formal level. We perform t-tests of the differences. All of them seems to be statistically significant on a 0.001 confidence level. These consistent and significant differences provide preliminary support for our hypothesis that regime changes during formative years have lasting impacts on economic preferences.
 
 ```{r}
 #| include: false
@@ -303,26 +353,33 @@ controls_table
 
 # Mechanism
 
-Our core hypothesis is that political regime changes during formative years (ages 3--18) have lasting impacts on non-cognitive preferences. This aligns with psychosocial development theory [@balasundaram_human_2025; @detlefsen_are_2024].
+## Theoretical Channels
 
-We cannot test the mechanism directly, but we test its implications through a Two-way fixed effects (2FE):
+We hypothesize that regime changes during formative years (ages 3-18) affect economic preferences through several interrelated channels:
+
+1.  **Institutional Trust Channel**: Sudden changes in political institutions may disrupt children's developing sense of institutional reliability, potentially leading to long-lasting effects on general trust. When formal rules and enforcement mechanisms change dramatically, individuals may develop persistent skepticism about institutional stability, affecting their willingness to trust others [@alesina_good-bye_2007].
+2.  **Uncertainty and Risk Perception Channel**: Political transitions often create periods of heightened uncertainty. Experiencing such uncertainty during formative years might permanently alter risk attitudes by changing how individuals evaluate the predictability of their environment [@malmendier_depression_2011].
+3.  **Social Norm Disruption Channel**: Regime changes typically involve shifts in social norms and values. Children and adolescents, who are still internalizing social norms, may develop different patterns of reciprocity and altruism when exposed to changing or conflicting social expectations [@kosse_formation_2020].
+4.  **Economic Insecurity Channel**: Political transitions frequently coincide with economic volatility. Economic hardship experienced during formative years may affect time preferences (patience) by altering how individuals value present versus future rewards [@haushofer_psychology_2014].
+
+We cannot test the mechanism directly, but we test its implications through a **Two-way fixed effects (2FE)**:
 
 -   Individuals are assigned to treatment if they experienced a regime change during their formative years.
 -   All individuals are surveyed in the same period (2012--2013), minimizing confounding from external shocks.
 
-We apply a **two-way fixed effects (TWFE)** approach, including region and birth cohort fixed effects. This allows us to account for both: - unobserved heterogeneity across regions, and - time-specific effects common to individuals born in the same period.
+## Testing the Mechanisms
 
-Causal interpretation is valid under the **conditional independence assumption**, which implies that---after controlling for observable covariates and fixed effects---the treatment assignment is as good as random.
+While directly testing these psychological mechanisms is challenging with our cross-sectional data, we propose several indirect tests:
 
-Possible estimators: [@callaway_difference-differences_2024], [@borusyak_revisiting_2024], [@de_chaisemartin_two-way_2020]. In our current setting, the treatment assignment happens just once.
+1.  **Heterogeneity by Transition Type**: Different channels may be more prominent depending on whether the transition was from autocracy to democracy or vice versa. We will test this by separating our treatment into democratization and autocratization events:
+
+2.  **Mediation Analysis**: To test the economic insecurity channel, we will examine whether controlling for economic volatility measures (GDP fluctuations) during formative years attenuates the estimated treatment effect.
 
 # Source of Bias and Identification
 
-Our identification strategy leverages variation in individuals' exposure to regime change during their formative years (ages 3--18). We estimate the **Average Treatment Effect on the Treated (ATT)** using a two-way fixed effects (TWFE) framework, which includes region and birth cohort fixed effects.
+Our research design faces several identification challenges that we are planning to address through a combination of fixed effects, control variables, and robustness checks.
 
-This specification helps address unobserved heterogeneity across space and time. Causal inference relies on the **conditional independence assumption**---i.e., after controlling for observed covariates and fixed effects, regime change exposure is as good as random.
-
-### Potential Biases and Mitigation
+## Potential Biases and Directions
 
 -   **Endogeneity of regime change exposure:**\
     Exposure is not randomly assigned. However, we exploit variation in **birth year within regions**, similar to the quasi-experimental logic in [@fuchs-schundeln_endogeneity_2015].
@@ -336,9 +393,11 @@ This specification helps address unobserved heterogeneity across space and time.
 -   **Residual selection bias:**\
     Countries or regions with more frequent regime changes may also differ economically or politically (e.g., lower GDP per capita). Including controls such as average GDP PC during formative years of individuals along with fixed effects, helps mitigate this concern.
 
-# Formulas
+# Econometric Specifications
 
-The equation of our main baseline model is as following:
+## Baseline Model
+
+Our baseline specification is a **two-way fixed effects (TWFE)** model that leverages variation in regime change exposure across birth cohorts and regions:
 
 $$
 Y_{ict} = \alpha + \beta \cdot \text{RegimeChange}_{ic} + \gamma_c + \delta_t + X_{ict} \cdot \text{(Controls)} + \varepsilon_{ict}
@@ -348,62 +407,73 @@ $$ Where:
 
 -   **Treatment:** $\text{RegimeChange}_{ic}$: Binary treatment indicator (1 if experienced democratization/autocratization during formative years, 0 otherwise)
 
--   $\delta_t$ : Birth cohort fixed effects
+-   $\gamma_r$ : Region fixed effects that absorb time-invariant heterogeneity across regions
 
--   $\gamma_r$ : Region fixed effects
+-   $\delta_t$ : Birth cohort fixed effects that absorb common shocks affecting all individuals born in year t
 
 -   $X_{ict}$ : **Controls** including:
 
-    -   Average V-Dem democracy index score experienced during formative years (ages 3-18)
+    -   Average LDI experienced during formative years (ages 3-18)
 
-    -   Average GDPPC of the country of residence during formative years (ages 3-18)
+    -   Average GDP per capita of the country of residence during formative years (ages 3-18)
 
     -   Subjective math skills
 
-We acknowledge that including the "Subjective math skills" as a part of the control variables might be problematic, because of the reverse causality problem.
+The coefficient of interest, **β**, represents the average effect of experiencing a regime change during formative years on economic preferences, measured in standard deviation units. Under the **identifying assumptions** discussed in [Identification Strategy and Causal Interpretation], **β** can be interpreted as the causal effect of regime change exposure on preference formation.
 
-# Identified Types of Effects
+## Heterogeneity by Transition Type
 
-We estimate the **Average Treatment Effect on the Treated (ATT)** using a two-way fixed effects (TWFE) model. This allows us to identify the effect of regime change exposure on individuals who actually experienced such changes during their formative years (ages 3--18).
+To distinguish between democratization and autocratization effects, we estimate:
 
-### Identification Assumptions
+$$Y_{ict} = \alpha + \beta_1 \cdot \text{Democratization}_{i,c} + \beta_2 \cdot \text{Autocratization}_{ic} + \gamma_c + \delta_t + X_{ict} \cdot \text{(Controls)} + \varepsilon_{ict}$$
 
-The TWFE estimator provides valid causal inference under the **conditional independence assumption**. In our context, this assumption implies:
+Where:
 
--   Conditional on observed covariates, region fixed effects, and birth cohort fixed effects, exposure to regime change is **as good as random**.
+-   $\text{Democratization}_{i,c}$ : Binary indicator equal to 1 if individual i experienced a significant **increase** in ($|\Delta\text{LDI}| > 0.1$) during formative years
+-   $\text{Autocratization}_{i,c}$ : Binary indicator equal to 1 if individual i experienced a significant **decrease** in ($|\Delta\text{LDI}| < -0.1$) during formative years
+
+# Identification Strategy and Causal Interpretation
+
+## Identified Treatment Effect
+
+Our empirical strategy aims to identify the Average Treatment Effect on the Treated (ATT), which represents the causal impact of experiencing a regime change during formative years on the economic preferences of individuals who were actually exposed to such changes. Formally, the ATT is defined as:
+
+$$\text{ATT} = E[Y(1) - Y(0) | \text{RegimeChange} = 1]$$
+
+Where $Y(1)$ represents potential preferences under treatment (experiencing regime change) and $Y(0)$ represents potential preferences without treatment, and the expectation is taken over the subpopulation of treated individuals.
+
+## Causal Identification Assumptions
+
+The TWFE estimator can provide valid causal ATT if the **conditional independence assumption (CIA)** holds. In our context, this assumption implies the following: Conditional on observed covariates, region fixed effects, and birth cohort fixed effects, assignment to treatment (exposure to regime change) **is as good as random**. Formally:
+
+$$\{Y(0), Y(1)\} \perp \text{RegimeChange} | X, \gamma_c, \delta_t$$
+
+Following assumptions must also hold:
+
+-   **Stable Unit Treatment Value Assumption (SUTVA):**
+
+    The potential outcomes for any individual are unaffected by the treatment status of other individuals, and there is only one version of treatment. This assumption could be violated if, for example, migration flows during regime changes create spillover effects across regions.
+
+-   **Common Support/Overlap**
+
+    Each individual has a positive probability of being both treated and untreated. This ensures that we have comparable treated and untreated individuals for each combination of covariates and fixed effects. Formally: $$0 < P(\text{RegimeChange} = 1 | X, \gamma_c, \delta_t) < 1$$
+
 -   There are **no unobserved confounders** that vary simultaneously with both treatment assignment and the preference outcomes.
+
 -   Individuals not exposed to regime change during formative years serve as a valid control group for those who were exposed.
 
-We control for key observed characteristics (e.g., GDP per capita, subjective math skills) and absorb unobserved heterogeneity at the region and cohort levels to satisfy this assumption as closely as possible.
+While we cannot directly test all identification assumptions, we are planning to implement several tests to asses their plausibility.
 
-# Questions for meeting on 12.3.
+## Limitations to Causal Interpretation
 
--   After running the basic regression -\> effect of formative_regime_change significant but low R2
+Despite our identification strategy, several limitations remain:
 
--   Regarding the methodology as described in "Setting": We are capturing democratization/autocratization as a regime change. But maybe not all democratization/autocratization process must necessarily mean the regime has changed? Should we consider another criterion which at the end evaluates if the value of LDI is: above 0.5 -\> liberal democracy, below 0.5 -\> autocracy?
+-   **Selective Migration**: Individuals (or their parents) might selectively migrate, potentially creating compositional changes in the population that confound treatment effects.
 
--   Treatment assignment: With the current approach, there is a lot of observations who, according to our function, experience regime change at age 0. It is because the function evaluates just the first democratization/autocratization occurence. But I keep thinking there could be more such episodes? Should we aim to capture also other episodes OR change the confidence intervals threshold? This problem also connects to the next question:
+-   **Measurement of Formative Years**: Our definition of formative years (ages 3-18) is based on developmental psychology literature but may not perfectly capture critical periods for all preference types.
 
--   How do we calculate the years that have passed since the new regime change? For example, maybe a person changed regimes twice in his formative years? How do we calculate this? Or just we count from the first change?
+-   **Treatment Definition**: Our binary classification of regime changes may not capture all relevant political transitions that affect preference formation.
 
--   Adding interaction term $TimeToTreatment_{c,t,k}$ as an indicator for being $k$ **periods away from the treatment** (regime change) in country $c$ at time $t$?
-
-average democratization between 16-25 -\> treatment just when its sudden germany how much change in vdem in 1990? capture sudden changes rather than trends
-
-average vdem score the individual experience in formative years -\> maybe more feasible democratization/autocratization dummy as a treatment
-
-regress econ preferences on average vdem scores experienced in youth average GDP between birthy-year and year adult
-
-as control age effects and cohort effects -\> use just one we cant use both pseudo panel -\> event study -\> rather go with cross sections -\> vdem index in formative years influences preferences country
-
-conditial independence assumption -\> still can be causal
-
-math skills can also be an outcome
-
-change just to regime_change
-
-simple OLS just cross section -\> if we trust conditional independence assumption -\> how to make use of different cohorts in the dataset -\> instrument?
-
-focus on average vdem index in formative years staggered DiD: years relative to treatment
+Given these limitations, we are planning to interpret our results as providing evidence for the causal effect of regime changes on preference formation under the stated assumptions, while acknowledging that alternative interpretations cannot be fully ruled out.
 
 # References
