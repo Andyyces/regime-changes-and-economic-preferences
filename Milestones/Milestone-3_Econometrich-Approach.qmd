@@ -86,7 +86,7 @@ The precise identification follows this procedure:
 
 1.  First we compute the change in a country's Liberal Democracy Index according to the following notation: $\Delta\text{LDI} = \text{LDI}_t - \text{LDI}_{t-10}$. This creates a rolling comparison rather than a fixed window, allowing us to evaluate changes for every available year in the dataset.
 
-2.  In the next step, we evaluate the following condition: $|\Delta\text{LDI}| > 0.1$. This is our threshold to what we consider a "substantial " change. The absolute value means we are measuring the magnitude of change regardless of direction (democratization or autocratization). A change greater than this threshold represents a meaningful shift in democratic quality that exceed typical measurement noise or minor fluctuations.
+2.  In the next step, we evaluate the following condition: $|\Delta\text{LDI}| > 0.1$. This is our threshold to what we consider a "substantial" change. The absolute value means we are measuring the magnitude of change regardless of direction (democratization or autocratization). A change greater than this threshold represents a meaningful shift in democratic quality that exceed typical measurement noise or minor fluctuations.
 
 3.  In the next step we test the statistical significance of the change. The expression for significance:
 
@@ -379,19 +379,25 @@ While directly testing these psychological mechanisms is challenging with our cr
 
 Our research design faces several identification challenges that we are planning to address through a combination of fixed effects, control variables, and robustness checks.
 
-## Potential Biases and Directions
+## Potential Biases and Mitigation
+
+Below we summarize key sources of potential bias in identifying the causal effect of regime change exposure, along with how we address them in our empirical strategy:
 
 -   **Endogeneity of regime change exposure:**\
-    Exposure is not randomly assigned. However, we exploit variation in **birth year within regions**, similar to the quasi-experimental logic in [@fuchs-schundeln_endogeneity_2015].
+    Exposure to regime change is not randomly assigned. Some regions experience more changes due to internal political or economic factors.\
+    **Mitigation:** We exploit variation in birth years within regions---some individuals were exposed to regime change during formative years, others were not. This within-region, across-cohort variation allows for a quasi-experimental approach, similar to [@fuchs-schundeln_endogeneity_2015].
 
 -   **Time-invariant region-level confounding:**\
-    Region fixed effects absorb structural differences across space, such as geography, long-term culture or historical institutions.
+    Cultural, geographic, or institutional differences across regions may bias results.\
+    **Mitigation:** We include **region fixed effects**, which absorb all stable differences across regions.
 
 -   **Common cohort shocks:**\
-    Birth cohort fixed effects capture common temporal shocks (e.g., global crises) that may affect preferences across all individuals born in a given year.
+    Individuals born in the same year might be similarly affected by macroeconomic or global events.\
+    **Mitigation:** We include **birth cohort fixed effects** to control for time-specific shocks that affect all individuals born in the same year.
 
 -   **Residual selection bias:**\
-    Countries or regions with more frequent regime changes may also differ economically or politically (e.g., lower GDP per capita). Including controls such as average GDP PC during formative years of individuals along with fixed effects, helps mitigate this concern.
+    Regions with more frequent regime changes might also be systematically poorer or politically unstable, potentially biasing results.\
+    **Mitigation:** We include **control variables**, such as average GDP per capita during formative years (`gdppc_2012`) and **subjective math skills**, to account for socioeconomic background and individual cognitive differences.
 
 # Econometric Specifications
 
@@ -429,8 +435,14 @@ $$Y_{ict} = \alpha + \beta_1 \cdot \text{Democratization}_{i,c} + \beta_2 \cdot 
 
 Where:
 
--   $\text{Democratization}_{i,c}$ : Binary indicator equal to 1 if individual i experienced a significant **increase** in ($|\Delta\text{LDI}| > 0.1$) during formative years
--   $\text{Autocratization}_{i,c}$ : Binary indicator equal to 1 if individual i experienced a significant **decrease** in ($|\Delta\text{LDI}| < -0.1$) during formative years
+-   **Democratization**$_{i,c}$: Binary indicator equal to 1 if individual *i* experienced a significant **increase** in LDI during formative years, defined as a change where:
+    -   the 10-year difference in LDI is greater than 0.1, and
+    -   the confidence intervals of year *t* and year *t--10* do not overlap\
+        ($\Delta \text{LDI} > 0.1$ and statistically significant)
+-   **Autocratization**$_{i,c}$: Binary indicator equal to 1 if individual *i* experienced a significant **decrease** in LDI during formative years, defined as a change where:
+    -   the 10-year difference in LDI is less than --0.1, and
+    -   the confidence intervals of year *t* and year *t--10* do not overlap\
+        ($\Delta \text{LDI} < -0.1$ and statistically significant)
 
 # Identification Strategy and Causal Interpretation
 
