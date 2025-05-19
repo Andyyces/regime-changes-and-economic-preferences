@@ -1,0 +1,165 @@
+---
+title: "Regressions"
+format: html
+---
+
+```{r}
+library(pacman)
+p_load(haven,
+       here,
+       stargazer,
+       summarytools,
+       readxl,
+       dplyr,
+       lubridate,
+       ggplot2,
+       vdemdata,
+       summarytools,
+       devtools,
+       zoo,
+       tidyverse,
+       fixest,
+       dplyr,
+       tidyr,
+       modelsummary,
+       tinytable,
+       here)
+
+```
+
+```{r some extra pre-processing}
+final_data_gdp$region <- factor(final_data_gdp$region)
+```
+
+# Fixed effects: regime_change
+
+```{r models with basic regime change}
+# Creating custom function for two-way fixed effects models
+run_twfe_reg <- function(outcome_var,
+                         data = final_data_gdp,
+                         controls = c("avg_gdppc_formative", "avg_libdem_formative"),
+                         treatment = "formative_regime_change",
+                         fe = c("region", "birth_year"),
+                         cluster_var = "country") {
+  
+# Constructing formula with controls
+controls_formula <- paste(controls, collapse = " + ")
+  
+# Creating the full formula with fixed effects
+formula_str <- paste(
+  outcome_var, "~", treatment, "+", controls_formula, "|", 
+  paste(fe, collapse = " + ")
+  )
+  
+# Converting string to formula
+formula <- as.formula(formula_str)
+  
+# Running the model
+model <- feols(
+  formula,
+  data = data,
+  cluster = cluster_var
+  )
+  
+return(model)
+}
+
+preference_vars <- c("patience", "risktaking", "posrecip", "negrecip", "altruism", "trust")
+
+
+# Applying run_twfe_reg to each preference variable and store in a list
+preference_models <- list()
+for (pref in preference_vars) {
+  preference_models[[pref]] <- run_twfe_reg(
+    outcome_var = pref,
+    data = final_data_gdp,
+    controls = c("avg_gdppc_formative", "avg_libdem_formative"),
+    treatment = "formative_regime_change",
+    fe = c("region", "birth_year"),
+    cluster_var = "country"  # Using country as the cluster variable
+  )
+}
+
+
+# Creating a model summary table using msummary
+msummary(
+  preference_models,
+  title = "Effect of Regime Change on Economic Preferences (Two-way Fixed Effects)",
+  stars = TRUE,
+  coef_map = c(
+    "formative_regime_change" = "Regime Change experience",
+    "avg_gdppc_formative" = "Average GDP per Capita during formative years",
+    "avg_libdem_formative" = "Average LDI during formative years"
+  ),
+  notes = "Standard errors clustered at country level. Fixed effects for region and birth year included."
+)
+```
+
+# Fixed effects: democratization , autocratization
+
+```{r}
+# For heterogeneity models, we need to create democratization and autocratization variables
+# If there is time, change this in the formative_regime_change function directly
+# Based on formative_change_direction
+final_data_gdp <- final_data_gdp %>%
+  mutate(
+    democratization = ifelse(formative_regime_change == 1 & 
+                           formative_change_direction == "democratization", 1, 0),
+    autocratization = ifelse(formative_regime_change == 1 & 
+                           formative_change_direction != "democratization" & 
+                           !is.na(formative_change_direction), 1, 0)
+  )
+
+
+# Creating a function for heterogeneity models
+run_hetero_reg <- function(outcome_var, 
+                          data = final_data_gdp, 
+                          controls = c("avg_gdppc_formative", "avg_libdem_formative"),
+                          fe = c("region", "birth_year"),
+                          cluster_var = "country") {
+  
+  # Constructing formula with controls
+  controls_formula <- paste(controls, collapse = " + ")
+  
+  # Creating the full formula with fixed effects
+  formula_str <- paste(
+    outcome_var, "~ democratization + autocratization +", controls_formula, "|", 
+    paste(fe, collapse = " + ")
+  )
+  
+ # Converting string to formula
+  formula <- as.formula(formula_str)
+  
+  # Running the model
+  model <- feols(
+    formula,
+    data = data,
+    cluster = cluster_var
+  )
+  
+  return(model)
+}
+
+# Applying to each preference
+hetero_models <- lapply(preference_vars, function(pref) {
+  run_hetero_reg(
+    outcome_var = pref,
+    data = final_data_gdp
+  )
+})
+names(hetero_models) <- preference_vars
+
+# checking the output
+msummary(
+  hetero_models,
+  title = "Heterogeneity by Regime Change Direction (Two-way Fixed Effects)",
+  stars = TRUE,
+  coef_rename = c(
+    "democratization" = "Democratization",
+    "autocratization" = "Autocratization",
+    "avg_gdppc_formative" = "Average GDP per Capita during formative years",
+    "avg_libdem_formative" = "Average LDI during formative years"
+  ),
+  notes = "Standard errors clustered at country level. All models include region and birth year fixed effects."
+)
+```

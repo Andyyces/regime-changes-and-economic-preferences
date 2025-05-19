@@ -51,7 +51,7 @@ view(dfSummary(p5))
 
 ```
 
-## Data wrangling
+# Data wrangling
 
 Questions for meeting on 29.04. :
 
@@ -149,7 +149,7 @@ gps_sub <- gps_sub %>%
 #table(final_data$formative_regime_change)
 ```
 
-We need to separate the treatment and control group now. The treatment assignment is based on
+# Treatment
 
 ```{r separating the treatment and control groups with custom function}
 generate_formative_regime_change <- function(democracy_data, gps_data, threshold = 0.05) {
@@ -274,6 +274,8 @@ final_data <- generate_formative_regime_change(vdem_sub, gps_sub, threshold = 0.
 table(final_data$formative_regime_change)
 ```
 
+# Controls
+
 ```{r openning gdp data}
 gdp_data <- read_excel(here("Input", "mpd2023_web_2.xlsx"))
 
@@ -290,12 +292,7 @@ gdp_data <- read_excel(here("Input", "mpd2023_web_2.xlsx"))
  # rename(gdppc_2012 = gdppc)
 ```
 
-
-
-
-
 ```{r average gdppc }
-
 calculate_avg_gdppc <- function(final_data, gdp_data) {
   # Ensure numeric types for merging
   final_data$year_3 <- as.numeric(final_data$year_3)
@@ -335,10 +332,7 @@ final_data_gdp <- calculate_avg_gdppc(final_data, gdp_data)
 
 ```
 
-
 ```{r average democracy index}
-
-
 calculate_avg_libdem <- function(final_data_gdp, vdem_sub) {
   # Ensure numeric types
   final_data_gdp$year_3 <- as.numeric(final_data_gdp$year_3)
@@ -372,15 +366,12 @@ final_data_gdp <- calculate_avg_libdem(final_data_gdp, vdem_sub)
 
 ```
 
-
 ```{r Removing NAs from two columns}
 
 final_data_gdp <- final_data_gdp %>%
   filter(!is.na(avg_libdem_formative) & !is.na(avg_gdppc_formative))
 
 ```
-
-
 
 ```{r assigning also a bottom threshold}
 # Assigning observations as treated only if they were older than 2 years in year of regime change
@@ -391,41 +382,3 @@ table(final_data_gdp$formative_regime_change)
  final_data_gdp <- final_data_gdp %>% mutate(years_spend_regimes = age - age_at_regime_change)
 
 ```
-
-```{r simple reg}
-c <-lm(trust ~ formative_regime_change + subj_math_skills + gender + log(gdppc_2012) , data = final_data_gdp)
-summary(c)
-```
-
-### EDA
-
-```{r}
-#package for staggered DiD
-#install.packages("did")
-library(did)
-
-#devtools::install_github("jonathandroth/pretrends")
-library(pretrends)
-```
-
-### Econometric model
-
-Meeting on 29.04.: try different estimators and compare the robustness -\> then decide which one is the best
-
-**Method**: **staggered DiD** (to account for time-varying treatment assignment)
-
-$$Y_{ict} = \beta_0 + \sum_{k} \beta_{1k}(RegimeChange_{c,t-k}) + \beta_2 X\_{ict} + \gamma_c + \delta_t + \theta_a + \varepsilon_{ict}$$ where:
-
-$Y_{ict}$ represents the economic preference outcome (trust, risk-taking, patience, etc.) for individual $i$ in country $c$ at time $t$
-
-$RegimeChange_{c,t-k}$ is a variable indicating whether a country $c$ experienced a regime change $k$ periods before time $t$
-
-$X_{ict}$ is a vector of individual-level control variables (gender, math skills)
-
-$\gamma_c$ represents country fixed effects
-
-$\delta_t$ represents time/year fixed effects
-
-$\theta_a$ represents **age group/cohort** fixed effects
-
-$\varepsilon_{ict}$ is the error term
