@@ -27,8 +27,31 @@ p_load(haven,
 
 ```
 
+```{r}
+
+
+#| message: false
+#| warning: false
+#| include: false
+#  Load the function from extract_codes.R
+source("../Input/extract_codes.R")
+
+#  Use it to extract code from the Rmd into an R script
+extract_r_code_from_rmd("../Input/Data loading + wrangling.Rmd", "../Input/data_wrangle.R")
+
+#  Run the extracted R code
+source("../Input/data_wrangle.R")
+
+
+```
+
+
+
+
 ```{r some extra pre-processing}
 final_data_gdp$region <- factor(final_data_gdp$region)
+final_data_gdp$avg_gdppc_formative <- log(final_data_gdp$avg_gdppc_formative)
+
 ```
 
 # Fixed effects: regime_change
@@ -88,7 +111,7 @@ msummary(
   stars = TRUE,
   coef_map = c(
     "formative_regime_change" = "Regime Change experience",
-    "avg_gdppc_formative" = "Average GDP per Capita during formative years",
+    "avg_gdppc_formative" = "Average (log) GDP per Capita during formative years",
     "avg_libdem_formative" = "Average LDI during formative years"
   ),
   notes = "Standard errors clustered at country level. Fixed effects for region and birth year included."
@@ -163,3 +186,9 @@ msummary(
   notes = "Standard errors clustered at country level. All models include region and birth year fixed effects."
 )
 ```
+
+
+
+
+
+

@@ -65,48 +65,102 @@ gps_NA <- gps_sub %>%
 gps_sub <- gps_sub %>%
   drop_na()
 
-# Function to identify if individuals experienced regime change during formative years
-#generate_formative_regime_change <- function(democracy_data, gps_data, threshold) {
-  # Processing democracy data to identify regime changes 
-#  regime_change_years <- vdem_sub %>%
-#    arrange(country_text_id, year) %>%
-#    group_by(country_text_id) %>%
-#    mutate(
-#      libdem_diff = v2x_libdem - lag(v2x_libdem), # this approach does not capture linear change over few years, just sudden changes between years -> problematic? Maybe we can take into account a cumulative change over k years, to better separate the countries? Let's discuss :)
-#      regime_change = ifelse(libdem_diff > threshold, 1, 0)) %>%
-  # filtering just for countries that experienced a regime change
-#    filter(regime_change == 1) %>%
-#    select(country_name, regime_change_year = year)
+# Function to create country-level regime change data
+create_country_regime_data <- function(democracy_data, threshold = 0.05, country_filter = NULL) {
   
-# Joining with individual level data and checking for formative years overlap
-#  result <- gps %>%
-#    left_join(regime_change_years,
-#            by = c("isocode" = "country_text_id"),
-#            relationship = "many-to-many") %>%
-#    group_by(id_gallup) %>% # unique identifier for individuals
-#    summarize(
-#      formative_regime_change = as.numeric(
-      # This will be TRUE only if at least one regime change falls within formative years
-      # It will be FALSE if there are no regime changes or if none fall within the range
-      # The as.numeric() converts TRUE to 1 and FALSE to 0
-#        any(regime_change_year >= birth_year & 
-#              regime_change_year <= year_adult, 
-#            na.rm = TRUE)
-#        )
-#      ) %>%
-#    ungroup()
+  # Filter for specific countries if provided
+  if (!is.null(country_filter)) {
+    democracy_data <- democracy_data %>%
+      filter(country_text_id %in% country_filter)
+  }
+  
+  # First, identify regime changes at country level
+  country_regime_changes <- democracy_data %>%
+    group_by(country_text_id) %>%
+    arrange(year) %>%
+    mutate(
+      # Calculate rolling standard errors for confidence intervals
+      v2x_libdem_rolling_sd = rollapply(v2x_libdem, width = 5,
+                                       FUN = function(x) sd(x, na.rm = TRUE),
+                                       fill = NA, align = "center"),
+      v2x_libdem_rolling_n = rollapply(v2x_libdem, width = 5,
+                                      FUN = function(x) sum(!is.na(x)),
+                                      fill = NA, align = "center"),
+      
+      # Calculating confidence intervals
+      country_sd = sd(v2x_libdem, na.rm = TRUE),
+      country_n = n(),
+      
+      v2x_libdem_se = case_when(
+        !is.na(v2x_libdem_rolling_sd) & v2x_libdem_rolling_n > 1 ~
+          v2x_libdem_rolling_sd / sqrt(v2x_libdem_rolling_n),
+        TRUE ~ country_sd / sqrt(country_n)
+      ),
+      
+      df = case_when(
+        !is.na(v2x_libdem_rolling_n) & v2x_libdem_rolling_n > 1 ~
+          v2x_libdem_rolling_n - 1,
+        TRUE ~ country_n - 1
+      ),
+      
+      t_stat = qt(0.975, df = df),
+      ci_lower = v2x_libdem - t_stat * v2x_libdem_se,
+      ci_upper = v2x_libdem + t_stat * v2x_libdem_se,
+      
+      # Look at 10-year changes
+      libdem_diff = v2x_libdem - lag(v2x_libdem, 10),
+      ci_lower_lag10 = lag(ci_lower, 10),
+      ci_upper_lag10 = lag(ci_upper, 10),
+      
+      # Check for non-overlapping confidence intervals
+      ci_non_overlapping = case_when(
+        is.na(ci_lower) | is.na(ci_upper_lag10) ~ 0,
+        ci_lower > ci_upper_lag10 | ci_upper < ci_lower_lag10 ~ 1,
+        TRUE ~ 0
+      ),
+      
+      # Identify regime changes
+      regime_change = ifelse(ci_non_overlapping == 1 & 
+                            !is.na(libdem_diff) & 
+                            abs(libdem_diff) > threshold, 1, 0),
+      
+      # Create treatment variable with 3 categories
+      treatment = case_when(
+        regime_change == 1 & libdem_diff > 0 ~ 2,  # Democratization
+        regime_change == 1 & libdem_diff < 0 ~ 1,  # Autocratization
+        TRUE ~ 0  # No regime change
+      ),
+      
+      # Create factor with labels
+      treatment_factor = factor(treatment,
+                               levels = c(0, 1, 2),
+                               labels = c("No change", "Autocratization", "Democratization"))
+    ) %>%
+    select(country_text_id, country_name, year, v2x_libdem, treatment, treatment_factor)
+  
+  return(country_regime_changes)
+}
 
-# Merge back with original individual data to keep all variables
-#  gps %>%
-#    left_join(result, by = "id_gallup")
-#}
+# Get unique countries from gps_sub
+countries_to_analyze <- unique(gps_sub$isocode)
 
-# Applying the function
-#final_data <- generate_formative_regime_change(vdem_sub, gps, threshold = 0.03)
+# Create the country-level data for selected countries only
+country_data <- create_country_regime_data(vdem_sub, 
+                                         threshold = 0.2,
+                                         country_filter = countries_to_analyze)
 
+# Filter for periods after 1920
+country_data <- country_data %>%
+  filter(year > 1910)
 
-# Checking how many individuals is in each group
-#table(final_data$formative_regime_change)
+# For multiple treatment categories, we need to create separate binary indicators
+# Creating binary indicators for each treatment type
+country_data_binary <- country_data %>%
+  mutate(
+    autocratization = ifelse(treatment == 1, 1, 0),
+    democratization = ifelse(treatment == 2, 1, 0),
+    any_change = ifelse(treatment != 0, 1, 0)
+  )
 generate_formative_regime_change <- function(democracy_data, gps_data, threshold = 0.05) {
   # Processing democracy_data to compute confidence intervals and identify regime changes
   vdem_with_ci <- democracy_data %>%
@@ -166,12 +220,16 @@ generate_formative_regime_change <- function(democracy_data, gps_data, threshold
         formative_regime_change == 1 & libdem_diff > 0 ~ "democratization",
         formative_regime_change == 1 & libdem_diff < 0 ~ "autocratization",
         TRUE ~ NA_character_
-      )
+      ),
+      autocratization_period = ifelse(formative_regime_change == 1 & libdem_diff < 0, 1, 0),
+      democratization_period = ifelse(formative_regime_change == 1 & libdem_diff > 0, 1, 0)
     ) %>%
     # Keeping ALL observations
     select(country_name, country_text_id, regime_change_year = year, 
            libdem_diff, formative_regime_change,
-           regime_change_direction)
+           regime_change_direction,
+           autocratization_period,
+           democratization_period)
   
   # Joining with individual level data and checking for formative years overlap
   result <- gps_data %>%
@@ -190,7 +248,9 @@ generate_formative_regime_change <- function(democracy_data, gps_data, threshold
       has_formative_change = any(is_formative_regime_change, na.rm = TRUE),
       first_formative_year = ifelse(has_formative_change, 
                                    min(regime_change_year[is_formative_regime_change], na.rm = TRUE), 
-                                   NA_real_)
+                                   NA_real_),
+      n_autocratization_periods = sum(is_formative_regime_change & autocratization_period == 1, na.rm = TRUE),
+      n_democratization_periods = sum(is_formative_regime_change & democratization_period == 1, na.rm = TRUE)
     ) %>%
     # Now extracting details for the first formative regime change
     filter(is.na(first_formative_year) | regime_change_year == first_formative_year) %>%
@@ -215,7 +275,9 @@ generate_formative_regime_change <- function(democracy_data, gps_data, threshold
       # Calculate age at regime change (use birth_year from original data)
       age_at_regime_change = ifelse(formative_regime_change == 1 & !is.na(formative_change_year), 
                                    formative_change_year - first(birth_year), 
-                                   NA_real_)
+                                   NA_real_),
+      n_autocratization_periods = first(n_autocratization_periods),
+      n_democratization_periods = first(n_democratization_periods)
     ) %>%
     ungroup()
   
@@ -225,21 +287,84 @@ generate_formative_regime_change <- function(democracy_data, gps_data, threshold
 }
 
 # Applying the function
-final_data <- generate_formative_regime_change(vdem_sub, gps_sub, threshold = 0.1)
+final_data <- generate_formative_regime_change(vdem_sub, gps_sub, threshold = 0.25)
 table(final_data$formative_regime_change)
 gdp_data <- read_excel(here("Input", "mpd2023_web_2.xlsx"))
 
-gdp_data <- gdp_data %>% 
-  filter(year== 2012 | year== 2013)
+# Takes a while to compute because of the nested loop
+calculate_avg_gdppc <- function(final_data, gdp_data) {
+  # Ensure numeric types for merging
+  final_data$year_3 <- as.numeric(final_data$year_3)
+  final_data$year_adult <- as.numeric(final_data$year_adult)
+
+  # Initialize the new column
+  final_data$avg_gdppc_formative <- NA
+
+  # Loop over each row to calculate average GDP per capita during formative years
+  for (i in 1:nrow(final_data)) {
+    id <- final_data$id_gallup[i]  # Track respondent ID
+    iso <- final_data$isocode[i]
+    start_year <- final_data$year_3[i]
+    end_year <- final_data$year_adult[i]
+
+    # Subset relevant GDP data
+    gdp_subset <- gdp_data[gdp_data$countrycode == iso & 
+                           gdp_data$year >= start_year & 
+                           gdp_data$year <= end_year, ]
+
+    # Calculate mean GDP per capita
+    avg_gdp <- mean(gdp_subset$gdppc, na.rm = TRUE)
+
+    # Optional: Print for debugging
+    # print(paste("ID:", id, "| ISO:", iso, "| Years:", start_year, "-", end_year, "| Avg GDP:", avg_gdp))
+
+    # Assign result
+    final_data$avg_gdppc_formative[i] <- avg_gdp
+  }
+
+  return(final_data)
+}
 
 
-final_data_gdp <- final_data %>%
-  left_join(gdp_data %>% select(countrycode, year, gdppc),
-            by = c("isocode" = "countrycode", "interview_year" = "year"))
+final_data_gdp <- calculate_avg_gdppc(final_data, gdp_data)
+
+
+# Takes a while to compute because of the nested loop
+calculate_avg_libdem <- function(final_data_gdp, vdem_sub) {
+  # Ensure numeric types
+  final_data_gdp$year_3 <- as.numeric(final_data_gdp$year_3)
+  final_data_gdp$year_adult <- as.numeric(final_data_gdp$year_adult)
+
+  # Initialize new column
+  final_data_gdp$avg_libdem_formative <- NA
+
+  # Loop over each respondent
+  for (i in 1:nrow(final_data_gdp)) {
+    iso <- final_data_gdp$isocode[i]
+    start_year <- final_data_gdp$year_3[i]
+    end_year <- final_data_gdp$year_adult[i]
+
+    # Filter V-Dem data for the country and years
+    vdem_subset <- vdem_sub[vdem_sub$country_text_id == iso & 
+                            vdem_sub$year >= start_year & 
+                            vdem_sub$year <= end_year, ]
+
+    # Compute mean liberal democracy index
+    avg_libdem <- mean(vdem_subset$v2x_libdem, na.rm = TRUE)
+
+    # Assign to new column
+    final_data_gdp$avg_libdem_formative[i] <- avg_libdem
+  }
+
+  return(final_data_gdp)
+}
+
+final_data_gdp <- calculate_avg_libdem(final_data_gdp, vdem_sub)
 
 
 final_data_gdp <- final_data_gdp %>%
-  rename(gdppc_2012 = gdppc)
+  filter(!is.na(avg_libdem_formative) & !is.na(avg_gdppc_formative))
+
 # Assigning observations as treated only if they were older than 2 years in year of regime change
 final_data_gdp$formative_regime_change[final_data_gdp$age_at_regime_change < 3] <- 0
 table(final_data_gdp$formative_regime_change)
@@ -247,11 +372,3 @@ table(final_data_gdp$formative_regime_change)
 
  final_data_gdp <- final_data_gdp %>% mutate(years_spend_regimes = age - age_at_regime_change)
 
-c <-lm(trust ~ formative_regime_change + subj_math_skills + gender + log(gdppc_2012) , data = final_data_gdp)
-summary(c)
-#package for staggered DiD
-#install.packages("did")
-library(did)
-
-#devtools::install_github("jonathandroth/pretrends")
-library(pretrends)
