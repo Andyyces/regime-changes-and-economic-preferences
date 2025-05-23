@@ -187,7 +187,7 @@ countries_to_analyze <- unique(gps_sub$isocode)
 
 # Create the country-level data for selected countries only
 country_data <- create_country_regime_data(vdem_sub, 
-                                         threshold = 0.25,
+                                         threshold = 0.2,
                                          country_filter = countries_to_analyze)
 
 # Filter for periods after 1920

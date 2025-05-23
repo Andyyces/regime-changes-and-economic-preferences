@@ -45,9 +45,6 @@ source("../Input/data_wrangle.R")
 
 ```
 
-
-
-
 ```{r some extra pre-processing}
 final_data_gdp$region <- factor(final_data_gdp$region)
 final_data_gdp$avg_gdppc_formative <- log(final_data_gdp$avg_gdppc_formative)
@@ -186,9 +183,3 @@ msummary(
   notes = "Standard errors clustered at country level. All models include region and birth year fixed effects."
 )
 ```
-
-
-
-
-
-

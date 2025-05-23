@@ -8,11 +8,13 @@ library(pacman)
 p_load(tidyverse,
        panelView,
        ggplot2,
-       gridExtra)
+       gridExtra,
+       viridis,
+       scales)
 ```
 
 ```{r}
-# Definecontinents for each country
+#Assigning each country to a continent
 country_continents <- data.frame(
   country_text_id = c(
     # Africa
@@ -52,27 +54,27 @@ country_data_continents <- country_data %>%
   left_join(country_continents, by = "country_text_id") %>%
   filter(!is.na(continent))
 
-# First ensure country_data exists - if not, create it from the previous function
+# First ensuring country_data exists - if not, create it from the previous function
 if (!exists("country_data")) {
-  # Get unique countries from final_data
+  # Getting unique countries from final_data
   countries_to_analyze <- unique(final_data$isocode)
   
-  # Create the country-level data for selected countries only
+  # Creating the country-level data for selected countries only
   country_data <- create_country_regime_data(democracy_data, 
-                                           threshold = 0.05,
+                                           threshold = 0.2,
                                            country_filter = countries_to_analyze)
   
-  # Filter for periods after 1920
+  # Filtering for periods after 1920
   country_data <- country_data %>%
     filter(year > 1920)
 }
 
-# Merge continent information with country data
+# Merging continent information with country data
 country_data_continents <- country_data %>%
   left_join(country_continents, by = "country_text_id") %>%
   filter(!is.na(continent))
 
-# Create binary indicators for panelView
+# Creating binary indicators for panelView
 country_data_binary <- country_data_continents %>%
   mutate(
     autocratization = ifelse(treatment == 1, 1, 0),
@@ -81,24 +83,29 @@ country_data_binary <- country_data_continents %>%
   )
 ```
 
+
+
 ```{r}
+# Creating A4-sized visualization 
 
-# Creating ggplot visualization for all countries with continent facets
-
-# Order countries by continent and first regime change
+# Fixing the country ordering to handle countries with no regime changes
 country_order <- country_data_continents %>%
   group_by(country_text_id, continent) %>%
   summarise(
     first_change = min(year[treatment != 0], na.rm = TRUE),
     .groups = "drop"
   ) %>%
-  arrange(continent, desc(is.finite(first_change)), first_change) %>%
+  mutate(
+    # Replacing Inf with NA for countries with no changes
+    first_change = ifelse(is.infinite(first_change), NA, first_change)
+  ) %>%
+  arrange(continent, !is.na(first_change), first_change) %>%
   pull(country_text_id)
 
 country_data_ordered <- country_data_continents %>%
   mutate(country_text_id = factor(country_text_id, levels = country_order))
 
-# Create comprehensive visualization
+# Creating the visualization with A4 dimensions
 all_countries_plot <- ggplot(country_data_ordered, 
                             aes(x = year, y = country_text_id, fill = treatment_factor)) +
   geom_tile(color = "white", size = 0.05) +
@@ -108,43 +115,166 @@ all_countries_plot <- ggplot(country_data_ordered,
                     name = "Regime Change Type") +
   facet_grid(continent ~ ., scales = "free_y", space = "free_y") +
   theme_minimal() +
-  theme(panel.grid = element_blank(),
-        axis.text.y = element_text(size = 6),
-        legend.position = "bottom",
-        strip.text.y = element_text(angle = 0, size = 10, face = "bold"),
-        plot.title = element_text(hjust = 0.5, size = 16, face = "bold")) +
+  theme(
+    panel.grid = element_blank(),
+    axis.text.y = element_text(size = 8),  
+    axis.text.x = element_text(size = 10, angle = 45, hjust = 1), 
+    axis.title = element_text(size = 12, face = "bold"),
+    legend.position = "bottom",
+    legend.text = element_text(size = 10),
+    legend.title = element_text(size = 11, face = "bold"),
+    strip.text.y = element_text(angle = 0, size = 12, face = "bold"),
+    plot.title = element_text(hjust = 0.5, size = 18, face = "bold"),
+    # Add more spacing
+    plot.margin = margin(20, 20, 20, 20),
+    panel.spacing = unit(0.5, "lines")
+  ) +
   labs(x = "Year", y = "Country", 
        title = "Regime Changes by Country and Continent (Post-1920)")
 
+# Displaying the plot
 print(all_countries_plot)
 
+# Saving as A4 size
+ggsave("regime_changes_A4_wide.pdf", 
+       all_countries_plot, 
+       width = 420,  # Much wider for square-like appearance
+       height = 297, 
+       units = "mm",
+       dpi = 300,
+       limitsize = FALSE,
+       path = "~/regime-changes-and-economic-preferences/Output/")  
+
+
+
+
+
+# Creating separate plots for each continent - simple approach
+continents <- unique(country_data_ordered$continent)
+
+for (cont in continents) {
+  
+  continent_data <- country_data_ordered %>%
+    filter(continent == cont)
+  
+  # Calculate dimensions for more square tiles
+  n_countries <- n_distinct(continent_data$country_text_id)
+  plot_height <- max(150, n_countries * 8)  # 8mm per country minimum
+  
+  continent_plot <- ggplot(continent_data, 
+                          aes(x = year, y = country_text_id, fill = treatment_factor)) +
+    geom_tile(color = "white", size = 0.1) +
+    scale_fill_manual(values = c("No change" = "gray95", 
+                                "Autocratization" = "#8B0000", 
+                                "Democratization" = "#00008B"),
+                      name = "Regime Change Type") +
+    theme_minimal() +
+    theme(
+      panel.grid = element_blank(),
+      axis.text.y = element_text(size = 12),  
+      axis.text.x = element_text(size = 11, angle = 45, hjust = 1),
+      axis.title = element_text(size = 14, face = "bold"),
+      legend.position = "bottom",
+      legend.text = element_text(size = 12),
+      legend.title = element_text(size = 13, face = "bold"),
+      plot.title = element_text(hjust = 0.5, size = 20, face = "bold"),
+      plot.margin = margin(20, 20, 20, 20)
+    ) +
+    labs(x = "Year", y = "Country", 
+         title = paste("Regime Changes in", cont, "(Post-1920)"))
+  
+  # Save with custom dimensions for each continent
+#  ggsave(paste0("regime_changes_", tolower(cont), "_square.pdf"), 
+#         continent_plot, 
+#         width = 400,  # Wide format for square tiles
+#         height = plot_height, 
+#         units = "mm",
+#         dpi = 300,
+#         limitsize = FALSE,
+#         path = "~/regime-changes-and-economic-preferences/Output/")
+  
+}
+
+```
+
+
+
+
+
+
+```{r}
 # Summary statistics
 
-# Overall summary
+# 1. Overall summary
 overall_summary <- country_data_binary %>%
   filter(treatment != 0) %>%
-  count(treatment_factor) %>%
-  rename(n_events = n)
+  count(treatment_factor, name = "n_events")
 
-cat("Overall Regime Changes (Post-1920):\n")
 print(overall_summary)
 
-# Summary by continent
+
+# 2. Summary by continent
 continent_summary <- country_data_binary %>%
   filter(treatment != 0) %>%
   count(continent, treatment_factor) %>%
-  pivot_wider(names_from = treatment_factor, values_from = n, values_fill = 0)
+  pivot_wider(names_from = treatment_factor, values_from = n, values_fill = 0) %>%
+  mutate(Total = Autocratization + Democratization) %>%
+  arrange(desc(Total))
 
-cat("\nRegime Changes by Continent:\n")
 print(continent_summary)
 
-# Summary by decade
+
+# 3. Summary by decade
 decade_summary <- country_data_binary %>%
   filter(treatment != 0) %>%
   mutate(decade = floor(year/10)*10) %>%
   count(decade, treatment_factor) %>%
+  pivot_wider(names_from = treatment_factor, values_from = n, values_fill = 0) %>%
+  mutate(Total = Autocratization + Democratization) %>%
+  arrange(decade)
+
+print(decade_summary)
+
+
+# 4. Countries with most regime changes
+most_changes <- country_data_binary %>%
+  filter(treatment != 0) %>%
+  count(country_text_id, continent, treatment_factor) %>%
+  pivot_wider(names_from = treatment_factor, values_from = n, values_fill = 0) %>%
+  mutate(Total = Autocratization + Democratization) %>%
+  arrange(desc(Total)) %>%
+  head(10)
+
+print(most_changes)
+
+
+# 5. Countries with no regime changes
+no_changes <- country_data_binary %>%
+  group_by(country_text_id, continent) %>%
+  summarise(any_change = max(treatment), .groups = "drop") %>%
+  filter(any_change == 0) %>%
+  select(country_text_id, continent) %>%
+  arrange(continent, country_text_id)
+
+print(no_changes)
+
+
+# 6. Timeline of major waves
+waves_summary <- country_data_binary %>%
+  filter(treatment != 0) %>%
+  mutate(period = case_when(
+    year >= 1920 & year < 1940 ~ "Interwar (1920-1939)",
+    year >= 1940 & year < 1950 ~ "WWII Era (1940-1949)",
+    year >= 1950 & year < 1960 ~ "Early Cold War (1950-1959)",
+    year >= 1960 & year < 1970 ~ "Decolonization (1960-1969)",
+    year >= 1970 & year < 1980 ~ "1970s",
+    year >= 1980 & year < 1990 ~ "Third Wave (1980-1989)",
+    year >= 1990 & year < 2000 ~ "Post-Cold War (1990-1999)",
+    year >= 2000 & year < 2010 ~ "2000s",
+    year >= 2010 ~ "2010s-Present"
+  )) %>%
+  count(period, treatment_factor) %>%
   pivot_wider(names_from = treatment_factor, values_from = n, values_fill = 0)
 
-cat("\nRegime Changes by Decade:\n")
-print(decade_summary)
+print(waves_summary)
 ```
