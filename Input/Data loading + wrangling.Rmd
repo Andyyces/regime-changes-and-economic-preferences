@@ -32,8 +32,8 @@ p_load(haven,
 vdem <- vdemdata::vdem
 
 #opening datasets (individual survey)
-unzip(here("Input","GPS_Dataset.zip"))
-unzip(here("Input", "GPS_dataset_individual_level.zip"))
+#unzip(here("Input","GPS_Dataset.zip"))
+#unzip(here("Input", "GPS_dataset_individual_level.zip"))
 GPS_indiv <- read_dta(here("Input","individual_v11_new.dta"))
 
 #openning data polity

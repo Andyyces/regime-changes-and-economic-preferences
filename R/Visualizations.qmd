@@ -13,6 +13,30 @@ p_load(tidyverse,
        scales)
 ```
 
+
+
+
+
+```{r}
+
+#| message: false
+#| warning: false
+#| include: false
+#  Load the function from extract_codes.R
+source("../Input/extract_codes.R")
+
+#  Use it to extract code from the Rmd into an R script
+extract_r_code_from_rmd("../Input/Data loading + wrangling.Rmd", "../Input/data_wrangle.R")
+
+#  Run the extracted R code
+source("../Input/data_wrangle.R")
+
+
+
+```
+
+
+
 ```{r}
 #Assigning each country to a continent
 country_continents <- data.frame(
