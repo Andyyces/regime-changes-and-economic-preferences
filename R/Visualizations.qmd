@@ -13,10 +13,6 @@ p_load(tidyverse,
        scales)
 ```
 
-
-
-
-
 ```{r}
 
 #| message: false
@@ -30,12 +26,7 @@ extract_r_code_from_rmd("../Input/Data loading + wrangling.Rmd", "../Input/data_
 
 #  Run the extracted R code
 source("../Input/data_wrangle.R")
-
-
-
 ```
-
-
 
 ```{r}
 #Assigning each country to a continent
@@ -106,8 +97,6 @@ country_data_binary <- country_data_continents %>%
     any_change = ifelse(treatment != 0, 1, 0)
   )
 ```
-
-
 
 ```{r}
 # Creating A4-sized visualization 
@@ -220,11 +209,6 @@ for (cont in continents) {
 }
 
 ```
-
-
-
-
-
 
 ```{r}
 # Summary statistics
