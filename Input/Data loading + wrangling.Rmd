@@ -304,139 +304,97 @@ merge_regime_changes_with_individuals <- function(gps_data, country_data_binary)
 final_data <- merge_regime_changes_with_individuals(gps_sub, country_data_binary)
 ```
 
-### Previous approach
+## Contaminated control group
 
-Problem:only first regime changes period is considered in every country, function too long and complicated -\> simplify and split into two steps
+The approach above assigns indviduals to be the control group:
 
-```{r separating the treatment and control groups with custom function, eval=FALSE, include=FALSE}
-generate_formative_regime_change <- function(democracy_data, gps_data, threshold = 0.05) {
-  # Processing democracy_data to compute confidence intervals and identify regime changes
-  vdem_with_ci <- democracy_data %>%
-    group_by(country_text_id) %>%
-    arrange(year) %>%
-    mutate(
-      # Calculate rolling standard errors for confidence intervals
-      v2x_libdem_rolling_sd = rollapply(v2x_libdem, width = 5, 
-                                      FUN = function(x) sd(x, na.rm = TRUE),
-                                      fill = NA, align = "center"),
-      v2x_libdem_rolling_n = rollapply(v2x_libdem, width = 5, 
-                                     FUN = function(x) sum(!is.na(x)),
-                                     fill = NA, align = "center"),
-      
-      # Calculating confidence intervals
-      country_sd = sd(v2x_libdem, na.rm = TRUE),
-      country_n = n(),
-      
-      v2x_libdem_se = case_when(
-        !is.na(v2x_libdem_rolling_sd) & v2x_libdem_rolling_n > 1 ~ 
-          v2x_libdem_rolling_sd / sqrt(v2x_libdem_rolling_n),
-        TRUE ~ country_sd / sqrt(country_n)
-      ),
-      
-      df = case_when(
-        !is.na(v2x_libdem_rolling_n) & v2x_libdem_rolling_n > 1 ~ 
-          v2x_libdem_rolling_n - 1,
-        TRUE ~ country_n - 1
-      ),
-      
-      t_stat = qt(0.975, df = df),  # For 95% CI
-      ci_lower = v2x_libdem - t_stat * v2x_libdem_se,
-      ci_upper = v2x_libdem + t_stat * v2x_libdem_se
+-   **True controls:** Individuals from countries that never experienced any regime changes
+
+-   **Contaminated controls:** Individuals from countries that DID experience regime changes, but these individuals happen to be outside of their formative years when it occured -\> problematic, because they might have indirect exposure effect, they still lived through regime changes as adults outside of formative years
+
+```{r}
+# First, identify countries that experienced ANY regime changes during your study period
+countries_with_regime_changes <- country_data %>%
+  filter(treatment != 0) %>%  # Any regime change (democratization or autocratization)
+  distinct(country_text_id) %>%
+  pull(country_text_id)
+
+# Clean your dataset
+final_data_clean <- final_data %>%
+  mutate(
+    # Create a cleaner treatment variable
+    clean_treatment = case_when(
+      formative_regime_change == 1 ~ 1,                    # Treated: experienced change during formative years
+      !isocode %in% countries_with_regime_changes ~ 0,     # Pure control: from stable countries
+      TRUE ~ NA_real_                                      # Contaminated: delete these
     )
-  
-  # Processing to identify regime changes
-  regime_change_years <- vdem_with_ci %>%
-    arrange(country_text_id, year) %>%
-    group_by(country_text_id) %>%
-    mutate(
-      libdem_diff = v2x_libdem - lag(v2x_libdem, 10),  # 10-year change
-      ci_lower_lag10 = lag(ci_lower, 10),
-      ci_upper_lag10 = lag(ci_upper, 10),
-      
-      # Checking if confidence intervals don't overlap AND change exceeds threshold
-      ci_non_overlapping = case_when(
-        is.na(ci_lower) | is.na(ci_upper_lag10) ~ 0,
-        ci_lower > ci_upper_lag10 | ci_upper < ci_lower_lag10 ~ 1,
-        TRUE ~ 0
-      ),
-      
-      # This is now 1 for regime changes, 0 for non-regime changes
-      formative_regime_change = ifelse(ci_non_overlapping == 1 & !is.na(libdem_diff) & abs(libdem_diff) > threshold, 1, 0),
-      
-      # Direction of change (only for regime changes)
-      regime_change_direction = case_when(
-        formative_regime_change == 1 & libdem_diff > 0 ~ "democratization",
-        formative_regime_change == 1 & libdem_diff < 0 ~ "autocratization",
-        TRUE ~ NA_character_
-      ),
-      autocratization_period = ifelse(formative_regime_change == 1 & libdem_diff < 0, 1, 0),
-      democratization_period = ifelse(formative_regime_change == 1 & libdem_diff > 0, 1, 0)
-    ) %>%
-    # Keeping ALL observations
-    select(country_name, country_text_id, regime_change_year = year, 
-           libdem_diff, formative_regime_change,
-           regime_change_direction,
-           autocratization_period,
-           democratization_period)
-  
-  # Joining with individual level data and checking for formative years overlap
-  result <- gps_data %>%
-    left_join(regime_change_years, 
-              by = c("isocode" = "country_text_id"), 
-              relationship = "many-to-many") %>%
-    # Creating a temporary variable to identify formative regime changes
-    mutate(
-      is_formative_regime_change = formative_regime_change == 1 & 
-                                  regime_change_year >= year_3 & 
-                                  regime_change_year < year_adult
-    ) %>%
-    # First identifying individuals with formative regime changes
-    group_by(id_gallup) %>%
-    mutate(
-      has_formative_change = any(is_formative_regime_change, na.rm = TRUE),
-      first_formative_year = ifelse(has_formative_change, 
-                                   min(regime_change_year[is_formative_regime_change], na.rm = TRUE), 
-                                   NA_real_),
-      n_autocratization_periods = sum(is_formative_regime_change & autocratization_period == 1, na.rm = TRUE),
-      n_democratization_periods = sum(is_formative_regime_change & democratization_period == 1, na.rm = TRUE)
-    ) %>%
-    # Now extracting details for the first formative regime change
-    filter(is.na(first_formative_year) | regime_change_year == first_formative_year) %>%
-    summarize(
-      # Basic information
-      formative_regime_change = as.numeric(first(has_formative_change)),
-      # Remove birth_year since it's already in gps_data
-      
-      # Details of the first regime change (if any)
-      formative_change_year = ifelse(formative_regime_change == 1, 
-                                    first(regime_change_year[is_formative_regime_change]), 
-                                    NA_real_),
-      
-      formative_change_direction = ifelse(formative_regime_change == 1, 
-                                         first(regime_change_direction[is_formative_regime_change]), 
-                                         NA_character_),
-      
-      formative_change_magnitude = ifelse(formative_regime_change == 1, 
-                                         first(libdem_diff[is_formative_regime_change]), 
-                                         NA_real_),
-      
-      # Calculate age at regime change (use birth_year from original data)
-      age_at_regime_change = ifelse(formative_regime_change == 1 & !is.na(formative_change_year), 
-                                   formative_change_year - first(birth_year), 
-                                   NA_real_),
-      n_autocratization_periods = first(n_autocratization_periods),
-      n_democratization_periods = first(n_democratization_periods)
-    ) %>%
-    ungroup()
-  
-  # Merging with original individual data to keep all variables
-  gps_data %>%
-    left_join(result, by = "id_gallup")
-}
+  ) %>%
+  filter(!is.na(clean_treatment))  # Remove contaminated controls
 
-# Applying the function
-final_data <- generate_formative_regime_change(vdem_sub, gps_sub, threshold = 0.25)
-table(final_data$formative_regime_change)
+# Check your new sample sizes
+table(final_data_clean$clean_treatment)
+```
+
+```{r}
+# Method 1: Country counts by treatment type
+country_breakdown <- final_data_clean %>%
+  group_by(treatment_type, country) %>%
+  summarise(n_individuals = n(), .groups = "drop") %>%
+  arrange(treatment_type, desc(n_individuals))
+
+print("Country breakdown by treatment type:")
+print(country_breakdown)
+
+# Method 2: Summary table - countries per treatment type
+country_summary <- final_data_clean %>%
+  group_by(treatment_type) %>%
+  summarise(
+    n_individuals = n(),
+    n_countries = n_distinct(country),
+    countries = paste(unique(country), collapse = ", "),
+    .groups = "drop"
+  )
+
+print("Summary by treatment type:")
+print(country_summary)
+
+# Method 3: Wide format showing individuals per country per treatment type
+country_wide <- final_data_clean %>%
+  count(country, treatment_type) %>%
+  pivot_wider(names_from = treatment_type, values_from = n, values_fill = 0) %>%
+  arrange(desc(Control + Democratization + Autocratization))
+
+print("Countries with individual counts by treatment type:")
+print(country_wide)
+
+# Method 4: Focus on treated countries - which countries had which type of changes
+treated_countries <- final_data_clean %>%
+  filter(clean_treatment == 1) %>%
+  group_by(country) %>%
+  summarise(
+    total_treated = n(),
+    democratization = sum(formative_democratization),
+    autocratization = sum(formative_autocratization),
+    regime_change_type = case_when(
+      democratization > 0 & autocratization == 0 ~ "Democratization only",
+      autocratization > 0 & democratization == 0 ~ "Autocratization only", 
+      democratization > 0 & autocratization > 0 ~ "Both types",
+      TRUE ~ "Neither"
+    ),
+    .groups = "drop"
+  ) %>%
+  arrange(desc(total_treated))
+
+print("Countries with treated individuals:")
+print(treated_countries)
+
+# Method 5: Control countries (stable countries)
+control_countries <- final_data_clean %>%
+  filter(treatment_type == "Control") %>%
+  count(country, sort = TRUE)
+
+print("Control group countries (stable countries):")
+print(control_countries)
 ```
 
 ## Controls
@@ -482,9 +440,7 @@ calculate_avg_gdppc <- function(final_data, gdp_data) {
 }
 
 
-final_data_gdp <- calculate_avg_gdppc(final_data, gdp_data)
-
-
+final_data_gdp <- calculate_avg_gdppc(final_data_clean, gdp_data)
 ```
 
 ```{r average democracy index}
@@ -520,6 +476,7 @@ calculate_avg_libdem <- function(final_data_gdp, vdem_sub) {
 
 final_data_gdp <- calculate_avg_libdem(final_data_gdp, vdem_sub)
 
+
 ```
 
 ```{r Removing NAs from two columns}
@@ -529,7 +486,7 @@ final_data_gdp <- final_data_gdp %>%
 
 ```
 
-```{r assigning also a bottom threshold}
+```{r assigning also a bottom threshold, eval=FALSE, include=FALSE}
 # Assigning observations as treated only if they were older than 2 years in year of regime change
 final_data_gdp$formative_regime_change[final_data_gdp$age_at_regime_change < 3] <- 0
 table(final_data_gdp$formative_regime_change)
