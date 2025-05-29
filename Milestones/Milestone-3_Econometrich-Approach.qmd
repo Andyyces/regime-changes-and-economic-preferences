@@ -78,7 +78,7 @@ Our analysis combines two primary data sources:
 
 Our main endogenous variable is a **binary indicator** for experiencing a significant regime change during formative years (ages 3-18). We define regime changes using the **Liberal Democracy Index** **(LDI)** from V-Dem, which measures the extent to which democratic principles are respected in a country on a scale from **0 (autocracy) to 1 (liberal democracy)**. Together with the binary indicator we also capture the **direction of change** (democratization or autocratization).
 
-We identify significant regime changes using a stricter threshold ($|\Delta\text{LDI}| > 0.1$ over a 10-year period) than previous literature [@luhrmann_autocratization_2020] to focus on **substantial political transformations rather than gradual changes**. This modification allows us to capture more disruptive institutional changes that are more likely to affect preference formation.
+We identify significant regime changes using a stricter threshold ($|\Delta\text{LDI}| > 0.2$ over a 10-year period) than previous literature [@luhrmann_autocratization_2020] to focus on **substantial political transformations rather than gradual changes**. This modification allows us to capture more disruptive institutional changes that are more likely to affect preference formation.
 
 The regime changes are identified first on a country level according to the V-Dem dataset and then combined with the individual level data from the General Preference Survey. Goal is to **differenciate between individuals who experienced a regime change during their formative years** and individuals, who didn't.
 
@@ -86,7 +86,7 @@ The precise identification follows this procedure:
 
 1.  First we compute the change in a country's Liberal Democracy Index according to the following notation: $\Delta\text{LDI} = \text{LDI}_t - \text{LDI}_{t-10}$. This creates a rolling comparison rather than a fixed window, allowing us to evaluate changes for every available year in the dataset.
 
-2.  In the next step, we evaluate the following condition: $|\Delta\text{LDI}| > 0.1$. This is our threshold to what we consider a "substantial" change. The absolute value means we are measuring the magnitude of change regardless of direction (democratization or autocratization). A change greater than this threshold represents a meaningful shift in democratic quality that exceed typical measurement noise or minor fluctuations.
+2.  In the next step, we evaluate the following condition: $|\Delta\text{LDI}| > 0.2$. This is our threshold to what we consider a "substantial" change. The absolute value means we are measuring the magnitude of change regardless of direction (democratization or autocratization). A change greater than this threshold represents a meaningful shift in democratic quality that exceed typical measurement noise or minor fluctuations.
 
 3.  In the next step we test the statistical significance of the change. The expression for significance:
 
@@ -102,14 +102,65 @@ In this step we also differenciate between the **direction of the change**, eith
 
 4.  In the next step we move on to the **individual level** data from the **General Preference Survey**. We evaluate each individual living at the year determined in previous step in a given country. If the individual was in his **formative years (between 3-18 years old)** at this time, he is assigned the **treatment**.
 
-Our **control group** on the other hand consists of **individuals, who never experienced a regime change**. Applying this algorithm on our data, we receive the following number of observations in each category:
-
 ```{r}
 #| echo: false
 #| label: tbl-c
 #| tbl-cap: Number of observations in treatment and control group
 #| tbl-pos: "H"
 table(final_data$formative_regime_change)
+```
+
+### Contaminated control group
+
+The approach above assigns the following indviduals to be a part the control group:
+
+-   **True controls:** Individuals from countries that never experienced any regime changes
+
+-   **Contaminated controls:** Individuals from countries that did experience regime changes, but these individuals happen to be outside of their formative years at that time.
+
+The contaminated control group could compromise the integrity of our study, because these individuals might have indirect exposure effects. In order to avoid this, we have decide to delete these observations.
+
+Our **control group** on the other hand consists of **individuals from countries, which never experienced a regime change**.
+
+```{r table control group}
+#| echo: false
+#| label: tbl-d
+#| tbl-cap: Number of observations in treatment and control group
+#| tbl-pos: "H"
+
+p_load(flextable)
+
+country_summary <- country_summary %>%
+  mutate(
+    Treatment = case_when(
+      first_formative_type == 0 ~ "No Regime Change",
+      first_formative_type == 1 ~ "Autocratization",
+      first_formative_type == 2 ~ "Democratization",
+      TRUE ~ "Unknown"
+    )
+  ) %>%
+  select(Treatment, n_individuals, n_countries, countries) %>%
+  rename(
+    "Treatment Type" = Treatment,
+    "Number of Individuals" = n_individuals,
+    "Number of Countries" = n_countries,
+    "Countries" = countries
+  )
+
+country_summary %>%
+  kbl(caption = "Summary of Countries by Regime Change Type",
+      format = "latex",
+      booktabs = TRUE,
+      linesep = "") %>%
+  kable_styling(latex_options = c("striped", "hold_position"),
+                full_width = FALSE) %>%
+  column_spec(1, bold = TRUE) %>%
+  column_spec(2:3, width = "3cm") %>%
+  column_spec(4, width = "8cm") %>%
+  row_spec(0, bold = TRUE)
+
+print(country_summary)
+
 ```
 
 ## Outcome Variables: Economic Preferences

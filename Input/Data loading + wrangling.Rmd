@@ -101,8 +101,6 @@ gps_sub <- gps_sub %>%
 
 ## Treatment
 
-Problem: Just the FIRST regime changes considered -\> working on this, will finish on 23.05.
-
 ### First step: regime changes on country level
 
 ```{r regime changes periods on country level}
@@ -312,42 +310,42 @@ The approach above assigns indviduals to be the control group:
 
 -   **Contaminated controls:** Individuals from countries that DID experience regime changes, but these individuals happen to be outside of their formative years when it occured -\> problematic, because they might have indirect exposure effect, they still lived through regime changes as adults outside of formative years
 
-```{r}
+```{r deleting contaminated control group observations}
 # First, identify countries that experienced ANY regime changes during your study period
 countries_with_regime_changes <- country_data %>%
   filter(treatment != 0) %>%  # Any regime change (democratization or autocratization)
   distinct(country_text_id) %>%
   pull(country_text_id)
 
-# Clean your dataset
+# Cleaning
 final_data_clean <- final_data %>%
   mutate(
     # Create a cleaner treatment variable
     clean_treatment = case_when(
-      formative_regime_change == 1 ~ 1,                    # Treated: experienced change during formative years
+      formative_regime_change == 1 ~ 1,                    # Treated: experienced change during formative years (no need to differenciate here)
       !isocode %in% countries_with_regime_changes ~ 0,     # Pure control: from stable countries
       TRUE ~ NA_real_                                      # Contaminated: delete these
     )
   ) %>%
   filter(!is.na(clean_treatment))  # Remove contaminated controls
 
-# Check your new sample sizes
+# Checking the new sample sizes
 table(final_data_clean$clean_treatment)
 ```
 
-```{r}
-# Method 1: Country counts by treatment type
+```{r exploring the both groups}
+# First approach: Country counts by treatment type
 country_breakdown <- final_data_clean %>%
-  group_by(treatment_type, country) %>%
+  group_by(first_formative_type, country) %>%
   summarise(n_individuals = n(), .groups = "drop") %>%
-  arrange(treatment_type, desc(n_individuals))
+  arrange(first_formative_type, desc(n_individuals))
 
 print("Country breakdown by treatment type:")
 print(country_breakdown)
 
-# Method 2: Summary table - countries per treatment type
+# Different approach: Summary table - countries per treatment type
 country_summary <- final_data_clean %>%
-  group_by(treatment_type) %>%
+  group_by(first_formative_type) %>%
   summarise(
     n_individuals = n(),
     n_countries = n_distinct(country),
@@ -358,16 +356,7 @@ country_summary <- final_data_clean %>%
 print("Summary by treatment type:")
 print(country_summary)
 
-# Method 3: Wide format showing individuals per country per treatment type
-country_wide <- final_data_clean %>%
-  count(country, treatment_type) %>%
-  pivot_wider(names_from = treatment_type, values_from = n, values_fill = 0) %>%
-  arrange(desc(Control + Democratization + Autocratization))
-
-print("Countries with individual counts by treatment type:")
-print(country_wide)
-
-# Method 4: Focus on treated countries - which countries had which type of changes
+# Different approach: Focus on treated countries - which countries had which type of changes
 treated_countries <- final_data_clean %>%
   filter(clean_treatment == 1) %>%
   group_by(country) %>%
@@ -387,14 +376,6 @@ treated_countries <- final_data_clean %>%
 
 print("Countries with treated individuals:")
 print(treated_countries)
-
-# Method 5: Control countries (stable countries)
-control_countries <- final_data_clean %>%
-  filter(treatment_type == "Control") %>%
-  count(country, sort = TRUE)
-
-print("Control group countries (stable countries):")
-print(control_countries)
 ```
 
 ## Controls

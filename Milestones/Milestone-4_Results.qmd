@@ -1,0 +1,42 @@
+---
+title: "Regime Changes and Economic Preferences: Global Evidence"
+subtitle: "Milestone 3: Econometric Approach"
+author: "Andrea Češková and Elvin Mammadov"
+format: 
+  pdf:
+    reference-location: document
+number-sections: true
+toc: true
+crossref:
+  fig-title: "Figure"
+  tbl-title: "Table"
+  eq-title: "Equation"
+  lot-title: "List of figures"
+bibliography: references.bib
+link-citations: true
+---
+
+\*Add code that runs the files "Data loading + wrangling.Rmd" and "Regressions.qmd"
+
+# Regression tables
+
+```{r base model}
+#| echo: false
+#| label: tbl-base
+#| tbl-cap: Base model
+#| tbl-pos: "H"
+
+msummary(
+  hetero_models_no_controls,
+  title = "Heterogeneity by Regime Change Direction (Two-way Fixed Effects) - No Controls",
+  stars = TRUE,
+  coef_rename = c(
+    "democratization" = "Democratization",
+    "autocratization" = "Autocratization"
+  ),
+  notes = "Standard errors clustered at country level. All models include region and birth year fixed effects.",
+  output = "gt"
+)
+```
+
+# Interpretation
