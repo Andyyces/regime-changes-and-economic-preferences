@@ -22,8 +22,6 @@ p_load(dplyr,
 
 Not possible to test: pre-treatment trends in outcomes (don't have a repeated measure of preferences), parallel trends assumption directly (panel data just on country level, not on individual level), dynamic treatment effects (single cross-section)
 
-The goal is to asses the quality of a TWFE estimator by examining the extent to which it p
-
 ```{r}
 create_balance_table_treated <- function(data) {
   
@@ -415,113 +413,227 @@ joint_balance_test_overall <- function(data) {
 joint_test_overall <- joint_balance_test_overall(final_data_gdp)
 ```
 
+# Recession dummy
+
+## Calculation
+
 ```{r}
-create_density_plots_treated <- function(data) {
-  
-  # Prepare treated data
-  treated_data <- data %>%
-    filter(clean_treatment == 1) %>%
+# Create recession dummy with stricter threshold
+create_recession_data <- function(gdp_data, recession_threshold = -2) {
+  recession_data <- gdp_data %>%
+    arrange(countrycode, year) %>%
+    group_by(countrycode) %>%
     mutate(
-      treatment_type = case_when(
-        democratization == 1 ~ "Democratization",
-        autocratization == 1 ~ "Autocratization"
-      )
+      # Calculate year-over-year GDP per capita growth
+      gdppc_growth = (gdppc - lag(gdppc)) / lag(gdppc) * 100,
+      
+      # Define recession as growth below threshold (default -2%)
+      recession = ifelse(gdppc_growth < recession_threshold, 1, 0)
     ) %>%
-    filter(!is.na(treatment_type))
+    select(countrycode, year, recession, gdppc_growth) %>%
+    ungroup()
   
-  continuous_vars <- c("avg_gdppc_formative", "avg_libdem_formative")
-  plot_list <- list()
-  
-  for(var in continuous_vars) {
-    p <- treated_data %>%
-      filter(!is.na(!!sym(var))) %>%
-      ggplot(aes(x = !!sym(var), fill = treatment_type)) +
-      geom_density(alpha = 0.6) +
-      scale_fill_manual(values = c("Democratization" = "#2166ac", "Autocratization" = "#d73027")) +
-      labs(title = paste("Distribution of", var, "(Treated Groups Only)"),
-           x = var,
-           y = "Density",
-           fill = "Treatment Type") +
-      theme_minimal() +
-      theme(legend.position = "bottom")
-    
-    plot_list[[var]] <- p
-  }
-  
-  return(plot_list)
+  return(recession_data)
 }
 
-density_plots_treated <- create_density_plots_treated(final_data_gdp)
-
-# Display plots
-grid.arrange(grobs = density_plots_treated, ncol = 2)
-
+# Apply to your GDP data with -2% threshold
+recession_indicators <- create_recession_data(gdp_data, recession_threshold = -2)
 ```
 
 ```{r}
-calculate_smd_treated <- function(data) {
+# Function to calculate if individual experienced recession during formative years
+calculate_recession_exposure <- function(final_data, recession_indicators) {
+  # Initialize new columns
+  final_data$recession_formative <- 0  # Default to 0 (no recession)
+  final_data$n_recession_years <- 0
+  final_data$recession_intensity <- 0
   
-  # Prepare treated data
-  treated_data <- data %>%
-    filter(clean_treatment == 1) %>%
-    mutate(
-      treatment_type = case_when(
-        democratization == 1 ~ 1,
-        autocratization == 1 ~ 0
+  for (i in 1:nrow(final_data)) {
+    iso <- final_data$isocode[i]
+    
+    # Define formative years window (ages 3-18)
+    start_year <- final_data$year_3[i]      # Year when individual turned 3
+    end_year <- final_data$year_adult[i]    # Year when individual turned 18
+    
+    # Get ONLY recessions that occurred during ages 3-18
+    recession_subset <- recession_indicators %>%
+      filter(countrycode == iso & 
+             year >= start_year &    # Must be after age 3
+             year <= end_year)       # Must be before age 18
+    
+    if (nrow(recession_subset) > 0) {
+      # Check if ANY recession occurred during formative years
+      final_data$recession_formative[i] <- ifelse(
+        any(recession_subset$recession == 1, na.rm = TRUE), 1, 0
       )
-    ) %>%
-    filter(!is.na(treatment_type))
-  
-  balance_vars <- c("avg_gdppc_formative", "avg_libdem_formative")
-  smd_results <- data.frame()
-  
-  for(var in balance_vars) {
-    # Extract values for each group
-    autocrat_vals <- treated_data %>% 
-      filter(treatment_type == 0) %>% 
-      pull(!!sym(var))
-    
-    democrat_vals <- treated_data %>% 
-      filter(treatment_type == 1) %>% 
-      pull(!!sym(var))
-    
-    # Remove NAs
-    autocrat_vals <- autocrat_vals[!is.na(autocrat_vals)]
-    democrat_vals <- democrat_vals[!is.na(democrat_vals)]
-    
-    # Calculate standardized mean difference
-    if(length(autocrat_vals) > 1 & length(democrat_vals) > 1) {
-      pooled_sd <- sqrt((var(autocrat_vals) + var(democrat_vals)) / 2)
-      smd <- (mean(democrat_vals) - mean(autocrat_vals)) / pooled_sd
       
-      smd_results <- rbind(smd_results, data.frame(
-        variable = var,
-        smd = smd
-      ))
+      # Count how many years had recessions during ages 3-18
+      final_data$n_recession_years[i] <- sum(recession_subset$recession, na.rm = TRUE)
+      
+      # Average negative growth during recession years (intensity)
+      recession_years <- recession_subset %>% 
+        filter(recession == 1)
+      
+      if (nrow(recession_years) > 0) {
+        final_data$recession_intensity[i] <- mean(recession_years$gdppc_growth, na.rm = TRUE)
+      }
     }
   }
   
-  return(smd_results)
+  # Print summary statistics
+  cat("\n=== Recession Exposure Summary (Threshold: -2%) ===\n")
+  cat("Total individuals:", nrow(final_data), "\n")
+  cat("Individuals with recession exposure:", sum(final_data$recession_formative), "\n")
+  cat("Percentage exposed to recession:", 
+      round(mean(final_data$recession_formative) * 100, 2), "%\n")
+  cat("Average number of recession years (among exposed):", 
+      round(mean(final_data$n_recession_years[final_data$recession_formative == 1]), 2), "\n")
+  cat("Average recession intensity (among exposed):", 
+      round(mean(final_data$recession_intensity[final_data$recession_formative == 1]), 2), "%\n")
+  
+  return(final_data)
 }
 
-smd_data_treated <- calculate_smd_treated(final_data_gdp)
+# Apply to your data
+final_data_gdp <- calculate_recession_exposure(final_data_gdp, recession_indicators)
+```
 
-# Love plot for treated groups
-smd_data_treated %>%
-  mutate(
-    variable = factor(variable, levels = rev(variable)),
-    balanced = abs(smd) < 0.1
-  ) %>%
-  ggplot(aes(x = smd, y = variable, color = balanced)) +
-  geom_point(size = 3) +
-  geom_vline(xintercept = c(-0.1, 0, 0.1), linetype = c("dashed", "solid", "dashed")) +
-  scale_color_manual(values = c("TRUE" = "#2166ac", "FALSE" = "#d73027"),
-                     labels = c("Unbalanced (|SMD| > 0.1)", "Balanced (|SMD| ≤ 0.1)")) +
-  labs(title = "Standardized Mean Differences: Democratization vs Autocratization",
-       subtitle = "Balance assessment within treated groups only",
-       x = "Standardized Mean Difference",
-       y = "Variables",
-       color = "Balance Status") +
-  theme_minimal() +
-  theme(legend.position = "bottom")
+## Adding to regression models
+
+Diagnostic tests
+
+## Country-specific approach
+
+```{r}
+# Create recession based on country-specific volatility
+create_country_specific_recession <- function(gdp_data, n_sd = 1.5) {
+  
+  # First calculate country-specific statistics
+  country_stats <- gdp_data %>%
+    arrange(countrycode, year) %>%
+    group_by(countrycode) %>%
+    mutate(
+      gdppc_growth = (gdppc - lag(gdppc)) / lag(gdppc) * 100
+    ) %>%
+    summarise(
+      country_mean_growth = mean(gdppc_growth, na.rm = TRUE),
+      country_sd_growth = sd(gdppc_growth, na.rm = TRUE),
+      n_observations = sum(!is.na(gdppc_growth))
+    ) %>%
+    filter(n_observations >= 10)  # Require at least 10 observations for reliable stats
+  
+  # Now create recession indicators
+  recession_data <- gdp_data %>%
+    arrange(countrycode, year) %>%
+    group_by(countrycode) %>%
+    mutate(
+      # Calculate growth
+      gdppc_growth = (gdppc - lag(gdppc)) / lag(gdppc) * 100
+    ) %>%
+    # Join with country statistics
+    left_join(country_stats, by = "countrycode") %>%
+    mutate(
+      # Calculate threshold for this country
+      recession_threshold = country_mean_growth - (n_sd * country_sd_growth),
+      
+      # Recession if growth is below country-specific threshold
+      recession = case_when(
+        is.na(gdppc_growth) ~ NA_real_,
+        is.na(recession_threshold) ~ NA_real_,
+        gdppc_growth < recession_threshold ~ 1,
+        TRUE ~ 0
+      )
+    ) %>%
+    select(countrycode, year, recession, gdppc_growth, recession_threshold, 
+           country_mean_growth, country_sd_growth) %>%
+    ungroup()
+  
+  # Print summary statistics
+  cat("\n=== Country-Specific Recession Definition Summary ===\n")
+  cat("Number of standard deviations used:", n_sd, "\n")
+  cat("Countries with sufficient data:", nrow(country_stats), "\n")
+  
+  # Show distribution of thresholds
+  threshold_summary <- recession_data %>%
+    group_by(countrycode) %>%
+    summarise(
+      threshold = first(recession_threshold),
+      mean_growth = first(country_mean_growth),
+      sd_growth = first(country_sd_growth)
+    ) %>%
+    filter(!is.na(threshold))
+  
+  cat("\nDistribution of recession thresholds:\n")
+  cat("Min threshold:", round(min(threshold_summary$threshold, na.rm = TRUE), 2), "%\n")
+  cat("Median threshold:", round(median(threshold_summary$threshold, na.rm = TRUE), 2), "%\n")
+  cat("Max threshold:", round(max(threshold_summary$threshold, na.rm = TRUE), 2), "%\n")
+  
+  return(recession_data)
+}
+
+# Apply to your GDP data
+recession_indicators <- create_country_specific_recession(gdp_data, n_sd = 1.5)
+```
+
+```{r}
+# Function to calculate if individual experienced recession during formative years
+calculate_recession_exposure <- function(final_data, recession_indicators) {
+  # Initialize new columns
+  final_data$recession_formative <- 0  
+  final_data$n_recession_years <- 0
+  final_data$recession_intensity <- 0
+  final_data$recession_threshold_avg <- NA
+  
+  for (i in 1:nrow(final_data)) {
+    iso <- final_data$isocode[i]
+    
+    # Define formative years window (ages 3-18)
+    start_year <- final_data$year_3[i]      
+    end_year <- final_data$year_adult[i]    
+    
+    # Get recession data for formative years
+    recession_subset <- recession_indicators %>%
+      filter(countrycode == iso & 
+             year >= start_year &    
+             year <= end_year)       
+    
+    if (nrow(recession_subset) > 0 && any(!is.na(recession_subset$recession))) {
+      # Check if ANY recession occurred during formative years
+      final_data$recession_formative[i] <- ifelse(
+        any(recession_subset$recession == 1, na.rm = TRUE), 1, 0
+      )
+      
+      # Count how many years had recessions during ages 3-18
+      final_data$n_recession_years[i] <- sum(recession_subset$recession, na.rm = TRUE)
+      
+      # Store average threshold for this country (for diagnostics)
+      final_data$recession_threshold_avg[i] <- mean(recession_subset$recession_threshold, na.rm = TRUE)
+      
+      # Average negative growth during recession years (intensity)
+      recession_years <- recession_subset %>% 
+        filter(recession == 1)
+      
+      if (nrow(recession_years) > 0) {
+        final_data$recession_intensity[i] <- mean(recession_years$gdppc_growth, na.rm = TRUE)
+      }
+    }
+  }
+  
+  # Print summary statistics
+  cat("\n=== Recession Exposure Summary (Country-Specific) ===\n")
+  cat("Total individuals:", nrow(final_data), "\n")
+  cat("Individuals with valid recession data:", sum(!is.na(final_data$recession_threshold_avg)), "\n")
+  cat("Individuals with recession exposure:", sum(final_data$recession_formative), "\n")
+  cat("Percentage exposed to recession:", 
+      round(mean(final_data$recession_formative) * 100, 2), "%\n")
+  cat("Average number of recession years (among exposed):", 
+      round(mean(final_data$n_recession_years[final_data$recession_formative == 1]), 2), "\n")
+  cat("Average recession intensity (among exposed):", 
+      round(mean(final_data$recession_intensity[final_data$recession_formative == 1]), 2), "%\n")
+  
+  return(final_data)
+}
+
+# Apply to your data
+final_data_gdp <- calculate_recession_exposure(final_data_gdp, recession_indicators)
 ```

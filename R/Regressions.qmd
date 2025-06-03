@@ -95,7 +95,7 @@ for (pref in preference_vars) {
   preference_models[[pref]] <- run_twfe_reg(
     outcome_var = pref,
     data = final_data_gdp,
-    controls = c("avg_gdppc_formative", "avg_libdem_formative"),
+    controls = c("avg_gdppc_formative", "avg_libdem_formative","recession_formative"),
     treatment = "formative_regime_change",
     fe = c("region", "birth_year"),
     cluster_var = "country"  # Using country as the cluster variable
@@ -115,8 +115,8 @@ msummary(
   ),
   notes = "Standard errors clustered at country level. Fixed effects for region and birth year included.",
   output = "gt"
-) %>%
-  gtsave(here("Output", "model_regimechange.png"))
+)# %>%
+#  gtsave(here("Output", "model_regimechange.png"))
 ```
 
 We have to differenciate between democratization / autocratization type of a regime change, because the effect might go in different directions.
@@ -140,7 +140,8 @@ final_data_gdp <- final_data_gdp %>%
 run_hetero_reg <- function(outcome_var,
                           data = final_data_gdp,
                           controls = c("avg_libdem_formative",
-                          "avg_libdem_formative"),
+                          "avg_libdem_formative",
+                          "recession_formative"),
                           fe = c("region", "birth_year"),
                           cluster_var = "country") {
   
@@ -189,8 +190,8 @@ msummary(
   ),
   notes = "Standard errors clustered at country level. All models include region and birth year fixed effects.",
   output = "gt"
-) %>%
-  gtsave(here("Output", "model_base.png"))
+)# %>%
+#  gtsave(here("Output", "model_base.png"))
 ```
 
 # Fixed effects: adding controls
@@ -200,7 +201,7 @@ msummary(
 # Creating a function for heterogeneity models
 run_hetero_reg <- function(outcome_var, 
                           data = final_data_gdp, 
-                          controls = c("avg_gdppc_formative", "avg_libdem_formative"),
+                          controls = c("avg_gdppc_formative", "avg_libdem_formative","recession_formative"),
                           fe = c("region", "birth_year"),
                           cluster_var = "country") {
   
@@ -244,10 +245,11 @@ msummary(
     "democratization" = "Democratization",
     "autocratization" = "Autocratization",
     "avg_gdppc_formative" = "Log of Average GDP per Capita during formative years",
-    "avg_libdem_formative" = "Average LDI during formative years"
+    "avg_libdem_formative" = "Average LDI during formative years",
+    "recession_formative" = "Recession experienced during formative years"
   ),
   notes = "Standard errors clustered at country level. All models include region and birth year fixed effects.",
   output = "gt"
-) %>%
-  gtsave(here("Output", "model_controls.png"))
+)# %>%
+#  gtsave(here("Output", "model_controls.png"))
 ```

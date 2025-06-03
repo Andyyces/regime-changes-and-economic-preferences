@@ -107,18 +107,18 @@ gps_sub <- gps_sub %>%
 # Function to create country-level regime change data
 create_country_regime_data <- function(democracy_data, threshold = 0.05, country_filter = NULL) {
   
-  # Filter for specific countries if provided
+  # Filtering for specific countries if provided
   if (!is.null(country_filter)) {
     democracy_data <- democracy_data %>%
       filter(country_text_id %in% country_filter)
   }
   
-  # First, identify regime changes at country level
+  # First identifying regime changes at country level
   country_regime_changes <- democracy_data %>%
     group_by(country_text_id) %>%
     arrange(year) %>%
     mutate(
-      # Calculate rolling standard errors for confidence intervals
+      # Calculating rolling standard errors for confidence intervals
       v2x_libdem_rolling_sd = rollapply(v2x_libdem, width = 5,
                                        FUN = function(x) sd(x, na.rm = TRUE),
                                        fill = NA, align = "center"),
@@ -151,26 +151,26 @@ create_country_regime_data <- function(democracy_data, threshold = 0.05, country
       ci_lower_lag10 = lag(ci_lower, 10),
       ci_upper_lag10 = lag(ci_upper, 10),
       
-      # Check for non-overlapping confidence intervals
+      # Checking for non-overlapping confidence intervals
       ci_non_overlapping = case_when(
         is.na(ci_lower) | is.na(ci_upper_lag10) ~ 0,
         ci_lower > ci_upper_lag10 | ci_upper < ci_lower_lag10 ~ 1,
         TRUE ~ 0
       ),
       
-      # Identify regime changes
+      # Identifying regime changes
       regime_change = ifelse(ci_non_overlapping == 1 & 
                             !is.na(libdem_diff) & 
                             abs(libdem_diff) > threshold, 1, 0),
       
-      # Create treatment variable with 3 categories
+      # Creating treatment variable with 3 categories
       treatment = case_when(
         regime_change == 1 & libdem_diff > 0 ~ 2,  # Democratization
         regime_change == 1 & libdem_diff < 0 ~ 1,  # Autocratization
         TRUE ~ 0  # No regime change
       ),
       
-      # Create factor with labels
+      # Creating factor with labels
       treatment_factor = factor(treatment,
                                levels = c(0, 1, 2),
                                labels = c("No change", "Autocratization", "Democratization"))
@@ -180,19 +180,19 @@ create_country_regime_data <- function(democracy_data, threshold = 0.05, country
   return(country_regime_changes)
 }
 
-# Get unique countries from gps_sub
+# Getting unique countries from gps_sub
 countries_to_analyze <- unique(gps_sub$isocode)
 
-# Create the country-level data for selected countries only
+# Creating dataframe the country-level data for selected countries only
 country_data <- create_country_regime_data(vdem_sub, 
                                          threshold = 0.2,
                                          country_filter = countries_to_analyze)
 
-# Filter for periods after 1920
+# Filtering for periods after 1920
 country_data <- country_data %>%
-  filter(year > 1910)
+  filter(year > 1920)
 
-# For multiple treatment categories, we need to create separate binary indicators
+# Long format for easier merging
 # Creating binary indicators for each treatment type
 country_data_binary <- country_data %>%
   mutate(
@@ -215,7 +215,7 @@ merge_regime_changes_with_individuals <- function(gps_data, country_data_binary)
     select(country_text_id, year, treatment, autocratization, democratization) %>%
     rename(regime_change_year = year)
   
-  # Join with GPS data
+  # Joining with GPS data
   # Each individual gets matched with all regime changes in their country
   merged_data <- gps_data %>%
     left_join(regime_changes_long,
@@ -236,12 +236,11 @@ merge_regime_changes_with_individuals <- function(gps_data, country_data_binary)
       formative_autocratization = experienced_formative_change * autocratization,
       formative_democratization = experienced_formative_change * democratization
     )
-  
-  # Aggregate to individual level - one row per person
+  # Aggregating to individual level - one row per person
   individual_summary <- merged_data %>%
     group_by(id_gallup) %>%
     summarize(
-      # Keep all original individual variables (take first value)
+      # Keeping all original individual variables (take first value)
       across(c(age, country, isocode, region, patience, risktaking, posrecip, negrecip, altruism, trust, subj_math_skills, gender,  birth_year, year_3, year_adult), 
              ~first(.)),
       
@@ -298,7 +297,7 @@ merge_regime_changes_with_individuals <- function(gps_data, country_data_binary)
   return(individual_summary)
 }
 
-# Example usage:
+# Applying to our data
 final_data <- merge_regime_changes_with_individuals(gps_sub, country_data_binary)
 ```
 
