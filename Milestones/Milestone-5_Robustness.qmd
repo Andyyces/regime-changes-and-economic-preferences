@@ -1,0 +1,109 @@
+---
+title: "Regime Changes and Economic Preferences: Global Evidence"
+subtitle: "Milestone 5: Robustness"
+author: "Andrea Češková and Elvin Mammadov"
+format: 
+  pdf:
+    reference-location: document
+number-sections: true
+toc: true
+crossref:
+  fig-title: "Figure"
+  tbl-title: "Table"
+  eq-title: "Equation"
+  lot-title: "List of figures"
+bibliography: references.bib
+link-citations: true
+---
+
+```{r}
+#| include: false
+library(pacman)
+
+p_load(gt,
+       knitr,
+       kableExtra,
+       here
+       )
+```
+
+```{r}
+#| include: false
+conditional_balance <- readRDS(here("Output", "conditional_balance_table.rds"))
+democratization_balance <- readRDS(here("Output", "balance_table_democratization_vs_autocratization.rds"))
+overall_balance <- readRDS(here("Output", "balance_table_overall.rds"))
+sample_composition <- readRDS(here("Output", "sample_composition.rds"))
+```
+
+# Balance Tests and Sample Description
+
+## Sample composition
+
+Our final analytical sample consists of `r sum(sample_composition$n)` individuals across three groups:
+
+```{r}
+#| echo: false
+sample_composition %>%
+  kable(format = "latex",
+        caption = "Sample Composition by Treatment Type",
+        booktabs = TRUE,
+        digits = 1,
+        col.names = c("Group", "N", "Proportion", "Percentage")) %>%
+  kable_styling(latex_options = c("striped", "hold_position")) %>%
+  footnote(general = "Distribution of observations across control and treatment groups.",
+           general_title = "Note:")
+```
+## Conditional Balance Tests (Primary Identification Test)
+The following TWFE examines whether treatment assignment is random conditional on our fixed effects.
+
+```{r}
+#| echo: false
+conditional_balance %>%
+  kbl(format = "latex", 
+        caption = "Conditional Balance Tests (Residualized Variables)",
+        booktabs = TRUE,
+        digits = 4) %>%
+  kable_styling(latex_options = c("striped", "hold_position", "scale_down")) %>%
+  footnote(general = "Variables residualized with respect to region and birth year fixed effects. *** p<0.001, ** p<0.01, * p<0.05, + p<0.1",
+           general_title = "Note:")
+```
+The conditional balance tests show no evidence of systematic selection , strongly supporting the validity of our identification strategy.
+
+## Overall Treatment vs Control Balance (Descriptive)
+
+As expected, countries that experienced regime changes differ systematically from stable countries:
+
+```{r}
+#| echo: false
+overall_balance %>%
+  kable(format = "latex",
+        caption = "Overall Balance: Any Treatment vs Control",
+        booktabs = TRUE,
+        digits = 3,
+        col.names = c("Variable", "Control Mean (SD)", "Treated Mean (SD)", 
+                     "Difference [95% CI]", "t-statistic", "p-value", "Sig.")) %>%
+  kable_styling(latex_options = c("striped", "hold_position")) %>%
+  footnote(general = "Large differences expected and do not threaten identification. Our fixed effects strategy accounts for these systematic differences.",
+           general_title = "Note:")
+```
+
+
+## Treatment Type Comparison
+
+Within the treated sample, we examine balance between democratization and autocratization:
+
+```{r}
+#| echo: false
+democratization_balance %>%
+  kable(format = "latex",
+        caption = "Balance Tests: Democratization vs Autocratization",
+        booktabs = TRUE,
+        digits = 3) %>%
+  kable_styling(latex_options = c("striped", "hold_position")) %>%
+  footnote(general = "Mean (SD) for control variables within treated sample. *** p<0.001, ** p<0.01, * p<0.05, + p<0.1",
+           general_title = "Note:")
+```
+
+
+
+
