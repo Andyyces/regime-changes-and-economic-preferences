@@ -15,6 +15,20 @@ crossref:
 bibliography: references.bib
 link-citations: true
 ---
+```{r}
+#| message: false
+#| warning: false
+#| include: false
+#  Load the function from extract_codes.R
+script_files <- list.files(
+  path = here("R", "Script"),
+  pattern = "\\.R$",
+  full.names = TRUE
+)
+
+# source everything with frequency
+walk(script_files, source)
+```
 
 \*Add code that runs the files "Data loading + wrangling.Rmd" and "Regressions.qmd"
 

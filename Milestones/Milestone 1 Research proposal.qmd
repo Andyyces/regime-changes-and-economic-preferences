@@ -1,8 +1,59 @@
 ---
 title: "Milestone 1"
+format: 
+  pdf:
+    keep-tex: false
+    fig-format: pdf       
+    fig-dpi: 300
+    fig-path: null        
 bibliography: references.bib
-format: pdf
 ---
+
+
+
+```{r}
+
+#| echo: false
+#| warning: false
+#| message: false
+#| fig-cap: "Liberal Democracy Index by Country (2018)"
+#| fig-align: center
+
+library(ggplot2)
+library(dplyr)
+library(rnaturalearth)
+library(sf)
+library(readr)
+library(here)
+
+# Load world map
+world <- ne_countries(scale = "medium", returnclass = "sf")
+
+# Load V-Dem data 
+vdem_data <- vdemdata::vdem
+
+
+# Filter for 2018 and select relevant columns
+vdem_2018 <- vdem_data %>%
+  filter(year == 2018) %>%
+  select(country_name, country_text_id, v2x_libdem) %>%
+  rename(iso_a3 = country_text_id)
+
+# Merge with world map data
+world_data <- left_join(world, vdem_2018, by = "iso_a3")
+
+# Plot the map
+world_map <- ggplot(data = world_data) +
+  geom_sf(aes(fill = v2x_libdem), color = "gray30", size = 0.1) +
+  scale_fill_viridis_c(name = "Liberal Democracy Index", na.value = "lightgray") +
+  labs(
+    title = "Liberal Democracy Index by Country (2018)",
+    caption = "Data: V-Dem v14, World map: Natural Earth"
+  ) +
+  theme_minimal(base_size = 14)
+
+```
+
 
 # Regime Changes and Economic Preferences: Global Evidence
 
@@ -28,7 +79,21 @@ At this point, we have 3 datasets, which we are working with.
 
 The variables containing economic preferences of individuals will be taken from the Global Preference Survey (GPS) @falk_global_2018 dataset, where we can find numerical evaluation of **risk-taking**, **patience**, **positive and negative reciprocity**, **altruism**, **trust** and **math skills** of about **80 000 representative individuals** from **76 countries**. The survey data was collected in 2012 and apart from the economic preferences data provide information about each individual's **country and region of residence**, **language**, **age** an **gender**.
 
-![](images/world_map.jpg)
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+
+
+png(here("Output", "figures", "world_map.png"), width = 1000, height = 600)
+plot(world_map)
+dev.off()
+
+plot(world_map)
+
+
+
+```
 
 In the choice of the second dataset, we have two options:
 

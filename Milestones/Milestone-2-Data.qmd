@@ -17,13 +17,14 @@ link-citations: true
 #| warning: false
 #| include: false
 #  Load the function from extract_codes.R
-source("../Input/extract_codes.R")
+script_files <- list.files(
+  path = here("R", "Script"),
+  pattern = "\\.R$",
+  full.names = TRUE
+)
 
-#  Use it to extract code from the Rmd into an R script
-extract_r_code_from_rmd("../Input/Data loading + wrangling.Rmd", "../Input/data_wrangle.R")
-
-#  Run the extracted R code
-source("../Input/data_wrangle.R")
+# source everything with frequency
+walk(script_files, source)
 
 
 ```
@@ -311,7 +312,7 @@ preferences_table
 #| tbl-cap: "Control Variables Comparison by Group"
 #| tbl-pos: "H"
 # Create the table
-controls_vars <- c("age", "gdppc_2012", "subj_math_skills")
+controls_vars <- c("age", "avg_gdppc_formative", "subj_math_skills")
 controls_table <- create_ttest_table(final_data_gdp, controls_vars)
 
 # Render the table

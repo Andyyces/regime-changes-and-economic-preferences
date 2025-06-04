@@ -21,16 +21,14 @@ link-citations: true
 #| warning: false
 #| include: false
 #  Load the function from extract_codes.R
+script_files <- list.files(
+  path = here("R", "Script"),
+  pattern = "\\.R$",
+  full.names = TRUE
+)
 
-source("../Input/extract_codes.R")
-
-#  Use it to extract code from the Rmd into an R script
-extract_r_code_from_rmd("../Input/Data loading + wrangling.Rmd", "../Input/data_wrangle.R")
-
-#  Run the extracted R code
-source("../Input/data_wrangle.R")
-
-write_dta(final_data_gdp, path = "../Input/final_data_gdp.dta")
+# source everything with frequency
+walk(script_files, source)
 
 ```
 

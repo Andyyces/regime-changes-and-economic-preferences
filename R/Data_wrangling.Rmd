@@ -1,0 +1,93 @@
+---
+title: "Data wragling"
+date: "2025-04-20"
+output: html_document 
+---
+
+
+```{r Loading the Data}
+
+library(pacman)
+p_load(haven,
+       here,
+       stargazer,
+       summarytools,
+       readxl,
+       dplyr,
+       lubridate,
+       ggplot2,
+       vdemdata,
+       summarytools,
+       devtools,
+       zoo,
+       tidyverse)
+
+
+source(here("R", "Script", "01_data_loading.R"))
+
+```
+
+
+# Data wrangling
+
+Questions for meeting on 29.04. :
+
+-   **How to decide on a threshold of assigning *generate_regime_change*?** So far, we have been working with liberal democracy index from V-Dem, but there are more options -\> should we aggregate them into one?
+
+    *answer whether its a sudden change or linear -\> which are better suited?*
+
+*Restrict just to one schock: autoritative -\> democratic*
+
+-   **Separate model for each preference / try to combine them?** *check for literature- maybe choose 2 based on this, if we use all of them, Lessmann will ask about multiple hypotheses testing :)*
+
+*time, age, cohort fixed effects*
+
+*age/cohort effects could be problematic*
+
+*net out age effect from economic preferences -\>whats the effect of risk aversion? (next step)*
+
+*if not DiD: mean comparisons -\> give up on causal effects -\> more about living under regime than regime changes -\>already dome evidence on this*
+
+```{r}
+source(here("R", "Script", "02_filtering.R"))
+```
+
+## Treatment
+
+### First step: regime changes on country level
+
+```{r regime changes periods on country level}
+source(here("R", "Script", "03_regime_changes_function.R"))
+```
+
+### Second step: connecting with GPS data
+
+```{r}
+source(here("R", "Script", "04_merging_GPS_vdem.R"))
+```
+
+## Contaminated control group
+
+The approach above assigns indviduals to be the control group:
+
+-   **True controls:** Individuals from countries that never experienced any regime changes
+
+-   **Contaminated controls:** Individuals from countries that DID experience regime changes, but these individuals happen to be outside of their formative years when it occured -\> problematic, because they might have indirect exposure effect, they still lived through regime changes as adults outside of formative years 
+
+
+
+```{r exploring the both groups}
+source(here("R", "Script", "05_exploring_both_groups.R"))
+```
+
+## Controls
+
+
+
+```{r average gdppc and democracy index}
+
+source(here("R", "Script", "06_average_gdppc_index.R"))
+```
+
+
+

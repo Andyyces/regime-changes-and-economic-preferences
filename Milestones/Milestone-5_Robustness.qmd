@@ -16,6 +16,22 @@ bibliography: references.bib
 link-citations: true
 ---
 
+
+```{r}
+#| message: false
+#| warning: false
+#| include: false
+#  Load the function from extract_codes.R
+script_files <- list.files(
+  path = here("R", "Script"),
+  pattern = "\\.R$",
+  full.names = TRUE
+)
+
+# Hamısını source et
+walk(script_files, source)
+```
+
 ```{r}
 #| include: false
 library(pacman)
@@ -29,10 +45,10 @@ p_load(gt,
 
 ```{r}
 #| include: false
-conditional_balance <- readRDS(here("Output", "conditional_balance_table.rds"))
-democratization_balance <- readRDS(here("Output", "balance_table_democratization_vs_autocratization.rds"))
-overall_balance <- readRDS(here("Output", "balance_table_overall.rds"))
-sample_composition <- readRDS(here("Output", "sample_composition.rds"))
+conditional_balance <- readRDS(here("Output", "Tables", "conditional_balance_table.rds"))
+democratization_balance <- readRDS(here("Output", "Tables", "balance_table_democratization_vs_autocratization.rds"))
+overall_balance <- readRDS(here("Output", "Tables", "balance_table_overall.rds"))
+sample_composition <- readRDS(here("Output", "Tables", "sample_composition.rds"))
 ```
 
 # Balance Tests and Sample Description
@@ -105,5 +121,5 @@ democratization_balance %>%
 ```
 
 
-
+balance_table_overall 
 

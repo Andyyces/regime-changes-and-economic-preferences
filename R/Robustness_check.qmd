@@ -16,6 +16,21 @@ p_load(dplyr,
        viridis,
        kableExtra
 )
+
+
+
+
+
+
+#  Load the function from extract_codes.R
+script_files <- list.files(
+  path = here("R", "Script"),
+  pattern = "\\.R$",
+  full.names = TRUE
+)
+
+# source everything with frequency
+walk(script_files, source)
 ```
 
 # Balancing tests
