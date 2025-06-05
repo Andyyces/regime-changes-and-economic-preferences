@@ -1,6 +1,6 @@
 ---
 title: "Regime Changes and Economic Preferences: Global Evidence"
-subtitle: "Milestone 3: Econometric Approach"
+subtitle: "Milestone 4: Empirical Results"
 author: "Andrea Češková and Elvin Mammadov"
 format: 
   pdf:
@@ -15,9 +15,21 @@ crossref:
 bibliography: references.bib
 link-citations: true
 ---
+
 ```{r}
 #| message: false
 #| warning: false
+#| include: false
+library(pacman)
+p_load(here,
+       kableExtra,
+       dplyr,
+       modelsummary,
+       knitr)
+```
+
+```{r}
+#| eval: false
 #| include: false
 #  Load the function from extract_codes.R
 script_files <- list.files(
@@ -30,27 +42,253 @@ script_files <- list.files(
 walk(script_files, source)
 ```
 
-\*Add code that runs the files "Data loading + wrangling.Rmd" and "Regressions.qmd"
+```{r loading all models+formatted data if needed}
+#| include: false
 
-# Regression tables
+# Data
+final_data_gdp <- readRDS(here("Input", "clean", "final_data_gdp.rds"))
 
-```{r base model}
+# Models
+#regime_change model
+preference_models <- readRDS(here("Output", "Models", "regime_change_models.rds"))
+
+# Models without controls
+hetero_models <- readRDS(here("Output", "Models", "hetero_models.rds"))
+hetero_models_autoc <- readRDS(here("Output", "Models", "hetero_models_autoc.rds"))
+hetero_models_democ <- readRDS(here("Output", "Models", "hetero_models_democ.rds"))
+
+# Models with controls
+hetero_models_controls <- readRDS(here("Output", "Models", "hetero_models_controls.rds"))
+hetero_models_autoc_controls <- readRDS(here("Output", "Models", "hetero_models_autoc_controls.rds"))
+hetero_models_democ_controls <- readRDS(here("Output", "Models", "hetero_models_democ_controls.rds"))
+
+model_names <- c("Patience", "Risk taking", "Positive reciprocity", "Negative reciprocity", "Altruism", "Trust")
+```
+
+# Estimation Strategy
+
+We employ a two-way fixed effects (TWFE) specification to identify the causal effect of regime changes exposure during formative years on economic preferences. Information about the econometric specification of our models can be found in the previous Milestone report. In the current Milestone report, we present results from three complementary specifications to provide a comprehensive understanding of how regime changes affect economic preferences.
+
+We estimate models with and without controls to assess the robustness of our findings. The baseline [Base model specification] show the raw associations, while models including average GDP per capita and average Liberal Democracy Index during formative years help isolate the effect of regime changes from general economic development and baseline institutional quality.
+
+# Combined effects model
+
+We first estimate a model that pools all regime changes together, regardless of direction. This specification provides the average effect of experiencing any political instability during formative years and tests whether regime changes per se—independent of their direction—influence preference formation.
+
+```{r}
 #| echo: false
-#| label: tbl-base
-#| tbl-cap: Base model
-#| tbl-pos: "H"
-
 msummary(
-  hetero_models_no_controls,
-  title = "Heterogeneity by Regime Change Direction (Two-way Fixed Effects) - No Controls",
+  preference_models,
+  stars = TRUE,
+  coef_rename = c(
+    "formative_regime_change" = "Regime Change Experience"
+  ),
+  notes = list("Standard errors in parentheses."),
+  output = "kableExtra",
+  fmt = 3,
+  statistic = "({std.error})",
+  gof_omit = "R2 Within|R2 Within Adj.|AIC|BIC|RMSE",
+  title = "Combined Effects specification"
+) %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover"),
+    latex_options = c("HOLD_position", "scale_down", "striped", "booktabs"),
+    full_width = FALSE
+  ) %>%
+  column_spec(1, width = "4cm") %>%
+  add_header_above(c(" " = 1, "Outcome variables" = 6)) 
+```
+
+# Base model specification
+
+## Combined: Autocratization and Democratization
+
+```{r}
+#| echo: false
+msummary(
+  hetero_models,
   stars = TRUE,
   coef_rename = c(
     "democratization" = "Democratization",
-    "autocratization" = "Autocratization"
+    "autocratization" = "Autocratization", 
+    "avg_gdppc_formative" = "Log of Average GDP per Capita  during formative years",
+    "avg_libdem_formative" = "Average LDI during formative years",
+    "recession_formative" = "Recession experienced during formative years"
   ),
-  notes = "Standard errors clustered at country level. All models include region and birth year fixed effects.",
-  output = "gt"
-)
+  notes = list("Standard errors in parentheses."),
+  output = "kableExtra",
+  fmt = 3,
+  statistic = "({std.error})",
+  gof_omit = "R2 Within|R2 Within Adj.|AIC|BIC|RMSE",
+  title = "Base model specification: Combined"
+) %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover"),
+    latex_options = c("HOLD_position", "scale_down", "striped", "booktabs"),
+    full_width = FALSE
+  ) %>%
+  column_spec(1, width = "4cm") %>%
+  add_header_above(c(" " = 1, "Outcome variables" = 6)) 
 ```
 
-# Interpretation
+## Heterogenous Effects by Transtition Type
+
+### Democratization
+
+```{r}
+#| echo: false
+msummary(
+  hetero_models_democ,
+  stars = TRUE,
+  coef_rename = c(
+    "democratization" = "Democratization",
+    "autocratization" = "Autocratization", 
+    "avg_gdppc_formative" = "Log of Average GDP per Capita  during formative years",
+    "avg_libdem_formative" = "Average LDI during formative years",
+    "recession_formative" = "Recession experienced during formative years"
+  ),
+  notes = list("Standard errors in parentheses."),
+  output = "kableExtra",
+  fmt = 3,
+  statistic = "({std.error})",
+  gof_omit = "R2 Within|R2 Within Adj.|AIC|BIC|RMSE",
+  title = "Base model specification: Democratization"
+) %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover"),
+    latex_options = c("HOLD_position", "scale_down", "striped", "booktabs"),
+    full_width = FALSE
+  ) %>%
+  column_spec(1, width = "4cm") %>%
+  add_header_above(c(" " = 1, "Outcome variables" = 6)) 
+```
+
+### Autocratization
+
+```{r}
+#| echo: false
+msummary(
+  hetero_models_autoc,
+  stars = TRUE,
+  coef_rename = c(
+    "democratization" = "Democratization",
+    "autocratization" = "Autocratization", 
+    "avg_gdppc_formative" = "Log of Average GDP per Capita  during formative years",
+    "avg_libdem_formative" = "Average LDI during formative years",
+    "recession_formative" = "Recession experienced during formative years"
+  ),
+  notes = list("Standard errors in parentheses."),
+  output = "kableExtra",
+  fmt = 3,
+  statistic = "({std.error})",
+  gof_omit = "R2 Within|R2 Within Adj.|AIC|BIC|RMSE",
+  title = "Base model specification: Autocratization"
+) %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover"),
+    latex_options = c("HOLD_position", "scale_down", "striped", "booktabs"),
+    full_width = FALSE
+  ) %>%
+  column_spec(1, width = "4cm") %>%
+  add_header_above(c(" " = 1, "Outcome variables" = 6)) 
+```
+
+# Specification with Controls
+
+```{r}
+#| echo: false
+msummary(
+  hetero_models_controls,
+  stars = TRUE,
+  coef_rename = c(
+    "democratization" = "Democratization",
+    "autocratization" = "Autocratization", 
+    "avg_gdppc_formative" = "Log of Average GDP per Capita  during formative years",
+    "avg_libdem_formative" = "Average LDI during formative years",
+    "recession_formative" = "Recession experienced during formative years"
+  ),
+  notes = list("Standard errors in parentheses."),
+  output = "kableExtra",
+  fmt = 3,
+  statistic = "({std.error})",
+  gof_omit = "R2 Within|R2 Within Adj.|AIC|BIC|RMSE",
+  title = "Base model specification: Combined with controls"
+) %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover"),
+    latex_options = c("HOLD_position", "scale_down", "striped", "booktabs"),
+    full_width = FALSE
+  ) %>%
+  column_spec(1, width = "4cm") %>%
+  add_header_above(c(" " = 1, "Outcome variables" = 6)) 
+```
+
+## Heterogenous Effects by Transtition Type
+
+### Democratization
+
+```{r}
+#| echo: false
+msummary(
+  hetero_models_democ_controls,
+  stars = TRUE,
+  coef_rename = c(
+    "democratization" = "Democratization",
+    "autocratization" = "Autocratization", 
+    "avg_gdppc_formative" = "Log of Average GDP per Capita  during formative years",
+    "avg_libdem_formative" = "Average LDI during formative years",
+    "recession_formative" = "Recession experienced during formative years"
+  ),
+  notes = list("Standard errors in parentheses."),
+  output = "kableExtra",
+  fmt = 3,
+  statistic = "({std.error})",
+  gof_omit = "R2 Within|R2 Within Adj.|AIC|BIC|RMSE",
+  title = "Base model specification: Democratization with controls"
+) %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover"),
+    latex_options = c("HOLD_position", "scale_down", "striped", "booktabs"),
+    full_width = FALSE
+  ) %>%
+  column_spec(1, width = "4cm") %>%
+  add_header_above(c(" " = 1, "Outcome variables" = 6)) 
+```
+
+### Autocratization
+
+```{r}
+#| echo: false
+msummary(
+  hetero_models_autoc_controls,
+  stars = TRUE,
+  coef_rename = c(
+    "democratization" = "Democratization",
+    "autocratization" = "Autocratization", 
+    "avg_gdppc_formative" = "Log of Average GDP per Capita  during formative years",
+    "avg_libdem_formative" = "Average LDI during formative years",
+    "recession_formative" = "Recession experienced during formative years"
+  ),
+  notes = list("Standard errors in parentheses."),
+  output = "kableExtra",
+  fmt = 3,
+  statistic = "({std.error})",
+  gof_omit = "R2 Within|R2 Within Adj.|AIC|BIC|RMSE",
+  title = "Base model specification: Autocratization with controls"
+) %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover"),
+    latex_options = c("HOLD_position", "scale_down", "striped", "booktabs"),
+    full_width = FALSE
+  ) %>%
+  column_spec(1, width = "4cm") %>%
+  add_header_above(c(" " = 1, "Outcome variables" = 6)) 
+```
+
+# Robustness of Results
+
+The robustness will be examined in the last Milestone report.
+
+# Limitations
+
+# Implications
