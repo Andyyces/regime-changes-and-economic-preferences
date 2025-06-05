@@ -1,0 +1,84 @@
+---
+author: Andrea Češková, Elvin Mammadov
+title: Regime Changes and Economic Preferences
+subtitle: Empirical Research Task presentation
+format:
+  tud-typst:
+    has_section_slides: false
+
+bibliography: references.bib
+bibliographystyle: apa
+---
+
+# Data + Economic model
+
+## 
+
+Economic preferences: patience, risk taking, positive reciprocity, negative reciprocity, altruism, trust
+
+|  |  |
+|:--:|:--:|
+| V-Dem | General Preference Survey |
+| Panel from 1789-now | Cross-section collected in 2012 |
+| Liberal Democracy Index ( 0 - 1 ) | 6 economic preferences, country, age, math skills, gender |
+
+-   Combination of both: approx 75.000 individuals from 1910-2012 from 76 countries
+
+-   Economic preferences are formed during childhood + adolescence (Detlefsen et al., 2024)
+
+# Setting
+
+## Treatment definition
+
+-   Initial approach: Regime change experienced between 3 -18 years old (democratization / autocratization)
+    -   Goal: identify whether an individual experienced a regime change during formative years (3-18)
+        -   According to Lührmann et al. (2020): Evaluating differences of the LDI index at time **t** and **t-10** -\> **confidence intervals** -\>**no overlap** between them **AND** absolute value of the change in LDI is \> 0.05 **=** identified as regime change
+        -   Was individual's age between 3-18 during this identified year -\> treated
+-   **New approach**: democratization / autocratization as a treatment
+
+# Bias and Identification
+
+## Methods 1
+
+-   Initial idea: DiD / event study with staggered treatment assignment
+
+    -   Problematic: magnitude/year of treatment differs also within countries (groups) -\> we captured democratization/autocratization trends rather than sudden changes of regimes
+
+## Methods 2
+
+-   New approach: **two way fixed effects**
+
+    -   Causal inference possible if conditional independence assumption holds
+
+# Formulas
+
+## Baseline model
+
+$$
+Y_{ict} = \alpha + \beta \cdot \text{RegimeChange}_{ic} + \gamma_c + \delta_t + X_{ict} \cdot \text{(Controls)} + \varepsilon_{ict}
+$$ Where:
+
+$Y\_{ict}$: **Preference outcome** (trust, patience, etc.) for **individual** ( i ), **country** ( c ), **birth cohort** ( t )
+
+$\text{RegimeChange}_{ic}$: Binary treatment indicator (1 if experienced democratization/autocratization during formative years, 0 otherwise)
+
+$\gamma_c$ : Country fixed effects
+
+$\delta_t$ : Birth cohort fixed effects
+
+$X_{ict}$ : Controls including:
+
+Average V-Dem democracy index score experienced during formative years (ages 3-18)
+
+Average GDP between birth year and adult year
+
+Subjective math skills (might be problematic)
+
+$\beta$ : Causal effect of interest
+
+## 
+
+-   Goal: Exploit cross-sectional variation between individuals who experienced regime changes and those who didn't, within the same country and birth cohort, while controlling for observed characteristics
+
+::: {#refs}
+:::
