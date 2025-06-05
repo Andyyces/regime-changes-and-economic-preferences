@@ -75,5 +75,10 @@ final_data_gdp <- final_data_gdp %>%
 final_data_gdp$formative_regime_change[final_data_gdp$first_formative_age < 3] <- 0
 table(final_data_gdp$formative_regime_change)
 
-
+# More preprocessing for the regressions
 final_data_gdp <- final_data_gdp %>% mutate(years_spend_regimes = age - first_formative_age)
+final_data_gdp$region <- factor(final_data_gdp$region)
+final_data_gdp$avg_gdppc_formative <- log(final_data_gdp$avg_gdppc_formative)
+
+# Saving the final dataset in rds format
+saveRDS(final_data_gdp, here("Input","clean", "final_data_gdp.rds"))

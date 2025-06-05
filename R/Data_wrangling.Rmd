@@ -4,7 +4,6 @@ date: "2025-04-20"
 output: html_document 
 ---
 
-
 ```{r Loading the Data}
 
 library(pacman)
@@ -26,7 +25,6 @@ p_load(haven,
 source(here("R", "Script", "01_data_loading.R"))
 
 ```
-
 
 # Data wrangling
 
@@ -52,9 +50,9 @@ Questions for meeting on 29.04. :
 source(here("R", "Script", "02_filtering.R"))
 ```
 
-## Treatment
+## Treatment calculation
 
-### First step: regime changes on country level
+### First step: identifying regime changes on country level
 
 ```{r regime changes periods on country level}
 source(here("R", "Script", "03_regime_changes_function.R"))
@@ -72,22 +70,15 @@ The approach above assigns indviduals to be the control group:
 
 -   **True controls:** Individuals from countries that never experienced any regime changes
 
--   **Contaminated controls:** Individuals from countries that DID experience regime changes, but these individuals happen to be outside of their formative years when it occured -\> problematic, because they might have indirect exposure effect, they still lived through regime changes as adults outside of formative years 
-
-
+-   **Contaminated controls:** Individuals from countries that DID experience regime changes, but these individuals happen to be outside of their formative years when it occured -\> problematic, because they might have indirect exposure effect, they still lived through regime changes as adults outside of formative years
 
 ```{r exploring the both groups}
 source(here("R", "Script", "05_exploring_both_groups.R"))
 ```
 
-## Controls
-
-
+## Calculating controls
 
 ```{r average gdppc and democracy index}
 
 source(here("R", "Script", "06_average_gdppc_index.R"))
 ```
-
-
-
