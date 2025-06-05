@@ -46,10 +46,10 @@ walk(script_files, source)
 
 ```
 
-```{r some extra pre-processing}
+```{r loading the formatted data if needed}
 #| include: false
-final_data_gdp$region <- factor(final_data_gdp$region)
-final_data_gdp$avg_gdppc_formative <- log(final_data_gdp$avg_gdppc_formative)
+# reading the formatted data
+final_data_gdp <- readRDS(here("Input", "clean", "final_data_gdp.rds"))
 
 ```
 
@@ -66,11 +66,11 @@ run_twfe_reg <- function(outcome_var,
                          cluster_var = "country") {
   
 # Constructing formula with controls
-controls_formula <- paste(controls, collapse = " + ")
+controls_formula <- paste(controls, collapse = " +")
   
 # Creating the full formula with fixed effects
 formula_str <- paste(
-  outcome_var, "~", treatment, "+", controls_formula, "|", 
+  outcome_var, "~", treatment, controls_formula, "|", 
   paste(fe, collapse = " + ")
   )
   
@@ -88,6 +88,7 @@ return(model)
 }
 
 preference_vars <- c("patience", "risktaking", "posrecip", "negrecip", "altruism", "trust")
+model_names <- c("Patience", "Risk taking", "Positive reciprocity", "Negative reciprocity", "Altruism", "Trust")
 
 
 # Applying run_twfe_reg to each preference variable and store in a list
@@ -96,13 +97,16 @@ for (pref in preference_vars) {
   preference_models[[pref]] <- run_twfe_reg(
     outcome_var = pref,
     data = final_data_gdp,
-    controls = c("avg_gdppc_formative", "avg_libdem_formative","recession_formative"),
+    controls = NULL,
     treatment = "formative_regime_change",
     fe = c("region", "birth_year"),
     cluster_var = "country"  # Using country as the cluster variable
   )
 }
 
+names(preference_models) <- model_names
+# saving the model as a list for the report
+saveRDS(preference_models, here("Output","Models", "regime_change_models.rds"))
 
 # Creating a model summary table using msummary
 msummary(
@@ -122,7 +126,9 @@ msummary(
 
 We have to differenciate between democratization / autocratization type of a regime change, because the effect might go in different directions.
 
-# Fixed effects baseline model: democratization , autocratization
+# Fixed effects baseline models
+
+## Combined: autocratization and democratization
 
 Model without controls -\> to see whether only the regime change by itself had any effect.
 
@@ -140,9 +146,8 @@ final_data_gdp <- final_data_gdp %>%
 # Creating a function for heterogeneity models
 run_hetero_reg <- function(outcome_var,
                           data = final_data_gdp,
-                          controls = c("avg_libdem_formative",
-                          "avg_libdem_formative",
-                          "recession_formative"),
+                          controls = c("avg_gdppc_formative",
+                          "avg_libdem_formative"),
                           fe = c("region", "birth_year"),
                           cluster_var = "country") {
   
@@ -170,19 +175,21 @@ run_hetero_reg <- function(outcome_var,
 
 
 # Applying to each preference without controls
-hetero_models_no_controls <- lapply(preference_vars, function(pref) {
+hetero_models <- lapply(preference_vars, function(pref) {
   run_hetero_reg(
     outcome_var = pref,
     data = final_data_gdp,
     controls = NULL  # Without controls
   )
 })
-names(hetero_models_no_controls) <- preference_vars
+names(hetero_models) <- model_names
 
+# saving the model as a list for the report
+saveRDS(hetero_models, here("Output","Models", "hetero_models.rds"))
 
 # Checking the output without controls
 msummary(
-  hetero_models_no_controls,
+  hetero_models,
   title = "Heterogeneity by Regime Change Direction (Two-way Fixed Effects) - No Controls",
   stars = TRUE,
   coef_rename = c(
@@ -195,14 +202,136 @@ msummary(
 #  gtsave(here("Output", "model_base.png"))
 ```
 
+## Democratization
+
+```{r}
+# Creating a function for heterogeneity models
+run_democ_reg <- function(outcome_var,
+                          data = final_data_gdp,
+                          controls = c("avg_gdppc_formative",
+                          "avg_libdem_formative"),
+                          fe = c("region", "birth_year"),
+                          cluster_var = "country") {
+  
+  # Constructing formula with controls
+  controls_formula <- paste(controls, collapse = " + ")
+  
+  # Creating the full formula with fixed effects
+  formula_str <- paste(
+    outcome_var, "~ democratization", controls_formula, "|",
+    paste(fe, collapse = " + ")
+  )
+  
+  # Converting string to formula
+  formula <- as.formula(formula_str)
+  
+  # Running the model
+  model <- feols(
+    formula,
+    data = data,
+    cluster = cluster_var
+  )
+  
+  return(model)
+}
+
+
+# Applying to each preference without controls
+hetero_models_democ <- lapply(preference_vars, function(pref) {
+  run_democ_reg(
+    outcome_var = pref,
+    data = final_data_gdp,
+    controls = NULL  # Without controls
+  )
+})
+names(hetero_models_democ) <- model_names
+
+# saving the model as a list for the report
+saveRDS(hetero_models_democ, here("Output","Models", "hetero_models_democ.rds"))
+
+# Checking the output without controls
+msummary(
+  hetero_models_democ,
+  title = "Heterogeneity by Regime Change Direction (Two-way Fixed Effects) - No Controls",
+  stars = TRUE,
+  coef_rename = c(
+    "democratization" = "Democratization"
+  ),
+  notes = "Standard errors clustered at country level. All models include region and birth year fixed effects.",
+  output = "gt"
+)
+```
+
+## Autocratization
+
+```{r}
+# Creating a function for heterogeneity models
+run_autoc_reg <- function(outcome_var,
+                          data = final_data_gdp,
+                          controls = c("avg_gdppc_formative",
+                          "avg_libdem_formative"),
+                          fe = c("region", "birth_year"),
+                          cluster_var = "country") {
+  
+  # Constructing formula with controls
+  controls_formula <- paste(controls, collapse = " + ")
+  
+  # Creating the full formula with fixed effects
+  formula_str <- paste(
+    outcome_var, "~ autocratization", controls_formula, "|",
+    paste(fe, collapse = " + ")
+  )
+  
+  # Converting string to formula
+  formula <- as.formula(formula_str)
+  
+  # Running the model
+  model <- feols(
+    formula,
+    data = data,
+    cluster = cluster_var
+  )
+  
+  return(model)
+}
+
+
+# Applying to each preference without controls
+hetero_models_autoc <- lapply(preference_vars, function(pref) {
+  run_autoc_reg(
+    outcome_var = pref,
+    data = final_data_gdp,
+    controls = NULL  # Without controls
+  )
+})
+names(hetero_models_autoc) <- model_names
+
+# saving the model as a list for the report
+saveRDS(hetero_models_autoc, here("Output","Models", "hetero_models_autoc.rds"))
+
+# Checking the output without controls
+msummary(
+  hetero_models_autoc,
+  title = "Heterogeneity by Regime Change Direction (Two-way Fixed Effects) - No Controls",
+  stars = TRUE,
+  coef_rename = c(
+    "autocratization" = "Autocratization"
+  ),
+  notes = "Standard errors clustered at country level. All models include region and birth year fixed effects.",
+  output = "gt"
+)
+```
+
 # Fixed effects: adding controls
+
+## Combined: Autocratization + Democratization
 
 ```{r model with controls}
 #| echo: false
 # Creating a function for heterogeneity models
 run_hetero_reg <- function(outcome_var, 
                           data = final_data_gdp, 
-                          controls = c("avg_gdppc_formative", "avg_libdem_formative","recession_formative"),
+                          controls = c("avg_gdppc_formative", "avg_libdem_formative"),
                           fe = c("region", "birth_year"),
                           cluster_var = "country") {
   
@@ -229,17 +358,20 @@ run_hetero_reg <- function(outcome_var,
 }
 
 # Applying to each preference
-hetero_models <- lapply(preference_vars, function(pref) {
+hetero_models_controls <- lapply(preference_vars, function(pref) {
   run_hetero_reg(
     outcome_var = pref,
     data = final_data_gdp
   )
 })
-names(hetero_models) <- preference_vars
+names(hetero_models_controls) <- model_names
+
+# saving the model as a list for the report
+saveRDS(hetero_models_controls, here("Output","Models", "hetero_models_controls.rds"))
 
 # checking the output
 msummary(
-  hetero_models,
+  hetero_models_controls,
   title = "Heterogeneity by Regime Change Direction (Two-way Fixed Effects)",
   stars = TRUE,
   coef_rename = c(
@@ -253,4 +385,122 @@ msummary(
   output = "gt"
 )# %>%
 #  gtsave(here("Output", "model_controls.png"))
+```
+
+## Autocratization
+
+```{r}
+# Creating a function for heterogeneity models
+run_autoc_reg_controls <- function(outcome_var,
+                          data = final_data_gdp,
+                          controls = c("avg_gdppc_formative",
+                          "avg_libdem_formative"),
+                          fe = c("region", "birth_year"),
+                          cluster_var = "country") {
+  
+  # Constructing formula with controls
+  controls_formula <- paste(controls, collapse = " + ")
+  
+  # Creating the full formula with fixed effects
+  formula_str <- paste(
+    outcome_var, "~ autocratization + ", controls_formula, "|",
+    paste(fe, collapse = " + ")
+  )
+  
+  # Converting string to formula
+  formula <- as.formula(formula_str)
+  
+  # Running the model
+  model <- feols(
+    formula,
+    data = data,
+    cluster = cluster_var
+  )
+  
+  return(model)
+}
+
+
+# Applying to each preference without controls
+hetero_models_autoc_controls <- lapply(preference_vars, function(pref) {
+  run_autoc_reg_controls(
+    outcome_var = pref,
+    data = final_data_gdp
+  )
+})
+names(hetero_models_autoc_controls) <- model_names
+
+# saving the model as a list for the report
+saveRDS(hetero_models_autoc_controls, here("Output","Models", "hetero_models_autoc_controls.rds"))
+
+# Checking the output without controls
+msummary(
+  hetero_models_autoc_controls,
+  title = "Heterogeneity by Regime Change Direction (Two-way Fixed Effects) - No Controls",
+  stars = TRUE,
+  coef_rename = c(
+    "autocratization" = "Autocratization"
+  ),
+  notes = "Standard errors clustered at country level. All models include region and birth year fixed effects.",
+  output = "gt"
+)
+```
+
+## Democratization
+
+```{r}
+# Creating a function for heterogeneity models
+run_democ_reg_controls <- function(outcome_var,
+                          data = final_data_gdp,
+                          controls = c("avg_gdppc_formative",
+                          "avg_libdem_formative"),
+                          fe = c("region", "birth_year"),
+                          cluster_var = "country") {
+  
+  # Constructing formula with controls
+  controls_formula <- paste(controls, collapse = " + ")
+  
+  # Creating the full formula with fixed effects
+  formula_str <- paste(
+    outcome_var, "~ democratization +", controls_formula, "|",
+    paste(fe, collapse = " + ")
+  )
+  
+  # Converting string to formula
+  formula <- as.formula(formula_str)
+  
+  # Running the model
+  model <- feols(
+    formula,
+    data = data,
+    cluster = cluster_var
+  )
+  
+  return(model)
+}
+
+# Applying to each preference without controls
+hetero_models_democ_controls <- lapply(preference_vars, function(pref) {
+  run_democ_reg_controls(
+    outcome_var = pref,
+    data = final_data_gdp
+  )
+})
+names(hetero_models_democ_controls) <- model_names
+
+# saving the model as a list for the report
+saveRDS(hetero_models_democ_controls, here("Output","Models", "hetero_models_democ_controls.rds"))
+
+# Checking the output without controls
+msummary(
+  hetero_models_democ_controls,
+  title = "Heterogeneity by Regime Change Direction (Two-way Fixed Effects) - No Controls",
+  stars = TRUE,
+  coef_rename = c(
+    "democratization" = "Democratization",
+    "autocratization" = "Autocratization"
+  ),
+  notes = "Standard errors clustered at country level. All models include region and birth year fixed effects.",
+  output = "gt"
+)
 ```
