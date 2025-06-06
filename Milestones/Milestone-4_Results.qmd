@@ -67,15 +67,27 @@ model_names <- c("Patience", "Risk taking", "Positive reciprocity", "Negative re
 
 # Estimation Strategy
 
-We employ a two-way fixed effects (TWFE) specification to identify the causal effect of regime changes exposure during formative years on economic preferences. Information about the econometric specification of our models can be found in the previous Milestone report. In the current Milestone report, we present results from three complementary specifications to provide a comprehensive understanding of how regime changes affect economic preferences.
+We employ a two-way fixed effects (TWFE) specification to identify the causal effect of regime changes exposure during formative years (3-18) on economic preferences. Information about the econometric specification of our models can be found in the previous Milestone report. In the current Milestone report, we present results from three complementary specifications. All of our approaches leverage within-region variation across birth cohorts while controlling for time.invariant regional characteristics and common temporal shocks affecting all individuals born in the same year.
 
-We estimate models with and without controls to assess the robustness of our findings. The baseline [Base model specification] show the raw associations, while models including average GDP per capita and average Liberal Democracy Index during formative years help isolate the effect of regime changes from general economic development and baseline institutional quality.
+A critical feature of our identification strategy is that **the control group consists exclusively of individuals from countries that never experienced any regime change during our study period**. This design choice eliminates potential spillover effects and contamination that would arise from including individuals who lived through regime changes as adults.
+
+Our treatment group includes individuals who experienced regime changes during their formative years (ages 3-18), while our control group comprises individuals from politically stable countries—those that maintained consistent political institutions throughout the entire period covered by our data. This clean separation between treated and control groups strengthens the causal identification by ensuring that control group individuals have no direct or indirect exposure to regime changes.
+
+This approach addresses the concern that adults experiencing regime changes might also be affected, which would contaminate a within-country control group. By using only stable countries as controls, we isolate the effect of experiencing political transitions during the critical developmental period.
+
+We estimate models with and without controls to assess the robustness of our findings:
+
+-   Combined effects model: Our first model, where we pooled all regime changes regardless of direction of change
+
+-   Base model: Separated democratization and autocratization effects without controls
+
+-   Full model with controls: Includes economic and institutional controls
 
 # Combined effects model
 
-We first estimate a model that pools all regime changes together, regardless of direction. This specification provides the average effect of experiencing any political instability during formative years and tests whether regime changes per se—independent of their direction—influence preference formation.
+We first estimate a model that pools all regime changes together, regardless of direction. This specification provides the average effect of experiencing any political instability during formative years and tests whether regime changes per se—independent of their direction—influence preference formation. The results are shown in the following table.
 
-```{r}
+```{r combined effects}
 #| echo: false
 msummary(
   preference_models,
