@@ -87,7 +87,7 @@ We estimate models with and without controls to assess the robustness of our fin
 
 We first estimate a model that pools all regime changes together, regardless of direction. This specification provides the average effect of experiencing any political instability during formative years and tests whether regime changes per se—independent of their direction—influence preference formation. The results are shown in the following table.
 
-```{r combined effects}
+```{r combined-effects, fig.cap="Combined effects model"}
 #| echo: false
 msummary(
   preference_models,
@@ -111,11 +111,15 @@ msummary(
   add_header_above(c(" " = 1, "Outcome variables" = 6)) 
 ```
 
+In combined effect model @fig-combined-effects ,we find that regime change exposure is significantly associated with increased patience and risk-taking. Specifically, individuals exposed to regime changes score on average 0.278 units higher in patience and 0.298 units higher in risk-taking, with both coefficients being statistically significant (p < 0.001 and p < 0.05, respectively). This suggests that early-life exposure to political instability may foster greater patience and willingness to take risks. Exposure to regime change is also positively associated with negative reciprocity (β = 0.390, p < 0.001), indicating that individuals who experienced political instability are more likely to respond punitively when treated unfairly. Finally, the coefficient on altruism is negative and marginally significant (β = –0.416, p < 0.1), hinting at a potential decrease in other-regarding preferences among those exposed to regime change, though this result should be interpreted with caution due to its lower level of statistical confidence.
 # Base model specification
 
 ## Combined: Autocratization and Democratization
 
-```{r}
+
+This @fig-Base-model presents the estimated effects of democratization and autocratization experiences during formative years on individual-level economic preferences. Both types of regime change are included simultaneously in the same model to identify their distinct influences while controlling for region and birth-year fixed effects, with standard errors clustered at the country level.
+
+```{r Base-model, fig.cap="Base model specification"}
 #| echo: false
 msummary(
   hetero_models,
@@ -143,11 +147,16 @@ msummary(
   add_header_above(c(" " = 1, "Outcome variables" = 6)) 
 ```
 
+The results indicate that democratization has a statistically significant positive effect on patience (β = 0.078, p < 0.01), suggesting that individuals exposed to transitions toward democracy during formative years tend to be more patient which means long term earnings is more interested than short term ones . Democratization is also associated with greater negative reciprocity (β = 0.109, p < 0.05), indicating a strong inclination to revenge when treated unfairly. Additionally, autocratization—experiencing a shift toward less democratic governance—is positively associated with negative reciprocity (β = 0.089, p < 0.05) and marginally negatively associated with positive reciprocity (β = –0.060, p < 0.1).
+
 ## Heterogenous Effects by Transtition Type
 
+This section separately assesses the impact of democratization and autocrazition experience on individual economic preferences. While previous models have considered regime change in general, here we focus on individuals with a history of democratization and autocratization. This approach allows us to uncover more specific effects of political changes experienced during the formative period by taking into account the direction of the regime change.
+
+The model includes fixed effects for region and year of birth and standard errors are clustered at the country level. These results reveal whether democratic transitions systematically affect how individuals shape their economic behavior during the formative period.
 ### Democratization
 
-```{r}
+```{r democrat-model, fig.cap="Democratization transtition"}
 #| echo: false
 msummary(
   hetero_models_democ,
@@ -174,10 +183,10 @@ msummary(
   column_spec(1, width = "4cm") %>%
   add_header_above(c(" " = 1, "Outcome variables" = 6)) 
 ```
-
+In this specification @fig-democrat-model, which examines only the effects of democratic transitions, the results show that democratization has a positive and statistically significant effect on patience (β = 0.066, p < 0.05). This is consistent with the previous combined model, but the effect size is relatively small.
 ### Autocratization
 
-```{r}
+```{r Autocratization-model, fig.cap="Autocratization transtition"}
 #| echo: false
 msummary(
   hetero_models_autoc,
@@ -205,9 +214,26 @@ msummary(
   add_header_above(c(" " = 1, "Outcome variables" = 6)) 
 ```
 
+This specification @fig-Autocratization-model only examines the impact of autocratic transitions on economic preferences during the formative period. Compared with previous models, the results show that the effects of autocraticization are weak and largely statistically insignificant.
+
+The only weakly significant result is observed for positive reciprocity (β = –0.033, p < 0.1), suggesting that autocratic transitions may reduce individuals’ propensity to respond positively to reciprocal behavior. However, this effect is very small and should not be interpreted with high confidence.
+
+
 # Specification with Controls
 
-```{r}
+The model specification presented in this section takes into account a number of important control variables in order to more accurately assess the impact of regime change during the formation period on individual economic preferences. Thus, not only political changes but also the impact of individuals’ socio-economic and institutional environments are modeled.
+
+The control variables included in the model are as follows:
+
+The logarithm of the average GDP per capita during the formation period – reflects the overall level of economic well-being;
+
+The average Liberal Democracy Index (LDI) during the formation period – indicates the institutional quality and degree of democratic environment;
+
+The experience of economic crisis during the formation period (recession dummy) – allows us to take into account the possible effects of economic shocks.
+
+When these control variables are included, the impact of regime change is assessed more cleanly, separated from other important structural factors. This makes the interpretation of the obtained results both more precise and methodologically justified.
+
+```{r Specification-with-Controls-model, fig.cap="Specification with Controls"}
 #| echo: false
 msummary(
   hetero_models_controls,
@@ -234,12 +260,17 @@ msummary(
   column_spec(1, width = "4cm") %>%
   add_header_above(c(" " = 1, "Outcome variables" = 6)) 
 ```
+The results @fig-Specification-with-Controls-model show that the positive and statistically significant effects of democratization on patience and negative reciprocity (β = 0.074* and β = 0.101$*$) are consistent with previous models. However, the effects of democratization on risk-taking, positive reciprocity, altruism and trust remain weak and statistically insignificant. In autocratization, the effect of autocratization on negative reciprocity is stronger and remains statistically significant compared to previous models (β = 0.107$**$, p < 0.01). The effects on other indicators remain insignificant.
+These results suggest that the main effect of democratic transitions is limited to long-term regulation of behavior and response reactions and has a weak effect on other social behaviors. It shows that the transition to an authoritarian regime can strengthen more reactive and responsive behaviors in individuals.The results show that the positive and statistically significant effects of democratization on patience and negative reciprocity (β = 0.074$*$ and β = 0.101$*$) are consistent with previous models. However, the effects of democratization on risk-taking, positive reciprocity, altruism and trust remain weak and statistically insignificant. In autocratization, the effect of autocratization on negative reciprocity is stronger and remains statistically significant compared to previous models (β = 0.107$**$, p < 0.01). The effects on other indicators remain insignificant.
+These results suggest that the main effect of democratic transitions is limited to long-term regulation of behavior and response reactions and has a weak effect on other social behaviors. It shows that the transition to an authoritarian regime can strengthen more reactive and responsive behaviors in individuals.
+
 
 ## Heterogenous Effects by Transtition Type
+This analysis, unlike previous combined specifications, separately evaluates only one transition with a control value and attempts to reveal whether these transitions have differential effects on preferences such as patience, risk-taking, reciprocity, altruism and trust.
 
 ### Democratization
 
-```{r}
+```{r Democratization-Heterogenous-Effect, fig.cap="Heterogenous Effects by democratization"}
 #| echo: false
 msummary(
   hetero_models_democ_controls,
@@ -266,10 +297,10 @@ msummary(
   column_spec(1, width = "4cm") %>%
   add_header_above(c(" " = 1, "Outcome variables" = 6)) 
 ```
-
+In short, the impact of democratization has been preserved only in the patience indicator, and has weakened or begun to disappear in others. @fig-Democratization-Heterogenous-Effect
 ### Autocratization
 
-```{r}
+```{r Autocratization-Heterogenous-Effect, fig.cap="Heterogenous Effects by Autocratization"}
 #| echo: false
 msummary(
   hetero_models_autoc_controls,
@@ -296,6 +327,12 @@ msummary(
   column_spec(1, width = "4cm") %>%
   add_header_above(c(" " = 1, "Outcome variables" = 6)) 
 ```
+Here @fig-Autocratization-Heterogenous-Effect, the effect of autocratization on negative reciprocity persists, but its strength is somewhat reduced. In addition, a weak new effect on altruism is observed.
+
+ The results of all models are generally consistent and remain directionally stable. Although some effects are attenuated when control variables are added, the main directions of effects – notably the negative effects of democratization on patience and autocratization on reciprocity – are preserved.
+
+
+
 
 # Robustness of Results
 
