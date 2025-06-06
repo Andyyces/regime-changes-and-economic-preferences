@@ -147,7 +147,8 @@ final_data_gdp <- final_data_gdp %>%
 run_hetero_reg <- function(outcome_var,
                           data = final_data_gdp,
                           controls = c("avg_gdppc_formative",
-                          "avg_libdem_formative"),
+                          "avg_libdem_formative",
+                          "recession_formative"),
                           fe = c("region", "birth_year"),
                           cluster_var = "country") {
   
@@ -209,7 +210,8 @@ msummary(
 run_democ_reg <- function(outcome_var,
                           data = final_data_gdp,
                           controls = c("avg_gdppc_formative",
-                          "avg_libdem_formative"),
+                          "avg_libdem_formative",
+                          "recession_formative"),
                           fe = c("region", "birth_year"),
                           cluster_var = "country") {
   
@@ -269,7 +271,8 @@ msummary(
 run_autoc_reg <- function(outcome_var,
                           data = final_data_gdp,
                           controls = c("avg_gdppc_formative",
-                          "avg_libdem_formative"),
+                          "avg_libdem_formative",
+                          "recession_formative"),
                           fe = c("region", "birth_year"),
                           cluster_var = "country") {
   
@@ -331,7 +334,7 @@ msummary(
 # Creating a function for heterogeneity models
 run_hetero_reg <- function(outcome_var, 
                           data = final_data_gdp, 
-                          controls = c("avg_gdppc_formative", "avg_libdem_formative"),
+                          controls = c("avg_gdppc_formative", "avg_libdem_formative", "recession_formative"),
                           fe = c("region", "birth_year"),
                           cluster_var = "country") {
   
@@ -394,7 +397,8 @@ msummary(
 run_autoc_reg_controls <- function(outcome_var,
                           data = final_data_gdp,
                           controls = c("avg_gdppc_formative",
-                          "avg_libdem_formative"),
+                          "avg_libdem_formative",
+                          "recession_formative"),
                           fe = c("region", "birth_year"),
                           cluster_var = "country") {
   
@@ -453,7 +457,8 @@ msummary(
 run_democ_reg_controls <- function(outcome_var,
                           data = final_data_gdp,
                           controls = c("avg_gdppc_formative",
-                          "avg_libdem_formative"),
+                          "avg_libdem_formative",
+                          "recession_formative"),
                           fe = c("region", "birth_year"),
                           cluster_var = "country") {
   

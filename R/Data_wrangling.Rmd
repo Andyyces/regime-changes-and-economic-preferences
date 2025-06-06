@@ -66,11 +66,11 @@ source(here("R", "Script", "04_merging_GPS_vdem.R"))
 
 ## Contaminated control group
 
-The approach above assigns indviduals to be the control group:
+The approach above assigns following individuals to be part of the control group:
 
 -   **True controls:** Individuals from countries that never experienced any regime changes
 
--   **Contaminated controls:** Individuals from countries that DID experience regime changes, but these individuals happen to be outside of their formative years when it occured -\> problematic, because they might have indirect exposure effect, they still lived through regime changes as adults outside of formative years
+-   **Contaminated controls:** Individuals from countries that did experience regime changes, but these individuals happen to be outside of their formative years when it occured -\> problematic, because they might have indirect exposure effect, they still lived through regime changes as adults outside of formative years. The following part of the code removes these individuals from out dataset.
 
 ```{r exploring the both groups}
 source(here("R", "Script", "05_exploring_both_groups.R"))
@@ -78,7 +78,24 @@ source(here("R", "Script", "05_exploring_both_groups.R"))
 
 ## Calculating controls
 
+The following code takes a bit longer to generate because of a nested loop structure. It calculates the following controls:
+
+-   Average GDP in the country of residence during formative years of the individual (3-18 years)
+
+-   Average LDI (Liberal Democracy Index) i nthe country of residence during formative years of the individual (3-18 years)
+
 ```{r average gdppc and democracy index}
 
 source(here("R", "Script", "06_average_gdppc_index.R"))
+```
+
+During the robustness check, we explored our options how to add more controls. In the following part of the code we include:
+
+-   Dummy for a recession during formative years
+
+The recession is calculated based on country-specific volatility
+
+```{r recession dummy}
+
+source(here("R", "Script", "07_recession_dummy.R"))
 ```
