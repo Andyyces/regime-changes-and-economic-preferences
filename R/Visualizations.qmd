@@ -28,10 +28,6 @@ script_files <- list.files(
 walk(script_files, source)
 ```
 
-
-
-
-
 ```{r}
 #Assigning each country to a continent
 country_continents <- data.frame(
@@ -181,7 +177,7 @@ for (cont in continents) {
   continent_plot <- ggplot(continent_data, 
                           aes(x = year, y = country_text_id, fill = treatment_factor)) +
     geom_tile(color = "white", size = 0.1) +
-    scale_fill_manual(values = c("No change" = "gray95", 
+    scale_fill_manual(values = c("No change" = "gray", 
                                 "Autocratization" = "#8B0000", 
                                 "Democratization" = "#00008B"),
                       name = "Regime Change Type") +
@@ -212,7 +208,124 @@ for (cont in continents) {
   
 }
 
+
+saveRDS(all_countries_plot, here("Output","figures", "regime_change_visualization.rds"))
+
 ```
+
+```{r}
+# Creating A4-sized visualization with ORIGINAL orientation (which works better)
+
+# Fixing the country ordering to handle countries with no regime changes
+country_order <- country_data_continents %>%
+  group_by(country_text_id, continent) %>%
+  summarise(
+    first_change = min(year[treatment != 0], na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    # Replacing Inf with NA for countries with no changes
+    first_change = ifelse(is.infinite(first_change), NA, first_change)
+  ) %>%
+  arrange(continent, !is.na(first_change), first_change) %>%
+  pull(country_text_id)
+
+country_data_ordered <- country_data_continents %>%
+  mutate(country_text_id = factor(country_text_id, levels = country_order))
+
+# Creating the visualization with A4 dimensions - ORIGINAL ORIENTATION
+all_countries_plot <- ggplot(country_data_ordered,
+                           aes(x = year, y = country_text_id, fill = treatment_factor)) +
+  geom_tile(color = "white", size = 0.05) +
+  scale_fill_manual(values = c("No change" = "gray95",
+                              "Autocratization" = "#B80000",
+                              "Democratization" = "#000088"),
+                   name = "Regime Change Type") +
+  facet_grid(continent ~ ., scales = "free_y", space = "free_y") +
+  theme_minimal() +
+  theme(
+    panel.grid = element_blank(),
+    axis.text.y = element_text(size = 8),
+    axis.text.x = element_text(size = 10, angle = 45, hjust = 1),
+    axis.title = element_text(size = 12, face = "bold"),
+    legend.position = "bottom",
+    legend.text = element_text(size = 10),
+    legend.title = element_text(size = 11, face = "bold"),
+    strip.text.y = element_text(angle = 0, size = 12, face = "bold"),
+    plot.title = element_text(hjust = 0.5, size = 18, face = "bold"),
+    # Add more spacing
+    plot.margin = margin(20, 20, 20, 20),
+    panel.spacing = unit(0.5, "lines")
+  ) +
+  labs(x = "Year", y = "Country",
+       title = "Regime Changes by Country and Continent (Post-1920)")
+
+# Displaying the plot
+print(all_countries_plot)
+
+# Saving as A4 size
+ggsave("regime_changes_A4_wide.pdf",
+       all_countries_plot,
+       width = 420,  # Much wider for square-like appearance
+       height = 297, # A4 height in mm
+       units = "mm",
+       dpi = 300,
+       limitsize = FALSE,
+       path = "~/regime-changes-and-economic-preferences/Output/")
+
+# Creating separate plots for each continent - simple approach
+continents <- unique(country_data_ordered$continent)
+
+for (cont in continents) {
+  
+  continent_data <- country_data_ordered %>%
+    filter(continent == cont)
+  
+  # Calculate dimensions for more square tiles
+  n_countries <- n_distinct(continent_data$country_text_id)
+  plot_height <- max(150, n_countries * 8)  # 8mm per country minimum
+  
+  continent_plot <- ggplot(continent_data,
+                         aes(x = year, y = country_text_id, fill = treatment_factor)) +
+    geom_tile(color = "white", size = 0.1) +
+    scale_fill_manual(values = c("No change" = "gray95",
+                                "Autocratization" = "#B80000", 
+                                "Democratization" = "#000088"),
+                     name = "Regime Change Type") +
+    theme_minimal() +
+    theme(
+      panel.grid = element_blank(),
+      axis.text.y = element_text(size = 12),
+      axis.text.x = element_text(size = 11, angle = 45, hjust = 1),
+      axis.title = element_text(size = 14, face = "bold"),
+      legend.position = "bottom",
+      legend.text = element_text(size = 12),
+      legend.title = element_text(size = 13, face = "bold"),
+      plot.title = element_text(hjust = 0.5, size = 20, face = "bold"),
+      plot.margin = margin(20, 20, 20, 20)
+    ) +
+    labs(x = "Year", y = "Country",
+         title = paste("Regime Changes in", cont, "(Post-1920)"))
+  
+  # Save with custom dimensions for each continent
+  # ggsave(paste0("regime_changes_", tolower(cont), "_square.pdf"),
+  #        continent_plot,
+  #        width = 400,  # Wide format for square tiles
+  #        height = plot_height,
+  #        units = "mm",
+  #        dpi = 300,
+  #        limitsize = FALSE,
+  #        path = "~/regime-changes-and-economic-preferences/Output/")
+}
+```
+
+
+
+
+
+
+
+
 
 ```{r}
 # Summary statistics
@@ -289,4 +402,5 @@ waves_summary <- country_data_binary %>%
   pivot_wider(names_from = treatment_factor, values_from = n, values_fill = 0)
 
 print(waves_summary)
+
 ```
