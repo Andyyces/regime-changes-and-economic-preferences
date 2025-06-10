@@ -34,7 +34,7 @@ unzip(here("Input", "raw", "GPS_dataset_individual_level.zip"),
 GPS_indiv <- read_dta(here("Input", "raw", "individual_v11_new.dta"))
 
 #openning data polity
-#p5 <- read_excel(here("Input", "p5v2018.xls"))
+p5 <- read_excel(here("Input", "p5v2018.xls"))
 gdp_data <- read_excel(here("Input", "raw", "mpd2023_web_2.xlsx"))
 #converting the column encodings to UTF-8
 names(GPS_indiv)
