@@ -99,3 +99,13 @@ The recession is calculated based on country-specific volatility
 
 source(here("R", "Script", "07_recession_dummy.R"))
 ```
+
+## Saving the datasets in RDS format for later use
+
+```{r}
+# Saving the final dataset in rds format
+saveRDS(final_data, here("Input","clean", "final_data.rds"))
+
+# Saving the final dataset in rds format
+saveRDS(final_data_gdp, here("Input","clean", "final_data_gdp.rds"))
+```
