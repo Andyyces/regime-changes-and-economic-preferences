@@ -103,9 +103,18 @@ source(here("R", "Script", "07_recession_dummy.R"))
 ## Saving the datasets in RDS format for later use
 
 ```{r}
-# Saving the final dataset in rds format
+# Saving the final datasets in rds format
+
+# data all osbervations
 saveRDS(final_data, here("Input","clean", "final_data.rds"))
 
-# Saving the final dataset in rds format
+# data filtered observations with controls
 saveRDS(final_data_gdp, here("Input","clean", "final_data_gdp.rds"))
+
+# data filtered observations with controls
+saveRDS(final_data_clean, here("Input","clean", "final_data_clean.rds"))
+
+# country summary data for tables in Milestone 3 report
+saveRDS(country_summary, here("Input","clean", "country_summary.rds"))
+
 ```
