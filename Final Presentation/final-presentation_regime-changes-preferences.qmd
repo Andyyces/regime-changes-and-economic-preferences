@@ -1,7 +1,7 @@
 ---
 author: Andrea Češková, Elvin Mammadov
-title: Regime Changes and Economic Preferences
-subtitle: Empirical Research Task presentation
+title: Regime Changes and Economic Preferences Global evidence
+subtitle: Empirical Research Task
 format:
   tud-typst:
     has_section_slides: false
@@ -10,14 +10,12 @@ bibliography: references.bib
 bibliographystyle: apa
 ---
 
-# Data + Economic model
-
-## 
+# Data 
 
 Economic preferences: patience, risk taking, positive reciprocity, negative reciprocity, altruism, trust
 
 |  |  |
-|:--:|:--:|
+|:----------------------------------:|:----------------------------------:|
 | V-Dem | General Preference Survey |
 | Panel from 1789-now | Cross-section collected in 2012 |
 | Liberal Democracy Index ( 0 - 1 ) | 6 economic preferences, country, age, math skills, gender |
@@ -26,9 +24,13 @@ Economic preferences: patience, risk taking, positive reciprocity, negative reci
 
 -   Economic preferences are formed during childhood + adolescence (Detlefsen et al., 2024)
 
+## Economic preferences
+
+Note: přidej všechny preferences, jak byly měřeny a scale
+
 # Setting
 
-## Treatment definition
+## Treatment group
 
 -   Initial approach: Regime change experienced between 3 -18 years old (democratization / autocratization)
     -   Goal: identify whether an individual experienced a regime change during formative years (3-18)
@@ -36,31 +38,28 @@ Economic preferences: patience, risk taking, positive reciprocity, negative reci
         -   Was individual's age between 3-18 during this identified year -\> treated
 -   **New approach**: democratization / autocratization as a treatment
 
-# Bias and Identification
+Note: Přidej graf regime changes na urovni zemi
 
-## Methods 1
+## Control group 
 
--   Initial idea: DiD / event study with staggered treatment assignment
+Note: přidej tabulku pocty pozorovani v jednotlivych skupinach + rozdeleni zemi
 
-    -   Problematic: magnitude/year of treatment differs also within countries (groups) -\> we captured democratization/autocratization trends rather than sudden changes of regimes
+# Econometric models
 
-## Methods 2
-
--   New approach: **two way fixed effects**
-
-    -   Causal inference possible if conditional independence assumption holds
-
-# Formulas
-
-## Baseline model
+## Baseline specification
 
 $$
-Y_{ict} = \alpha + \beta \cdot \text{RegimeChange}_{ic} + \gamma_c + \delta_t + X_{ict} \cdot \text{(Controls)} + \varepsilon_{ict}
-$$ Where:
+Y_{ict} = \alpha + \beta \cdot \text{Autocratization}_{ic} + \gamma_c + \delta_t  + \varepsilon_{ict}
+$$
 
-$Y\_{ict}$: **Preference outcome** (trust, patience, etc.) for **individual** ( i ), **country** ( c ), **birth cohort** ( t )
+$$
+Y_{ict} = \alpha + \beta \cdot \text{Democratization}_{ic} + \gamma_c + \delta_t  + \varepsilon_{ict}
+$$
+Where:
 
-$\text{RegimeChange}_{ic}$: Binary treatment indicator (1 if experienced democratization/autocratization during formative years, 0 otherwise)
+$Y_{ict}$: **Preference outcome** (trust, patience, etc.) for **individual** ( i ), **country** ( c ), **birth cohort** ( t )
+
+$\text{Autocratization}_{ic}$ or $\text{Democratization}_{ic}$ : Binary treatments indicator (1 if experienced democratization or autocratization during formative years, 0 otherwise)
 
 $\gamma_c$ : Country fixed effects
 
@@ -68,17 +67,16 @@ $\delta_t$ : Birth cohort fixed effects
 
 $X_{ict}$ : Controls including:
 
-Average V-Dem democracy index score experienced during formative years (ages 3-18)
+Average V-Dem LDI during formative years (ages 3-18)
 
-Average GDP between birth year and adult year
+Average GDP in formative years
 
-Subjective math skills (might be problematic)
+Recession experience
 
 $\beta$ : Causal effect of interest
 
-## 
-
 -   Goal: Exploit cross-sectional variation between individuals who experienced regime changes and those who didn't, within the same country and birth cohort, while controlling for observed characteristics
 
-::: {#refs}
-:::
+# Results
+
+# Robustness check
