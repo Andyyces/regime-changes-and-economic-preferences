@@ -5,7 +5,10 @@ author: "Andrea Češková and Elvin Mammadov"
 format: 
   pdf:
     reference-location: document
-number-sections: true
+    number-sections: true
+    equations:
+      number: true
+
 toc: true
 crossref:
   fig-title: "Figure"
@@ -17,9 +20,11 @@ link-citations: true
 ---
 
 ```{r}
+#| eval: false
 #| message: false
 #| warning: false
 #| include: false
+
 #  Load the function from extract_codes.R
 script_files <- list.files(
   path = here("R", "Script"),
@@ -29,7 +34,27 @@ script_files <- list.files(
 
 # source everything with frequency
 walk(script_files, source)
+```
 
+```{r}
+#| message: false
+#| warning: false
+#| include: false
+library(pacman)
+p_load(here,
+       dplyr,
+       kableExtra,
+       tidyr,
+       stringr,
+       ggplot2,
+       haven,
+       knitr,
+       flextable)
+# Data
+final_data_gdp <- readRDS(here("Input", "clean", "final_data_gdp.rds"))
+final_data <- readRDS(here("Input", "clean", "final_data.rds"))
+final_data_clean <- readRDS(here("Input", "clean", "final_data_clean.rds"))
+country_summary <- readRDS(here("Input", "clean", "country_summary.rds"))
 ```
 
 # Economic model
@@ -76,7 +101,7 @@ Our analysis combines two primary data sources:
 
 Our main endogenous variable is a **binary indicator** for experiencing a significant regime change during formative years (ages 3-18). We define regime changes using the **Liberal Democracy Index** **(LDI)** from V-Dem, which measures the extent to which democratic principles are respected in a country on a scale from **0 (autocracy) to 1 (liberal democracy)**. Together with the binary indicator we also capture the **direction of change** (democratization or autocratization).
 
-We identify significant regime changes using a stricter threshold ($|\Delta\text{LDI}| > 0.2$ over a 10-year period) than previous literature [@luhrmann_autocratization_2020] to focus on **substantial political transformations rather than gradual changes**. This modification allows us to capture more disruptive institutional changes that are more likely to affect preference formation.
+We identify significant regime changes using a stricter threshold ($|\Delta\text{LDI}| > 0.2$ over a 10-year period) than previous literature [@luhrmann_autocratization_2020] to focus on **substantial political transformations rather than gradual changes**. This modification allows us to capture more disruptive institutional changes that might be more likely to affect preference formation.
 
 The regime changes are identified first on a country level according to the V-Dem dataset and then combined with the individual level data from the General Preference Survey. Goal is to **differenciate between individuals who experienced a regime change during their formative years** and individuals, who didn't.
 
@@ -98,35 +123,38 @@ Margin Error is calculated in the following way: $\text{ME} = z \times \frac{\si
 
 In this step we also differenciate between the **direction of the change**, either from **autocracy to democracy** and from **democracy to autocracy.**
 
-4.  In the next step we move on to the **individual level** data from the **General Preference Survey**. We evaluate each individual living at the year determined in previous step in a given country. If the individual was in his **formative years (between 3-18 years old)** at this time, he is assigned the **treatment**.
+4.  In the next step we move on to the **individual level** data from the **General Preference Survey**. We evaluate each individual living at the year determined in previous step in a given country. If the individual was in his **formative years (between 3-18 years old)** at this time, he is assigned the **treatment**. After finishing this calculation, we receive following number of observations in both categories, as shown in [@tbl-a].
 
 ```{r}
 #| echo: false
-#| label: tbl-c
+#| message: false
+#| warning: false
+#| label: tbl-a
 #| tbl-cap: Number of observations in treatment and control group
-#| tbl-pos: "H"
+#| tbl-pos: h
+
 table(final_data$formative_regime_change)
 ```
 
 ### Contaminated control group
 
-The approach above assigns the following indviduals to be a part the control group:
+The approach above assigns the following individuals to be a part the control group:
 
 -   **True controls:** Individuals from countries that never experienced any regime changes
 
 -   **Contaminated controls:** Individuals from countries that did experience regime changes, but these individuals happen to be outside of their formative years at that time.
 
-The contaminated control group could compromise the integrity of our study, because these individuals might have indirect exposure effects. In order to avoid this, we have decide to delete these observations.
+The contaminated control group could compromise the integrity of our study, because these individuals might have indirect exposure effects to the regime changes. In order to avoid this, we have decide to delete these observations.
 
-Our **control group** on the other hand consists of **individuals from countries, which never experienced a regime change**.
+Our **control group** therefore consists only of **individuals from countries, which never experienced a regime change**. Applying this approach leaves us with following number of observations in each category, as shown in [@tbl-b].
 
-```{r table control group}
+```{r}
 #| echo: false
-#| label: tbl-d
-#| tbl-cap: Number of observations in treatment and control group
-#| tbl-pos: "H"
-
-p_load(flextable)
+#| message: false
+#| warning: false
+#| label: tbl-b
+#| tbl-cap: Summary of Countries by Regime Change Type
+#| tbl-pos: h
 
 country_summary <- country_summary %>%
   mutate(
@@ -146,19 +174,14 @@ country_summary <- country_summary %>%
   )
 
 country_summary %>%
-  kbl(caption = "Summary of Countries by Regime Change Type",
-      format = "latex",
-      booktabs = TRUE,
+  kbl(format = "latex",
       linesep = "") %>%
-  kable_styling(latex_options = c("striped", "hold_position"),
+  kable_styling(latex_options = c("hold_position", "scale_down"),
                 full_width = FALSE) %>%
   column_spec(1, bold = TRUE) %>%
   column_spec(2:3, width = "3cm") %>%
   column_spec(4, width = "8cm") %>%
   row_spec(0, bold = TRUE)
-
-print(country_summary)
-
 ```
 
 ## Outcome Variables: Economic Preferences
@@ -181,18 +204,17 @@ Each preference is standardized to have a mean of 0 and standard deviation of 1 
 
 ## Preliminary evidence
 
-In the next step, we examined the magnitude of the differences in economic preferences between the treatment and control group. In the following @fig-a we visualize the mean preference profiles of the two groups.
+In the next step, we examined the magnitude of the differences in economic preferences between the treatment and control group. In the following [@fig-a] we visualize the mean preference profiles of the two groups.
 
 ```{r}
 #| echo: false
-#| label: fig-a
 #| warning: false
+#| label: fig-a
 #| results: 'asis'
 #| fig-cap: "Mean Preference Profiles by Regime Change Exposure"
 #| fig-cap-location: top
-#| fig-pos: "H"
-p_load(dplyr,
-       kableExtra)
+
+
 long_data <- final_data_gdp %>%
   pivot_longer(
     cols = c(trust, patience, risktaking, posrecip, negrecip, altruism),
@@ -201,7 +223,7 @@ long_data <- final_data_gdp %>%
   ) %>%
   mutate(preference_type = str_to_title(preference_type))
 
-# Change the formative_regime_change factor levels and labels
+# Changing the formative_regime_change factor levels and labels
 long_data <- long_data %>%
   mutate(formative_regime_change = case_when(
     formative_regime_change == 0 ~ "Control",
@@ -220,7 +242,7 @@ group_means <- long_data %>%
     .groups = "drop"
   )
 
-# Order factors to make Treated come FIRST so it gets the first color (red in Set1)
+# Ordering factors to make Treated come FIRST 
 group_means$formative_regime_change <- factor(
   group_means$formative_regime_change,
   levels = c("Treated", "Control")
@@ -234,7 +256,7 @@ differences <- group_means %>%
   arrange(difference) %>%
   select(preference_type, difference)
 
-# Create ordered factor for preference_type based on differences
+# Creating ordered factor for preference_type based on differences
 group_means$preference_type <- factor(group_means$preference_type, 
                                       levels = differences$preference_type)
 
@@ -262,64 +284,60 @@ grouped_bar_plot <- ggplot(group_means, aes(x = preference_type, y = mean_value,
   ) +
   geom_hline(yintercept = 0, linetype = "dotted", color = "gray50", size = 0.5)
 
-# Print the plot
+# Printing the plot
 print(grouped_bar_plot)
 ```
 
-In the table @tbl-preferences we examine the difference in mean in mean on a more formal level. We perform t-tests of the differences. All of them seems to be statistically significant on a 0.001 confidence level. These consistent and significant differences provide preliminary support for our hypothesis that regime changes during formative years have lasting impacts on economic preferences.
+In the table [@tbl-preferences] we examine the difference in mean in mean on a more formal level. We perform t-tests of the differences. All of them seems to be statistically significant on a 0.001 confidence level. These consistent and significant differences provide preliminary support for our hypothesis that regime changes during formative years have lasting impacts on economic preferences.
 
-```{r}
+```{r code for ttest formatted table}
 #| include: false
-# Function to perform t-tests and format results
+# Function to perform t-tests + format results
 create_ttest_table <- function(data, vars) {
   
-  # Initialize results list
+    # Initializing results list
   results <- list()
   
-  # Ensure formative_regime_change is numeric
-  data$formative_regime_change <- as.numeric(data$formative_regime_change)
+  # Ensuring formative_regime_change is numeric
+  data$clean_treatment <- as.numeric(data$clean_treatment)
   
   # Control vs Treatment indicators
-  control_group <- data$formative_regime_change == 0
-  treatment_group <- data$formative_regime_change == 1
+  control_group <- data$clean_treatment == 0
+  treatment_group <- data$clean_treatment == 1
   
-  # Check that we have both groups
+  # Checking that we have both groups
   if(sum(control_group) == 0) stop("No control group (formative_regime_change = 0) found")
   if(sum(treatment_group) == 0) stop("No treatment group (formative_regime_change = 1) found")
   
-  # For each variable, perform t-test and extract statistics
+  # Performing t-test and extracting statistics for each var
   for(var in vars) {
-    # Extract values for control and treatment
+    # Extracting values for control and treatment
     control_vals <- data[[var]][control_group]
     treat_vals <- data[[var]][treatment_group]
     
-    # Remove NA values
-    control_vals <- control_vals[!is.na(control_vals)]
-    treat_vals <- treat_vals[!is.na(treat_vals)]
-    
-    # Calculate means and SDs
+    # Calculating means and SDs
     control_mean <- mean(control_vals)
     control_sd <- sd(control_vals)
     treat_mean <- mean(treat_vals)
     treat_sd <- sd(treat_vals)
     
-    # Perform t-test
+    # Performing t-test
     t_test <- t.test(treat_vals, control_vals)
     diff <- treat_mean - control_mean
     p_value <- t_test$p.value
     
-    # Add significance stars
+    # Adding significance stars
     stars <- ifelse(p_value < 0.001, "***",
                    ifelse(p_value < 0.01, "**",
                          ifelse(p_value < 0.05, "*",
                                ifelse(p_value < 0.1, "+", ""))))
     
-    # Format the results
+    # Formatting the results
     control_text <- sprintf("%.3f\n(%.3f)", control_mean, control_sd)
     treat_text <- sprintf("%.3f\n(%.3f)", treat_mean, treat_sd)
     diff_text <- sprintf("%.3f%s\n(%.3f)", diff, stars, t_test$stderr)
     
-    # Store results
+    # Storing the results
     results[[var]] <- c(
       Variable = var,
       Control = control_text,
@@ -328,12 +346,9 @@ create_ttest_table <- function(data, vars) {
     )
   }
   
-  # Convert to data frame
+  # Converting to data frame
   table_df <- do.call(rbind, results)
   row.names(table_df) <- NULL
-  
-  # Create the table using kableExtra for PDF output
-  require(kableExtra)
   
   # Clean variable names for display
   display_names <- c(
@@ -343,60 +358,59 @@ create_ttest_table <- function(data, vars) {
     posrecip = "Positive Reciprocity",
     negrecip = "Negative Reciprocity",
     altruism = "Altruism",
-    subj_math_skills = "Subjective Math Skills"
+    subj_math_skills = "Subjective Math Skills",
+    avg_gdppc_formative = "Log of Average GDP per capita during formative years",
+    avg_libdem_formative = "Average LDI during formative years",
+    age = "Age"
   )
   
-  # Replace variable names with display names
+  # Replacing variable names with display names
   table_df[,1] <- ifelse(table_df[,1] %in% names(display_names), 
                         display_names[table_df[,1]], 
                         table_df[,1])
   
-  # Create styled table (without caption - handle in document)
-  kbl(table_df, 
-      booktabs = TRUE,
+  # Creating styled table
+  kbl(table_df,
       col.names = c("", "Control Group", "Treatment Group", "Difference"),
       align = c("l", "c", "c", "c"),
-      escape = TRUE) %>%
+      escape = FALSE) %>%
     kable_styling() %>%
     add_header_above(c(" " = 1, "Mean (SD)" = 3)) %>%
     column_spec(1, width = "2.5cm") %>%
-    column_spec(2:4, width = "2cm") %>%
-    footnote(general = "Standard deviations in parentheses. Standard errors for differences in parentheses.",
-             symbol = c("*** p<0.001, ** p<0.01, * p<0.05, + p<0.1"),
-             threeparttable = TRUE,
-             general_title = "Note:",
-             escape = TRUE)
+    column_spec(2:4, width = "2cm") 
 }
 ```
 
-```{r}
+```{r ttest table for control and treated group}
 #| echo: false
-#| label: tbl-preferences
 #| warning: false
+#| label: tbl-preferences
 #| results: 'asis'
 #| tbl-cap: "Economic Preferences Comparison by Group"
-#| tbl-pos: "H"
-# Create the table
+#| tbl-pos: "h"
+# Creating the table
 preferences_vars <- c("trust", "patience", "risktaking", "posrecip", "negrecip", "altruism")
 preferences_table <- create_ttest_table(final_data_gdp, preferences_vars)
 
-# Render the table
+# Rendering the table
 preferences_table
 ```
 
+In a similar way we examine our control variables in [@tbl-controls]. Also here seem the differences between control and treated group to be significant on 0.001 confidence level.
+
 ```{r}
-#| label: tbl-controls
-#| eval: false
+#| echo: false
 #| warning: false
-#| include: false
-#| results: asis
-#| tbl-cap: Control Variables Comparison by Group
-#| tbl-pos: H
-# Create the table
-controls_vars <- c("age", "gdppc_2012", "subj_math_skills")
+#| label: tbl-controls
+#| results: "asis"
+#| tbl-cap: "Control Variables Comparison by Group"
+#| tbl-pos: "h"
+
+# Creating the table
+controls_vars <- c("age", "avg_gdppc_formative", "subj_math_skills","avg_libdem_formative")
 controls_table <- create_ttest_table(final_data_gdp, controls_vars)
 
-# Render the table
+# Rendering the table
 controls_table
 ```
 
@@ -414,13 +428,13 @@ We hypothesize that regime changes during formative years (ages 3-18) affect eco
 We cannot test the mechanism directly, but we test its implications through a **Two-way fixed effects (2FE)**:
 
 -   Individuals are assigned to treatment if they experienced a regime change during their formative years.
--   All individuals are surveyed in the same period (2012--2013), minimizing confounding from external shocks.
+-   All individuals are surveyed in the same period (2012-2013), minimizing confounding from external shocks.
 
 ## Testing the Mechanisms
 
 While directly testing these psychological mechanisms is challenging with our cross-sectional data, we propose several indirect tests:
 
-1.  **Heterogeneity by Transition Type**: Different channels may be more prominent depending on whether the transition was from autocracy to democracy or vice versa. We will test this by separating our treatment into democratization and autocratization events:
+1.  **Heterogeneity by Transition Type**: Different channels may be more prominent depending on whether the transition was from autocracy to democracy or vice versa. We will test this by separating our treatment into democratization and autocratization events.
 
 2.  **Mediation Analysis**: To test the economic insecurity channel, we will examine whether controlling for economic volatility measures (GDP fluctuations) during formative years attenuates the estimated treatment effect.
 
@@ -450,37 +464,57 @@ Below we summarize key sources of potential bias in identifying the causal effec
 
 # Econometric Specifications
 
-## Baseline Model
+We include several different specification, capturing the effect of regime changes on the economic preferences.
 
-Our baseline specification is a **two-way fixed effects (TWFE)** model that leverages variation in regime change exposure across birth cohorts and regions:
+## Effect of Regime Changes
 
 $$
-Y_{ict} = \alpha + \beta \cdot \text{RegimeChange}_{ic} + \gamma_c + \delta_t + X_{ict} \cdot \text{(Controls)} + \varepsilon_{ict}
-$$ Where:
+Y_{ict} = \alpha + \beta \cdot \text{Regime Change}_{ic} + \gamma_c + \delta_t + \varepsilon_{ict} 
+$$ {#eq-regchange} Where:
 
 -   **Outcome:** $Y_{ict}$: Economic preference outcome (trust, patience, etc.) for **individual** ( i ), **region** ( r ), **birth cohort** ( t )
 
--   **Treatment:** $\text{RegimeChange}_{ic}$: Binary treatment indicator (1 if experienced democratization/autocratization during formative years, 0 otherwise)
+-   **Treatment:** $\text{Regime Change}_{ic}$ is a binary treatment indicators (1 if experienced democratization/autocratization during formative years, 0 otherwise)
 
 -   $\gamma_r$ : Region fixed effects that absorb time-invariant heterogeneity across regions
 
 -   $\delta_t$ : Birth cohort fixed effects that absorb common shocks affecting all individuals born in year t
 
--   $X_{ict}$ : **Controls** including:
+## Heterogenity by Transition Type
 
-    -   Average LDI experienced during formative years (ages 3-18)
+### Baseline specification
 
-    -   Average GDP per capita of the country of residence during formative years (ages 3-18)
+Our baseline specification is a **two-way fixed effects (TWFE)** model that leverages variation in exposure to either autocratization or democratization across birth cohorts and regions, shown in equations @eq-base-autoc and @eq-base-democ :
 
-    -   Subjective math skills
+$$ 
+Y_{ict} = \alpha + \beta \cdot \text{Autocratization}_{ic} + \gamma_c + \delta_t + \varepsilon_{ict} 
+$$ {#eq-base-autoc}
 
-The coefficient of interest, **β**, represents the average effect of experiencing a regime change during formative years on economic preferences, measured in standard deviation units. Under the **identifying assumptions** discussed in [Identification Strategy and Causal Interpretation], **β** can be interpreted as the causal effect of regime change exposure on preference formation.
+$$ 
+Y_{ict} = \alpha + \beta \cdot \text{Democratization}_{ic} + \gamma_c + \delta_t + \varepsilon_{ict} 
+$$ {#eq-base-democ}
 
-## Heterogeneity by Transition Type
+Where:
 
-To distinguish between democratization and autocratization effects, we estimate:
+-   **Outcome:** $Y_{ict}$: Economic preference outcome (trust, patience, etc.) for **individual** ( i ), **region** ( r ), **birth cohort** ( t )
 
-$$Y_{ict} = \alpha + \beta_1 \cdot \text{Democratization}_{i,c} + \beta_2 \cdot \text{Autocratization}_{ic} + \gamma_c + \delta_t + X_{ict} \cdot \text{(Controls)} + \varepsilon_{ict}$$
+-   **Treatment:** $\text{Autocratization}_{ic}$ and $\text{Democratization}_{ic}$ are binary treatment indicators (1 if experienced democratization **or** autocratization during formative years, 0 otherwise)
+
+-   $\gamma_r$ : Region fixed effects that absorb time-invariant heterogeneity across regions
+
+-   $\delta_t$ : Birth cohort fixed effects that absorb common shocks affecting all individuals born in year t
+
+We chose the specification without controls to be our main one, because we are aiming for a causal inference of regime changes on economic preferences. The coefficient of interest, **β**, represents the average effect of experiencing a regime change during formative years on economic preferences, measured in standard deviation units. Under the **identifying assumptions** discussed in [Identification Strategy and Causal Interpretation], **β** can be interpreted as the causal effect of regime change exposure on preference formation.
+
+We have also decided on two baseline equation rather than one, to further strengthen our causal argument.
+
+### Specification with controls
+
+Building on the baseline specification, we are also planning to explore following specification in @eq-controls-democ and @eq-controls-autoc with included control variables:
+
+$$ 
+Y_{ict} = \alpha + \beta \cdot \text{Democratization}_{ic} + \gamma_c + \delta_t + X_{ict} \cdot \text{(Controls)} + \varepsilon_{ict} 
+$$ {#eq-controls-democ}
 
 Where:
 
@@ -488,26 +522,54 @@ Where:
     -   the 10-year difference in LDI is greater than 0.1, and
     -   the confidence intervals of year *t* and year *t--10* do not overlap\
         ($\Delta \text{LDI} > 0.1$ and statistically significant)
+-   $X_{ict}$ : **Controls** including:
+    -   Average LDI experienced during formative years (ages 3-18)
+
+    -   Average GDP per capita of the country of residence during formative years (ages 3-18)
+
+    -   Economic recession dummy
+
+$$ 
+Y_{ict} = \alpha + \beta \cdot \text{Autocratization}_{ic} + \gamma_c + \delta_t + X_{ict} \cdot \text{(Controls)} + \varepsilon_{ict} 
+$$ {#eq-controls-autoc}
+
+Where:
+
 -   **Autocratization**$_{i,c}$: Binary indicator equal to 1 if individual *i* experienced a significant **decrease** in LDI during formative years, defined as a change where:
+
     -   the 10-year difference in LDI is less than --0.1, and
     -   the confidence intervals of year *t* and year *t--10* do not overlap\
         ($\Delta \text{LDI} < -0.1$ and statistically significant)
+
+-   $X_{ict}$ : **Controls** including:
+
+    -   Average LDI experienced during formative years (ages 3-18)
+
+    -   Average GDP per capita of the country of residence during formative years (ages 3-18)
+
+    -   Economic recession dummy
+
+After elaborating on the structure of our control variables, we have decided not to include the `Subjective math skills` control variable. This is because the values of these variables might be directly affected by the regime changes themselves, and would therefore not be an appropriate control because of the reverse causality problem.
 
 # Identification Strategy and Causal Interpretation
 
 ## Identified Treatment Effect
 
-Our empirical strategy aims to identify the Average Treatment Effect on the Treated (ATT), which represents the causal impact of experiencing a regime change during formative years on the economic preferences of individuals who were actually exposed to such changes. Formally, the ATT is defined as:
+Our empirical strategy aims to identify the Average Treatment Effect on the Treated (ATT), which represents the causal impact of experiencing an autocratization or democratization during formative years on the economic preferences of individuals who were actually exposed to such changes. Formally, the ATT is defined as:
 
-$$\text{ATT} = E[Y(1) - Y(0) | \text{RegimeChange} = 1]$$
+$$\text{ATT} = E[Y(1) - Y(0) | \text{Autocratization} = 1]$$
+
+$$\text{ATT} = E[Y(1) - Y(0) | \text{Democratization} = 1]$$
 
 Where $Y(1)$ represents potential preferences under treatment (experiencing regime change) and $Y(0)$ represents potential preferences without treatment, and the expectation is taken over the subpopulation of treated individuals.
 
 ## Causal Identification Assumptions
 
-The TWFE estimator can provide valid causal ATT if the **conditional independence assumption (CIA)** holds. In our context, this assumption implies the following: Conditional on observed covariates, region fixed effects, and birth cohort fixed effects, assignment to treatment (exposure to regime change) **is as good as random**. Formally:
+The TWFE estimator can provide valid causal ATT if the **conditional independence assumption (CIA)** holds. In our context, this assumption implies the following: Conditional on observed covariates, region fixed effects, and birth cohort fixed effects, assignment to treatment (exposure to autocratization or democratization) **is as good as random**. Formally:
 
-$$\{Y(0), Y(1)\} \perp \text{RegimeChange} | X, \gamma_c, \delta_t$$
+$$\{Y(0), Y(1)\} \perp \text{Autocratization} | X, \gamma_c, \delta_t$$
+
+$$\{Y(0), Y(1)\} \perp \text{Democratization} | X, \gamma_c, \delta_t$$
 
 Following assumptions must also hold:
 
@@ -517,11 +579,13 @@ Following assumptions must also hold:
 
 -   **Common Support/Overlap**
 
-    Each individual has a positive probability of being both treated and untreated. This ensures that we have comparable treated and untreated individuals for each combination of covariates and fixed effects. Formally: $$0 < P(\text{RegimeChange} = 1 | X, \gamma_c, \delta_t) < 1$$
+    Each individual has a positive probability of being both treated and untreated. This ensures that we have comparable treated and untreated individuals for each combination of covariates and fixed effects. Formally: $$0 < P(\text{Autocratization} = 1 | X, \gamma_c, \delta_t) < 1$$
+
+    $$0 < P(\text{Democratization} = 1 | X, \gamma_c, \delta_t) < 1$$
 
 -   There are **no unobserved confounders** that vary simultaneously with both treatment assignment and the preference outcomes.
 
--   Individuals not exposed to regime change during formative years serve as a valid control group for those who were exposed.
+-   Individuals not exposed to any kind of regime change during formative years serve as a valid control group for those who were exposed.
 
 While we cannot directly test all identification assumptions, we are planning to implement several tests to asses their plausibility.
 
