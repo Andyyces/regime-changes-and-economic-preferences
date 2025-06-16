@@ -24,11 +24,10 @@ p_load(haven,
 vdem <- vdemdata::vdem
 
 
-# Downaloading GPS Data
-#opening datasets (individual survey)
-unzip(here("Input", "raw", "GPS_Dataset.zip"), 
-      files = "GPS_dataset_individual_level.zip",
-      exdir = here("Input", "raw"))
+
+# Downloading GPS Data
+download.file("https://gps.iza.org/file/GPS_dataset_individual_level.zip", 
+              destfile = here("Input", "raw", "GPS_dataset_individual_level.zip"), mode = "wb")
 
 unzip(here("Input", "raw", "GPS_dataset_individual_level.zip"), 
       files = "individual_v11_new.dta",
