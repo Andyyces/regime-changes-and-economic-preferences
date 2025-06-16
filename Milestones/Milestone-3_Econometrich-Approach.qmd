@@ -131,9 +131,20 @@ In this step we also differenciate between the **direction of the change**, eith
 #| warning: false
 #| label: tbl-a
 #| tbl-cap: Number of observations in treatment and control group
-#| tbl-pos: h
+#| tbl-pos: "h"
 
-table(final_data$formative_regime_change)
+final_data %>%
+  count(formative_regime_change) %>%
+  mutate(
+    Group = case_when(
+      formative_regime_change == 0 ~ "Control",
+      formative_regime_change == 1 ~ "Treated"
+    )
+  ) %>%
+  select(Group, n) %>%
+  kable(
+    col.names = c("Group", "N")
+  )
 ```
 
 ### Contaminated control group
@@ -146,15 +157,15 @@ The approach above assigns the following individuals to be a part the control gr
 
 The contaminated control group could compromise the integrity of our study, because these individuals might have indirect exposure effects to the regime changes. In order to avoid this, we have decide to delete these observations.
 
-Our **control group** therefore consists only of **individuals from countries, which never experienced a regime change**. Applying this approach leaves us with following number of observations in each category, as shown in [@tbl-b].
+Our **control group** therefore consists only of **individuals from countries, which never experienced a regime change**. Applying this approach leaves us with following number of observations in each treatment category (depending on the direction of change, as shown in [@tbl-b].
 
 ```{r}
+#| label: tbl-b
 #| echo: false
 #| message: false
 #| warning: false
-#| label: tbl-b
 #| tbl-cap: Summary of Countries by Regime Change Type
-#| tbl-pos: h
+#| tbl-pos: "h"
 
 country_summary <- country_summary %>%
   mutate(
@@ -176,7 +187,7 @@ country_summary <- country_summary %>%
 country_summary %>%
   kbl(format = "latex",
       linesep = "") %>%
-  kable_styling(latex_options = c("hold_position", "scale_down"),
+  kable_styling(latex_options = c("scale_down"),
                 full_width = FALSE) %>%
   column_spec(1, bold = TRUE) %>%
   column_spec(2:3, width = "3cm") %>%
@@ -200,7 +211,61 @@ Our main outcome variables are six standardized economic preferences from the GP
 
 6.  **Altruism**: Willingness to give to others without expecting returns
 
-Each preference is standardized to have a mean of 0 and standard deviation of 1 in the global sample, allowing us to compare across preferences and countries.
+Each preference is standardized to have a mean of 0 and standard deviation of 1 in the global sample, allowing us to compare across preferences and countries.\
+
+## Control Variables
+
+In our analysis we also include several control variables that capture the alternative channels through which formative regime changes might shape individual preferences. These controls the following potential confounders: economic development, institutional quality and economic volatility during formative period.
+
+### Average GDP per Capita during Formative Years
+
+For each individual *i*, we calculate the average GDP per capita experienced during their formative years (ages 3-18), using the following procedure:
+
+-   For each individual, we take their birth year and calculate the corresponding formative period window (year of birth + 3 to year of birth + 18)
+
+-   We match each individual to their country of residence using ISO country codes and extract annual GDP per capita data from the Maddison Project Database (@noauthor_maddison_2024) for the relevant years.
+
+-   We compute the arithmetic mean of annual GDP per capita values over the 16-year formative period.
+
+-   We apply a natural logarithm transformation to address the skewed distribution of GDP per capita.
+
+Economic development during formative years may independently affect preference formation through several mechanisms. We expect higher GDP to be associated with reduced need for risk-taking as a survival strategy, or enabling longer-term planning (patience). We also expect that wealthier countries typically provide better educational infrastructure, which may affect cognitive development and decision-making patterns. And lastly, we expect economic development to be correlated with stronger institutions and social protection, potentially affecting trust and reciprocity values.
+
+### Average Liberal Democracy Index during Formative Years
+
+This control captures the baseline level of democratic quality experienced during formative years, distinct from regime changes:
+
+-   For each individual, we extract the Liberal Democracy Index (LDI) values for their country of residence for each year of their formative period
+
+-   We compute the mean LDI over the formative years.
+
+We expect the average level of democratic quality during formative years may affect preferences independently of regime changes. Growing up under more democratic institution may foster different baseline levels of trust and cooperation. Different institutional environments may transmit different norms about citizen engagement and social cooperation. We also expect the more democratic countries to have a stronger rule of law, which may affect how individuals perceive fairness and reciprocity. Including this control in our models will allow us to separate the **level** of democracy from **changes** in democracy - our main treatment variables.
+
+### Economic Recession Experience during Formative Years
+
+We create a country-specific recession indicator based on GDP volatility rather than using universal thresholds recognizing that economic cycles vary across countries.
+
+-   For each country, we calculate:
+
+    -   Mean annual GDP growth rate over the available period
+
+    -   Standard deviation of annual GDP growth rates
+
+    -   Country-specific recession threshold = Mean growth - (1,5 x standard deviation)
+
+-   A recession year is identified when: $\text{GDP growth}_{c,t} < (\mu_{\text{growth}_{c}} - 1.5 \times \sigma_{\text{growth}_{c}})$
+
+-   For each individual, we determine a binary indicator which takes the value of 1 if any recession year occurred during ages 3-18 and 0 otherwise
+
+We have decided to use this country-specific approach, because it accounts for different baseline growth rates and volatility across economies. For example a 2% decline may be severe for a historically stable economy but normal for a volatile one.
+
+We hypothesize that experiencing an economic recession during formative years may shape risk perception and permanently alter risk attitudes and preferences for stability. Economic uncertainty may lead to more present-biased preferences and lower patience. Economic hardships may also either increase solidarity (altruism) or decrease it due to resource competition. Economic crises may also affect trust in institutions.
+
+### Subjective Math Skills
+
+While subjective math skills (scale 1-7) initially appeared as a natural control for cognitive ability and education background, we ultimately decided to **exclude** this variable from our main regression specifications. This is because the subjective math skills may themselves be an outcome of regime changes during formative years, making them a bad control in the sense of @angrist_mostly_2009. Including this variable as a control could potentially absorb part of the treatment effect we are trying to identify, leading to biased estimates of regime changes impacts.
+
+Political transitions often disrupt educational systems, which could potentially affect mathematical skills development. We also acknowledge that regime changes may alter the quality of educational institutions, teacher training, and curriculum standards.
 
 ## Preliminary evidence
 
@@ -387,7 +452,7 @@ create_ttest_table <- function(data, vars) {
 #| label: tbl-preferences
 #| results: 'asis'
 #| tbl-cap: "Economic Preferences Comparison by Group"
-#| tbl-pos: "h"
+#| tbl-pos: h
 # Creating the table
 preferences_vars <- c("trust", "patience", "risktaking", "posrecip", "negrecip", "altruism")
 preferences_table <- create_ttest_table(final_data_gdp, preferences_vars)
@@ -404,7 +469,7 @@ In a similar way we examine our control variables in [@tbl-controls]. Also here 
 #| label: tbl-controls
 #| results: "asis"
 #| tbl-cap: "Control Variables Comparison by Group"
-#| tbl-pos: "h"
+#| tbl-pos: h
 
 # Creating the table
 controls_vars <- c("age", "avg_gdppc_formative", "subj_math_skills","avg_libdem_formative")
@@ -460,7 +525,7 @@ Below we summarize key sources of potential bias in identifying the causal effec
 
 -   **Residual selection bias:**\
     Regions with more frequent regime changes might also be systematically poorer or politically unstable, potentially biasing results.\
-    **Mitigation:** We include **control variables**, such as average GDP per capita during formative years (`gdppc_2012`) and **subjective math skills**, to account for socioeconomic background and individual cognitive differences.
+    **Mitigation:** We include **control variables**, as was described in the chapter [Control Variables]
 
 # Econometric Specifications
 
