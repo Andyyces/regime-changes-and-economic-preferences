@@ -73,7 +73,7 @@ Where:
 
 -   $E_{c,t+a}$ represents economic conditions during formative years (GDP per capita)
 
--   $X_i$ represents individual characteristics (subjevtice math skills)
+-   $X_i$ represents individual characteristics (subjective math skills)
 
 Specifically, regime changes represent significant shifts in $I_{c,t+a}$, which create discontinuous changes in institutional environments experienced during critical developmental periods. This framework builds upon studies showing preference malleability during early life [@falk_global_2018; @kosse_formation_2020] and extends them to the domain of political institutions. According to the research of @detlefsen_are_2024, the years of childhood and adolescence are particularly sensitive for economic preference formation.
 
@@ -103,7 +103,7 @@ Our main endogenous variable is a **binary indicator** for experiencing a signif
 
 We identify significant regime changes using a stricter threshold ($|\Delta\text{LDI}| > 0.2$ over a 10-year period) than previous literature [@luhrmann_autocratization_2020] to focus on **substantial political transformations rather than gradual changes**. This modification allows us to capture more disruptive institutional changes that might be more likely to affect preference formation.
 
-The regime changes are identified first on a country level according to the V-Dem dataset and then combined with the individual level data from the General Preference Survey. Goal is to **differenciate between individuals who experienced a regime change during their formative years** and individuals, who didn't.
+The regime changes are identified first on a country level according to the V-Dem dataset and then combined with the individual level data from the General Preference Survey. Goal is to **differentiate between individuals who experienced a regime change during their formative years** and individuals, who didn't.
 
 The precise identification follows this procedure:
 
@@ -121,7 +121,7 @@ $\text{Significant if: } \text{CI}_t \cap \text{CI}_{t-10} = \emptyset$
 
 Margin Error is calculated in the following way: $\text{ME} = z \times \frac{\sigma}{\sqrt{n}}$
 
-In this step we also differenciate between the **direction of the change**, either from **autocracy to democracy** and from **democracy to autocracy.**
+In this step we also differentiate between the **direction of the change**, either from **autocracy to democracy** and from **democracy to autocracy.**
 
 4.  In the next step we move on to the **individual level** data from the **General Preference Survey**. We evaluate each individual living at the year determined in previous step in a given country. If the individual was in his **formative years (between 3-18 years old)** at this time, he is assigned the **treatment**. After finishing this calculation, we receive following number of observations in both categories, as shown in [@tbl-a].
 

@@ -166,7 +166,7 @@ msummary(
   add_header_above(c(" " = 1, "Outcome variables" = 6)) 
 ```
 
-Our results validate our concern about pooling transitions. The findings indicate that **democratization** has a statistically significant positive effect on **patience** ($β=$ `r round(hetero_models[["Patience"]]$coefficients["democratization"], 3)`, p \< 0.01), suggesting that individuals exposed to transitions toward democracy during formative years tend to be more patient. Meanwhile, autocratization shows no significant effect on patience. This important assymetry was missed by our [Model of Combined Effects]. **Both transitions** are associated with **negative reciprocity**, with democratization showing $β=$ `r round(hetero_models[["Negative reciprocity"]]$coefficients["democratization"], 3)`, p \< 0.05, and autocratization showing $β=$ `r round(hetero_models[["Negative reciprocity"]]$coefficients["autocratization"], 3)`, p \< 0.05.
+Our results validate our concern about pooling transitions. The findings indicate that **democratization** has a statistically significant positive effect on **patience** ($β=$ `r round(hetero_models[["Patience"]]$coefficients["democratization"], 3)`, p \< 0.01), suggesting that individuals exposed to transitions toward democracy during formative years tend to be more patient. Meanwhile, autocratization shows no significant effect on patience. This important asymmetry was missed by our [Model of Combined Effects]. **Both transitions** are associated with **negative reciprocity**, with democratization showing $β=$ `r round(hetero_models[["Negative reciprocity"]]$coefficients["democratization"], 3)`, p \< 0.05, and autocratization showing $β=$ `r round(hetero_models[["Negative reciprocity"]]$coefficients["autocratization"], 3)`, p \< 0.05.
 
 Our findings show that both transitions increase negative reciprocity, but only democratization affects patience. This suggests that while some responses might be universal, others depend on the nature of the institutional change.
 
@@ -180,7 +180,7 @@ In @tbl-hetdemoc, we observe the effects of democratization purely against the b
 
 ### Democratization
 
-In this specification shown in @tbl-hetdemoc, which examines only the effects of democratic transitions, the results reveal important differences from the combined model. Democratization maintains a positive and statistically significant effect on **patience** ($β=$ `r round(hetero_models_democ[["Patience"]]$coefficients["democratization"], 3)`, though the effect size is somewhat smaller than in the combined specification. This attenuation suggests that part of the effect in the combined model may have been amplified by the implicit contrast with autocratization.
+In this specification shown in @tbl-hetdemoc, which examines only the effects of democratic transitions, the results reveal important differences from the combined model. Democratization maintains a positive and statistically significant effect on **patience** $β=$ `r round(hetero_models_democ[["Patience"]]$coefficients["democratization"], 3)`, though the effect size is somewhat smaller than in the combined specification. This attenuation suggests that part of the effect in the combined model may have been amplified by the implicit contrast with autocratization.
 
 ```{r democrat-model}
 #| echo: false
@@ -270,7 +270,7 @@ This distinction matters, because some effect may only emerge in direct comparis
 
 The model specification presented in this section takes into account a number of important control variables in order to more accurately assess the impact of regime change during the formative period on individual economic preferences. The control variables capture three distinct theoretical channels that could influence preference formation independently of regime changes:
 
--   The **logarithm of the average GDP per capita during the formative period** – proxies for the general level of economic development and material conditions that shape individuals' economic epportunities and constraints;
+-   The **logarithm of the average GDP per capita during the formative period** – proxies for the general level of economic development and material conditions that shape individuals' economic opportunities and constraints;
 
 -   The **average Liberal Democracy Index (LDI) during the formative period** – captures the baseline institutional environment, distinguishing between the level of democratic quality and changes in that quality;
 
