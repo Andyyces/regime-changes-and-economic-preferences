@@ -1,4 +1,77 @@
+
+
+
 ```{r}
+#| include: false
+library(pacman)
+p_load(haven,
+       here,
+       stargazer,
+       summarytools,
+       readxl,
+       dplyr,
+       lubridate,
+       ggplot2,
+       vdemdata,
+       summarytools,
+       devtools,
+       zoo,
+       tidyverse,
+       fixest,
+       dplyr,
+       tidyr,
+       modelsummary,
+       tinytable,
+       here,
+       countrycode,
+       gt)
+
+```
+
+
+```{r}
+
+
+install.packages("remotes")
+
+remotes::install_github("xmarquez/vdemdata")
+
+
+library(vdemdata)
+
+# V-Dem Country-Year dataset (və daha çox)
+data("vdem")  # Bu, əsas datasetdir
+head(vdem)
+
+vdem_subset <- vdem %>%
+  select(year, v2x_regime, country_name, country_text_id) %>%
+  rename(
+    country = country_name,
+    isocode = country_text_id
+  )
+
+
+
+vdem_subset <- vdem_subset %>% filter(year>= 1920)
+```
+
+
+
+
+```{r}
+source(here("R", "Script", "01_Data_loading.R"))
+source(here("R", "Script", "02_filtering.R"))
+```
+
+
+
+
+
+
+
+
+
+```{r function for regime change}
 
 create_country_regime_data_polity <- function(polity_data,
                                               democratization_threshold = 3,
@@ -12,44 +85,39 @@ create_country_regime_data_polity <- function(polity_data,
       filter(country %in% country_filter)
   }
 
-  # Replace special polity codes (66, 77, 88) with NA
+  # Replace special polity2 codes (66, 77, 88) with NA
   polity_data <- polity_data %>%
     mutate(
-      polity = ifelse(polity %in% c(66, 77, 88), NA, polity)
+      polity2 = ifelse(polity2 %in% c(66, 77, 88), NA, polity2)
     )
   
-  # Sort and compute regime change using polity scores
+  # Sort and compute regime change using polity2 scores
   country_regime_changes <- polity_data %>%
     arrange(country, year) %>%
     group_by(country) %>%
     mutate(
-      polity_lag = lag(polity, lag_years),
-      polity_diff = polity - polity_lag,
+      polity2_lag = lag(polity2, lag_years),
+      polity2_diff = polity2 - polity2_lag,
       
-      # Identify regime change: 2 = democratization, 1 = autocratization, 0 = no change
       regime_change = case_when(
-        !is.na(polity_diff) & polity_diff >= democratization_threshold ~ 2,
-        !is.na(polity_diff) & polity_diff <= autocratization_threshold ~ 1,
+        !is.na(polity2_diff) & polity2_diff >= democratization_threshold ~ 2,
+        !is.na(polity2_diff) & polity2_diff <= autocratization_threshold ~ 1,
         TRUE ~ 0
       ),
       
-      # Factor for labelling
       treatment_factor = factor(regime_change,
                                 levels = c(0, 1, 2),
                                 labels = c("No change", "Autocratization", "Democratization"))
     ) %>%
     ungroup() %>%
-    # 👉 Filtering only years after 1920
     filter(year >= 1920) %>%
-    select(country, scode, year, polity, polity_lag, polity_diff, regime_change, treatment_factor)
+    select(country, scode, year, polity2, polity2_lag, polity2_diff, regime_change, treatment_factor)
   
   return(country_regime_changes)
 }
 
-
-
+# Apply to your Polity5 dataset (e.g., `p5`)
 regime_data <- create_country_regime_data_polity(p5)
-
 
 ```
 
@@ -58,6 +126,35 @@ regime_data <- create_country_regime_data_polity(p5)
 
 ```{r}
 
+regime_data <- regime_data %>%
+  mutate(isocode = countrycode(sourcevar = scode, origin = "p5c", destination = "iso3c"))
+
+manual_map <- tibble::tibble(
+  scode = c("CZE", "DRV", "ETH", "GDR", "GFR", "KOS", "PKS", "RVN", 
+            "SUD", "USR", "YAR", "YGS", "YPR", "YUG"),
+  isocode = c("CZE", "VNM", "ETH", "DEU", "DEU", "XKX", "PAK", "VNM",
+              "SDN", "RUS", "YEM", "SRB", "YEM", "SRB")
+)
+
+regime_data <- regime_data %>%
+  mutate(isocode = countrycode(sourcevar = scode, origin = "p5c", destination = "iso3c"))
+
+
+manual_map <- tibble::tibble(
+  scode = c("CZE", "DRV", "ETH", "GDR", "GFR", "KOS", "PKS", "RVN", 
+            "SUD", "USR", "YAR", "YGS", "YPR", "YUG"),
+  isocode = c("CZE", "VNM", "ETH", "DEU", "DEU", "XKX", "PAK", "VNM",
+              "SDN", "RUS", "YEM", "SRB", "YEM", "SRB")
+)
+
+# Join manually assigned values
+regime_data <- regime_data %>%
+  left_join(manual_map, by = "scode", suffix = c("", ".manual")) %>%
+  mutate(
+    isocode = ifelse(is.na(isocode), isocode.manual, isocode)
+  ) %>%
+  select(-isocode.manual)
+
 merge_polity_changes_with_individuals <- function(gps_data, polity_regime_data) {
   
   # 1. Filter only regime changes (autocratization or democratization)
@@ -65,10 +162,10 @@ merge_polity_changes_with_individuals <- function(gps_data, polity_regime_data) 
     filter(regime_change != 0) %>%
     rename(regime_change_year = year)
   
-  # 2. Merge by isocode (GPS) and scode (Polity)
+  # 2. Merge by standardized 'isocode' column in both datasets
   merged_data <- gps_data %>%
     left_join(regime_changes_long,
-              by = c("isocode" = "scode"),
+              by = "isocode",
               relationship = "many-to-many") %>%
     mutate(
       age_at_regime_change = regime_change_year - birth_year,
@@ -85,7 +182,8 @@ merge_polity_changes_with_individuals <- function(gps_data, polity_regime_data) 
   individual_summary <- merged_data %>%
     group_by(id_gallup) %>%
     summarize(
-      across(c(age,  isocode, region, patience, risktaking, posrecip, negrecip, altruism, trust, subj_math_skills, gender, birth_year, year_3, year_adult), 
+      across(c(age, isocode, region, patience, risktaking, posrecip, negrecip, altruism, trust,
+               subj_math_skills, gender, birth_year, year_3, year_adult), 
              first, .names = "{.col}"),
       
       formative_regime_change = if (all(is.na(experienced_formative_change))) 0 else max(experienced_formative_change, na.rm = TRUE),
@@ -132,7 +230,6 @@ merge_polity_changes_with_individuals <- function(gps_data, polity_regime_data) 
 final_data_polity <- merge_polity_changes_with_individuals(gps_sub, regime_data)
 
 
-
 ```
 
 
@@ -140,8 +237,8 @@ final_data_polity <- merge_polity_changes_with_individuals(gps_sub, regime_data)
 # 1. Identify countries that experienced any regime change in the Polity dataset
 countries_with_regime_changes_polity <- regime_data %>%
   filter(regime_change != 0) %>%  # 1 = autocratization, 2 = democratization
-  distinct(scode) %>%
-  pull(scode)
+  distinct(isocode) %>%
+  pull(isocode)
 
 # 2. Create clean treatment variable: 1 = treated, 0 = pure control, NA = contaminated control (drop later)
 final_data_polity_clean <- final_data_polity %>%
@@ -203,6 +300,11 @@ print(treated_countries_polity)
 ```
 
 
+
+
+
+
+
 ```{r}
 calculate_avg_gdppc <- function(final_data, gdp_data) {
   # Ensure year variables are numeric
@@ -210,14 +312,14 @@ calculate_avg_gdppc <- function(final_data, gdp_data) {
   final_data$year_adult <- as.numeric(final_data$year_adult)
   
   # Initialize new column
-  final_data$avg_gdppc_formative <- NA
+  final_data$avg_gdppc_formative <- NA_real_
   
-  for (i in 1:nrow(final_data)) {
-    iso <- final_data$isocode[i]
+  for (i in seq_len(nrow(final_data))) {
+    iso <- final_data$isocode[i]  # Use standardized ISO code
     start_year <- final_data$year_3[i]
     end_year <- final_data$year_adult[i]
     
-    # Filter GDP data for this country and period
+    # Filter GDP data for this country and formative years
     gdp_subset <- gdp_data[gdp_data$countrycode == iso &
                              gdp_data$year >= start_year &
                              gdp_data$year <= end_year, ]
@@ -229,7 +331,57 @@ calculate_avg_gdppc <- function(final_data, gdp_data) {
   return(final_data)
 }
 
-final_data_gdp <- calculate_avg_gdppc(final_data_clean, gdp_data)
+# Apply to your polity-based dataset
+final_data_polity_clean <- calculate_avg_gdppc(final_data_polity_clean, gdp_data)
+
+
+calculate_avg_polity2 <- function(data, regime_data) {
+  data$year_3 <- as.numeric(data$year_3)
+  data$year_adult <- as.numeric(data$year_adult)
+  data$avg_polity2_formative <- NA_real_
+  
+  for (i in seq_len(nrow(data))) {
+    iso <- data$isocode[i]
+    start_year <- data$year_3[i]
+    end_year <- data$year_adult[i]
+    
+    polity_subset <- regime_data[regime_data$isocode == iso &
+                                   regime_data$year >= start_year &
+                                   regime_data$year <= end_year, ]
+    
+    data$avg_polity2_formative[i] <- mean(polity_subset$polity2, na.rm = TRUE)
+  }
+  
+  return(data)
+}
+
+
+
+# Əsas datasetin surətini al və üzərində işləməyə başla
+final_data_polity_clean_gdp <- final_data_polity_clean
+
+# 1. Yalnız GDP və Polity2 məlumatı olanları saxla
+final_data_polity_clean_gdp <- final_data_polity_clean_gdp %>%
+  filter(!is.na(avg_gdppc_formative))
+
+# 2. 3 yaşdan kiçik yaşda rejim dəyişikliyi yaşayan fərdləri treated kimi saymırıq
+final_data_polity_clean_gdp$formative_regime_change[
+  final_data_polity_clean_gdp$first_formative_age < 3
+] <- 0
+
+# 3. İllər üzrə rejimlərdə neçə il keçirib?
+final_data_polity_clean_gdp <- final_data_polity_clean_gdp %>%
+  mutate(years_spend_regimes = age - first_formative_age)
+
+# 4. Region dəyişənini faktora çevir
+final_data_polity_clean_gdp$region <- factor(final_data_polity_clean_gdp$region)
+
+# 5. GDP per capita log transformasiya et
+final_data_polity_clean_gdp$avg_gdppc_formative <- log(final_data_polity_clean_gdp$avg_gdppc_formative)
+
+# 6. Yenidən yoxla: neçə nəfər treated qalıb?
+table(final_data_polity_clean_gdp$formative_regime_change)
+
 
 
 ```
@@ -242,11 +394,11 @@ final_data_gdp <- calculate_avg_gdppc(final_data_clean, gdp_data)
 #| echo: false
 # Creating custom function for two-way fixed effects models
 run_twfe_reg <- function(outcome_var,
-                         data = final_data_gdp,
-                         controls = c("avg_gdppc_formative", "avg_libdem_formative"),
+                         data = final_data_polity_clean_gdp,
+                         controls = c("avg_gdppc_formative", "avg_polity2_formative"),
                          treatment = "formative_regime_change",
                          fe = c("region", "birth_year"),
-                         cluster_var = "country") {
+                         cluster_var = "isocode") {
   
 # Constructing formula with controls
 controls_formula <- paste(controls, collapse = " +")
@@ -279,11 +431,11 @@ preference_models <- list()
 for (pref in preference_vars) {
   preference_models[[pref]] <- run_twfe_reg(
     outcome_var = pref,
-    data = final_data_gdp,
+    data = final_data_polity_clean_gdp,
     controls = NULL,
-    treatment = "formative_regime_change",
+    treatment = "formative_regime_change", 
     fe = c("region", "birth_year"),
-    cluster_var = "country"  # Using country as the cluster variable
+    cluster_var = "isocode"  # Using country as the cluster variable
   )
 }
 
