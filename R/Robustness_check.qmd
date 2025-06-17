@@ -14,14 +14,24 @@ p_load(dplyr,
        gridExtra,
        RColorBrewer,
        viridis,
-       kableExtra
+       kableExtra,
+       here,
+       lfe,
+       stargazer,
+       tidyr,
+       patchwork
 )
+```
 
+```{r}
+# Data
+final_data_gdp <- readRDS(here("Input", "clean", "final_data_gdp.rds"))
+final_data <- readRDS(here("Input", "clean", "final_data.rds"))
+final_data_clean <- readRDS(here("Input", "clean", "final_data_clean.rds"))
+country_summary <- readRDS(here("Input", "clean", "country_summary.rds"))
+```
 
-
-
-
-
+```{r}
 #  Load the function from extract_codes.R
 script_files <- list.files(
   path = here("R", "Script"),
@@ -31,6 +41,137 @@ script_files <- list.files(
 
 # source everything with frequency
 walk(script_files, source)
+```
+
+# Clustering of standard errors
+
+```{r}
+# Function to extract results 
+extract_results <- function(model, var_name) {
+  coef_val <- coef(model)[var_name]
+  se_val <- se(model)[var_name]
+  t_stat <- coef_val / se_val
+  p_value <- 2 * (1 - pnorm(abs(t_stat)))
+  
+  # Add significance stars
+  stars <- ifelse(p_value < 0.001, "***",
+                 ifelse(p_value < 0.01, "**",
+                       ifelse(p_value < 0.05, "*",
+                             ifelse(p_value < 0.1, "+", ""))))
+  
+  return(data.frame(
+    coefficient = round(coef_val, 4),
+    std_error = round(se_val, 4),
+    t_stat = round(t_stat, 3),
+    p_value = round(p_value, 4),
+    significance = stars
+  ))
+}
+
+
+# BASELINE DEMOCRATIZATION 
+
+preferences <- c("patience", "risktaking", "posrecip", "negrecip", "altruism", "trust")
+
+# Comparing clustering for democratization
+clustering_comparison_demo <- data.frame()
+
+for (pref in preferences) {
+  formula_str <- paste(pref, "~ formative_democratization | region + birth_year")
+  
+  # Different clustering approaches
+  mod_country <- feols(as.formula(formula_str), data = final_data_gdp, cluster = ~country)
+  mod_twoway <- feols(as.formula(formula_str), data = final_data_gdp, cluster = ~country + birth_year)
+  mod_region <- feols(as.formula(formula_str), data = final_data_gdp, cluster = ~region)
+  mod_cohort <- feols(as.formula(formula_str), data = final_data_gdp, cluster = ~birth_year)
+  
+  # Extract results
+  temp <- rbind(
+    cbind(preference = pref, clustering = "Country", extract_results(mod_country, "formative_democratization")),
+    cbind(preference = pref, clustering = "Two-way", extract_results(mod_twoway, "formative_democratization")),
+    cbind(preference = pref, clustering = "Region", extract_results(mod_region, "formative_democratization")),
+    cbind(preference = pref, clustering = "Birth Cohort", extract_results(mod_cohort, "formative_democratization"))
+  )
+  clustering_comparison_demo <- rbind(clustering_comparison_demo, temp)
+}
+
+
+# BASELINE AUTOCRATIZATION  
+
+clustering_comparison_auto <- data.frame()
+
+for (pref in preferences) {
+  formula_str <- paste(pref, "~ formative_autocratization | region + birth_year")
+  
+  # Different clustering approaches
+  mod_country <- feols(as.formula(formula_str), data = final_data_gdp, cluster = ~country)
+  mod_twoway <- feols(as.formula(formula_str), data = final_data_gdp, cluster = ~country + birth_year)
+  mod_region <- feols(as.formula(formula_str), data = final_data_gdp, cluster = ~region)
+  mod_cohort <- feols(as.formula(formula_str), data = final_data_gdp, cluster = ~birth_year)
+  
+  # Extracting results
+  temp <- rbind(
+    cbind(preference = pref, clustering = "Country", extract_results(mod_country, "formative_autocratization")),
+    cbind(preference = pref, clustering = "Two-way", extract_results(mod_twoway, "formative_autocratization")),
+    cbind(preference = pref, clustering = "Region", extract_results(mod_region, "formative_autocratization")),
+    cbind(preference = pref, clustering = "Birth Cohort", extract_results(mod_cohort, "formative_autocratization"))
+  )
+  clustering_comparison_auto <- rbind(clustering_comparison_auto, temp)
+}
+
+main_comparison <- data.frame(
+  Preference = c("Trust", "Patience", "Risk Taking", "Positive Reciprocity", 
+                 "Negative Reciprocity", "Altruism"),
+  Demo_Country = demo_summary$Country,
+  Demo_Twoway = demo_summary$`Two-way`,
+  Auto_Country = auto_summary$Country,
+  Auto_Twoway = auto_summary$`Two-way`
+)
+
+# Saving results in an RDS file
+clustering_results <- list(
+  demo_detailed = clustering_comparison_demo,
+  auto_detailed = clustering_comparison_auto,
+  demo_summary = demo_summary,
+  auto_summary = auto_summary,
+  main_comparison = main_comparison
+)
+
+saveRDS(clustering_results, here("Output", "Robustness", "clustering_results.rds"))
+```
+
+```{r}
+```
+
+```{r}
+# Standard errors comparison - Democratization
+plot_demo_se <- ggplot(clustering_comparison_demo, aes(x = preference, y = std_error, fill = clustering)) +
+  geom_col(position = "dodge", alpha = 0.8) +
+  theme_minimal() +
+  labs(title = "Democratization: Standard Errors by Clustering Method",
+       x = "Economic Preference", 
+       y = "Standard Error",
+       fill = "Clustering Method") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "bottom") +
+  scale_fill_brewer(type = "qual", palette = "Set2")
+
+
+
+#Standard errors comparison - Autocratization  
+plot_auto_se <- ggplot(clustering_comparison_auto, aes(x = preference, y = std_error, fill = clustering)) +
+  geom_col(position = "dodge", alpha = 0.8) +
+  theme_minimal() +
+  labs(title = "Autocratization: Standard Errors by Clustering Method",
+       x = "Economic Preference", 
+       y = "Standard Error",
+       fill = "Clustering Method") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "bottom") +
+  scale_fill_brewer(type = "qual", palette = "Set2")
+
+plot_auto_se
+plot_demo_se
 ```
 
 # Balancing tests
@@ -44,12 +185,12 @@ create_balance_table_treated <- function(data) {
   treated_data <- data %>%
     filter(clean_treatment == 1) %>%
     mutate(
-      treatment_type = case_when(
-        democratization == 1 ~ 1,  # Democratization
-        autocratization == 1 ~ 0   # Autocratization (reference)
+      formative_regime_change = case_when(
+        formative_democratization == 1 ~ 1,  # Democratization
+        formative_autocratization == 1 ~ 0   # Autocratization (reference)
       )
     ) %>%
-    filter(!is.na(treatment_type))  # Remove any ambiguous cases
+    filter(!is.na(formative_regime_change))  # Remove any ambiguous cases
   
   # Define covariates to test balance on (matching regression controls)
   balance_vars <- c("avg_gdppc_formative", "avg_libdem_formative")

@@ -16,8 +16,23 @@ bibliography: references.bib
 link-citations: true
 ---
 
+```{r}
+#| message: false
+#| warning: false
+#| include: false
+library(pacman)
+
+p_load(gt,
+       knitr,
+       kableExtra,
+       dplyr,
+       stargazer,
+       here
+       )
+```
 
 ```{r}
+#| eval: false
 #| message: false
 #| warning: false
 #| include: false
@@ -34,42 +49,119 @@ walk(script_files, source)
 
 ```{r}
 #| include: false
-library(pacman)
-
-p_load(gt,
-       knitr,
-       kableExtra,
-       here
-       )
-```
-
-```{r}
-#| include: false
 conditional_balance <- readRDS(here("Output", "Tables", "conditional_balance_table.rds"))
 democratization_balance <- readRDS(here("Output", "Tables", "balance_table_democratization_vs_autocratization.rds"))
 overall_balance <- readRDS(here("Output", "Tables", "balance_table_overall.rds"))
 sample_composition <- readRDS(here("Output", "Tables", "sample_composition.rds"))
+clustering_results <- readRDS(here("Output", "Robustness", "clustering_results.rds"))
 ```
 
-# Balance Tests and Sample Description
+```{r}
+#| message: false
+#| warning: false
+#| include: false
+demo_summary <- clustering_results$demo_summary
+auto_summary <- clustering_results$auto_summary
+```
 
-## Sample composition
+# Sample composition
 
 Our final analytical sample consists of `r sum(sample_composition$n)` individuals across three groups:
 
 ```{r}
 #| echo: false
+#| label: tbl-samplecomp
+#| tbl-cap: "Sample Composition by Treatment Type"
+#| tbl-pos: "h"
 sample_composition %>%
   kable(format = "latex",
-        caption = "Sample Composition by Treatment Type",
-        booktabs = TRUE,
-        digits = 1,
+        digits = 2,
         col.names = c("Group", "N", "Proportion", "Percentage")) %>%
-  kable_styling(latex_options = c("striped", "hold_position")) %>%
+  kable_styling(latex_options = c("striped")) %>%
   footnote(general = "Distribution of observations across control and treatment groups.",
            general_title = "Note:")
 ```
+
+# Different specification
+
+## Clustering of standard errors
+
+Since our treatment varies primarily at the country level, we cluster standard errors by country in our baseline specification. However, given the potential for both geographic and temporal correlation in our data, we conduct robustness checks using alternative clustering approaches to ensure the validity of our statistical inference.
+
+In this chapter we present sensitivity analysis across four clustering methods: **country-level clustering (our baseline)**, **two-way clustering by country and birth cohort**, **regional clustering**, and **birth cohort clustering**. We chose to analyse only our baseline specification. @tbl-cluster_democ shows the results for base specification: democratization and @tbl-cluster_autoc for base specification: autocratization.
+
+```{r}
+#| message: false
+#| warning: false
+#| include: false
+
+# Function to create professional clustering tables for PDF
+create_clustering_table_pdf <- function(summary_data, treatment_type) {
+  
+  summary_data$preference <- c("Patience", "Risk taking", "Positive Reciprocity", "Negative Reciprocity", "Altruism", "Trust")
+  # Clean up column names to match your report style
+  colnames(summary_data) <- c("", "Country", "Two-way", "Region", "Cohort")
+  
+  # Create the table for PDF/LaTeX output
+  table <- summary_data %>%
+    kable(format = "latex", 
+          align = c("l", "c", "c", "c", "c"),
+          escape = FALSE) %>%
+    kable_styling(
+      latex_options = c("striped", "scale_down"),
+      full_width = FALSE,
+      position = "center",
+      font_size = 10
+    ) %>%
+    row_spec(0, bold = TRUE) %>%
+    column_spec(1, width = "4cm", bold = FALSE) %>%
+    column_spec(2:5, width = "2cm") %>%
+    add_header_above(c(" " = 1, "Clustering Method" = 4), bold = TRUE) %>%
+    footnote(
+      general = "Standard errors clustered as indicated in column headers. All models include region and birth year fixed effects.",
+      general_title = "Note:",
+      footnote_as_chunk = TRUE,
+      threeparttable = TRUE
+    )
+  
+  return(table)
+}
+
+```
+
+The patience affect in @tbl-cluster_democ remains statistically significant across all clustering methods, with standard errors ranging from 0.0207 to 0.0262. The two-way clustering approach yields standard errors (0.0237) very similar to our baseline (0.025), indicating that temporal correlation does not substantially affect our inference.
+
+```{r}
+#| echo: false
+#| label: tbl-cluster_democ
+#| tbl-cap: "Sensitivity to Clustering Approaches - Democratization Effects"
+#| tbl-pos: h
+demo_table_pdf <- create_clustering_table_pdf(demo_summary, 
+                                              "democratization")
+
+demo_table_pdf
+```
+
+Results in @tbl-cluster-autoc similarly demonstrate coefficient stability across clustering methods. Effects are generally smaller and less precisely estimated than democratization effects, consistent with our main findings.
+
+```{r}
+#| echo: false
+#| label: tbl-cluster-autoc
+#| tbl-cap: "Sensitivity to Clustering Approaches - Autocratization Effects"
+#| tbl-pos: h
+auto_table_pdf <- create_clustering_table_pdf(auto_summary, 
+                                              "autocratization")
+auto_table_pdf
+```
+
+The similarity between **country-level** and **two-way clustering** standard errors suggests that within-country correlation is the primary source of dependence in our data. This supports our choice of country-level clustering while demonstrating that our inferences remain robust under more conservative clustering assumptions.
+
+## Definition of formative age
+
+# Balancing tests
+
 ## Conditional Balance Tests (Primary Identification Test)
+
 The following TWFE examines whether treatment assignment is random conditional on our fixed effects.
 
 ```{r}
@@ -83,6 +175,7 @@ conditional_balance %>%
   footnote(general = "Variables residualized with respect to region and birth year fixed effects. *** p<0.001, ** p<0.01, * p<0.05, + p<0.1",
            general_title = "Note:")
 ```
+
 The conditional balance tests show no evidence of systematic selection , strongly supporting the validity of our identification strategy.
 
 ## Overall Treatment vs Control Balance (Descriptive)
@@ -103,7 +196,6 @@ overall_balance %>%
            general_title = "Note:")
 ```
 
-
 ## Treatment Type Comparison
 
 Within the treated sample, we examine balance between democratization and autocratization:
@@ -120,6 +212,18 @@ democratization_balance %>%
            general_title = "Note:")
 ```
 
+balance_table_overall
 
-balance_table_overall 
+# Different Datasets
 
+## V-dem: Regime of the World Index
+
+### Base Specification with Heterogenous Effects
+
+### Specification with Controls
+
+## Polity dataset
+
+### Base Specification with Heterogenous Effects
+
+### Specification with Controls
