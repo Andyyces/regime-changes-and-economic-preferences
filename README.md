@@ -12,6 +12,12 @@ In this project, we are analyzing the relationship between economic preferences 
 
 This project build on two data sets: [V-Dem dataset](https://v-dem.net/data/the-v-dem-dataset/) and [Global Preference Survey](https://gps.iza.org/home). From the V-Dem Dataset, we work mainly with the aggregated data on country level: **Liberal Democracy index**. [Here](https://v-dem.net/documents/57/structureofaggregation.pdf) you can see the structure of aggregation. The GDP data is taken from the [Maddison Project Database](https://www.rug.nl/ggdc/historicaldevelopment/maddison/releases/maddison-project-database-2023).
 
+For the robustness check, we test the same methods on two different country-level datasets:
+
+-   [Polity 5: Regime Authority Characteristics and Transition Datasets](https://www.systemicpeace.org/inscrdata.html)
+
+-   [V-Dem dataset](https://v-dem.net/data/the-v-dem-dataset/): **Regimes of the World Index**
+
 ### How to run ?
 
 1)  Before running any part of the project, restore the R package environment using `renv`.
