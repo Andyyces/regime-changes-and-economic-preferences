@@ -64,7 +64,7 @@ hetero_models_democ_controls <- readRDS(here("Output", "Models", "hetero_models_
 model_names <- c("Patience", "Risk taking", "Positive reciprocity", "Negative reciprocity", "Altruism", "Trust")
 
 # Regime change visualization
-regime_change_visualization <- readRDS(here("Output", "figures", "regime_change_visualization.rds"))
+regime_change_visualization <- readRDS(here("Output", "figures", "LDI_regime_change_visualization.rds"))
 ```
 
 # Estimation Strategy
