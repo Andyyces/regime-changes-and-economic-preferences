@@ -117,4 +117,7 @@ saveRDS(final_data_clean, here("Input","clean", "final_data_clean.rds"))
 # country summary data for tables in Milestone 3 report
 saveRDS(country_summary, here("Input","clean", "country_summary.rds"))
 
+# country data data for regime change visualization
+saveRDS(country_data, here("Input","clean", "country_data.rds"))
+
 ```
