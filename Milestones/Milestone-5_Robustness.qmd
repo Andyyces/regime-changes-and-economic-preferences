@@ -86,7 +86,7 @@ sample_composition %>%
 
 ## Clustering of standard errors
 
-Since our treatment varies primarily at the country level, we cluster standard errors by country in our baseline specification. However, given the potential for both geographic and temporal correlation in our data, we conduct robustness checks using alternative clustering approaches to ensure the validity of our statistical inference.
+Our baseline specification clusters standard errors at the country level, reflecting our assumption that the primary source of correlation in errors stems from shared country-specific factors such as cultural norms, institutional quality, and historical experiences. To assess the robustness of our inference, we examine how our results change under alternative clustering assumptions.
 
 In this chapter we present sensitivity analysis across four clustering methods: **country-level clustering (our baseline)**, **two-way clustering by country and birth cohort**, **regional clustering**, and **birth cohort clustering**. We chose to analyse only our baseline specification. @tbl-cluster_democ shows the results for base specification: democratization and @tbl-cluster_autoc for base specification: autocratization.
 
@@ -129,7 +129,11 @@ create_clustering_table_pdf <- function(summary_data, treatment_type) {
 
 ```
 
-The patience affect in @tbl-cluster_democ remains statistically significant across all clustering methods, with standard errors ranging from 0.0207 to 0.0262. The two-way clustering approach yields standard errors (0.0237) very similar to our baseline (0.025), indicating that temporal correlation does not substantially affect our inference.
+The patience affect in @tbl-cluster_democ remains stable across all clustering methods, with standard errors ranging from 0.0207 to 0.0262, maintaining significance at the 5% level or better. This consistency provides **strong evidence** that our main finding—**experiencing democratization during formative years increases patience**—is not just because of our choice of one clustering method.
+
+The similarity between standard errors under country-level (0.025) and two-way clustering (0.024) indicates minimal temporal correlation within countries. Regional clustering yields slightly larger standard errors, as expected given the smaller number of clusters, while cohort clustering produces the smallest standard errors.
+
+Notably, the **altruism coefficient** exhibits sensitivity to the clustering method. While the point estimate remains stable at -0.078, it is insignificant under country clustering but becomes **highly significant (p \< 0.001)** under **cohort clustering**. This pattern suggests that altruism preferences exhibit **stronger within-country correlation than within-cohort correlation** - in other words, individuals within the same country are more similar to each other in their altruism preferences than individuals born in the same year globally. This likely reflects the importance of country-specific cultural transmission mechanisms in shaping other-regarding preferences.
 
 ```{r}
 #| echo: false
@@ -142,7 +146,7 @@ demo_table_pdf <- create_clustering_table_pdf(demo_summary,
 demo_table_pdf
 ```
 
-Results in @tbl-cluster-autoc similarly demonstrate coefficient stability across clustering methods. Effects are generally smaller and less precisely estimated than democratization effects, consistent with our main findings.
+Results in @tbl-cluster-autoc how generally weaker effects across all clustering methods, consistent with our main findings. The marginal significance of positive reciprocity is relatively stable across specifications, while other effects remain statistically insignificant regardless of clustering approach.
 
 ```{r}
 #| echo: false
@@ -154,7 +158,7 @@ auto_table_pdf <- create_clustering_table_pdf(auto_summary,
 auto_table_pdf
 ```
 
-The similarity between **country-level** and **two-way clustering** standard errors suggests that within-country correlation is the primary source of dependence in our data. This supports our choice of country-level clustering while demonstrating that our inferences remain robust under more conservative clustering assumptions.
+Overall, these robustness checks strengthen confidence in our core findings while highlighting which results are sensitive to different clustering approaches. The **persistence of the democratization-patience relationship** across all specifications underscores its robustness as our primary empirical contribution.
 
 ## Definition of formative age
 
