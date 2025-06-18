@@ -33,10 +33,10 @@ p_load(haven,
 
 
 
-library(vdemdata)
 
-# V-Dem Country-Year dataset (və daha çox)
-data("vdem")  # Bu, əsas datasetdir
+
+# V-Dem Country-Year dataset 
+data("vdem")  
 
 vdem_subset <- vdem %>%
   select(year, v2x_regime, country_name, country_text_id) %>%
@@ -317,30 +317,6 @@ final_data_vdem_clean_gdp <- calculate_avg_gdppc(final_data_vdem_clean, gdp_data
 
 
 
-'calculate_avg_polity2 <- function(data, regime_data) {
-  data$year_3 <- as.numeric(data$year_3)
-  data$year_adult <- as.numeric(data$year_adult)
-  data$avg_polity2_formative <- NA_real_
-  
-  for (i in seq_len(nrow(data))) {
-    iso <- data$isocode[i]
-    start_year <- data$year_3[i]
-    end_year <- data$year_adult[i]
-    
-    polity_subset <- regime_data[regime_data$isocode == iso &
-                                   regime_data$year >= start_year &
-                                   regime_data$year <= end_year, ]
-    
-    data$avg_polity2_formative[i] <- mean(polity_subset$polity2, na.rm = TRUE)
-  }
-  
-  return(data)
-}
-'
-
-
-'# Əsas datasetin surətini al və üzərində işləməyə başla
-final_data_polity_clean_gdp <- final_data_polity_clean'
 
 # 1. Keep only observations with non-missing GDP per capita values
 final_data_vdem_clean_gdp <- final_data_vdem_clean_gdp %>%
@@ -559,7 +535,8 @@ for (pref in preference_vars) {
 
 names(preference_models) <- model_names
 # saving the model as a list for the report
-#saveRDS(preference_models, here("Output","Models", "regime_change_models.rds"))
+saveRDS(preference_models, here("Output", "Models", "v2xregime results", "regime_change_models_v2xregime.rds"))
+
 
 # Creating a model summary table using msummary
 msummary(
@@ -568,8 +545,7 @@ msummary(
   stars = TRUE,
   coef_map = c(
     "formative_regime_change" = "Regime Change experience",
-    "avg_gdppc_formative" = "Average (log) GDP per Capita during formative years",
-    "avg_libdem_formative" = "Average LDI during formative years"
+    "avg_gdppc_formative" = "Average (log) GDP per Capita during formative years"
   ),
   notes = "Standard errors clustered at country level. Fixed effects for region and birth year included.",
   output = "gt"
@@ -634,7 +610,8 @@ hetero_models <- lapply(preference_vars, function(pref) {
 names(hetero_models) <- model_names
 
 # Save the models for future reference
-#saveRDS(hetero_models, here("Output", "Models", "hetero_models.rds"))
+saveRDS(hetero_models, here("Output", "Models", "v2xregime results", "hetero_models_v2xregime.rds"))
+
 
 # Create summary table
 msummary(
@@ -700,7 +677,8 @@ hetero_models_democ <- lapply(preference_vars, function(pref) {
 names(hetero_models_democ) <- model_names
 
 # Save the models to RDS
-#saveRDS(hetero_models_democ, here("Output", "Models", "hetero_models_democ.rds"))
+saveRDS(hetero_models_democ, here("Output", "Models", "v2xregime results", "hetero_models_democ_v2xregime.rds"))
+
 
 # Generate summary output
 msummary(
@@ -765,7 +743,8 @@ hetero_models_autoc <- lapply(preference_vars, function(pref) {
 names(hetero_models_autoc) <- model_names
 
 # Save to RDS
-#saveRDS(hetero_models_autoc, here("Output", "Models", "hetero_models_autoc.rds"))
+saveRDS(hetero_models_autoc, here("Output", "Models", "v2xregime results", "hetero_models_autoc_v2xregime.rds"))
+
 
 # Summary table
 msummary(
@@ -779,7 +758,76 @@ msummary(
 
 ```
 
+# Fixed effects: adding controls
 
+## Combined: Autocratization + Democratization
+
+
+
+
+```{r}
+#| echo: false
+# Creating a function for heterogeneity models
+run_hetero_reg <- function(outcome_var, 
+                          data = final_data_vdem_clean_gdp , 
+                          controls = c("avg_gdppc_formative",  "recession_formative"),
+                          fe = c("region", "birth_year"),
+                          cluster_var = "isocode") {
+  
+  # Constructing formula with controls
+  controls_formula <- paste(controls, collapse = " + ")
+  
+  # Creating the full formula with fixed effects
+  formula_str <- paste(
+    outcome_var, "~ democratization + autocratization +", controls_formula, "|", 
+    paste(fe, collapse = " + ")
+  )
+  
+  # Converting string to formula
+  formula <- as.formula(formula_str)
+  
+  # Running the model
+  model <- feols(
+    formula,
+    data = data,
+    cluster = cluster_var
+  )
+  
+  return(model)
+}
+
+# Applying to each preference
+hetero_models_controls <- lapply(preference_vars, function(pref) {
+  run_hetero_reg(
+    outcome_var = pref,
+    data = final_data_vdem_clean_gdp 
+  )
+})
+names(hetero_models_controls) <- model_names
+
+# Saving the model as a list for the report
+saveRDS(hetero_models_controls, here("Output", "Models", "v2xregime results", "hetero_models_controls_v2xregime.rds"))
+
+
+
+# Checking the output
+msummary(
+  hetero_models_controls,
+  title = "Heterogeneity by Regime Change Direction (Two-way Fixed Effects)",
+  stars = TRUE,
+  coef_rename = c(
+    "democratization" = "Democratization",
+    "autocratization" = "Autocratization",
+    "avg_gdppc_formative" = "Log of Average GDP per Capita during formative years",
+    "recession_formative" = "Recession experienced during formative years"
+  ),
+  notes = "Standard errors clustered at isocode (country) level. All models include region and birth year fixed effects.",
+  output = "gt"
+)
+# %>% gtsave(here("Output", "model_controls.png"))
+
+
+```
 
 
 
@@ -834,7 +882,8 @@ hetero_models_autoc_controls <- lapply(preference_vars, function(pref) {
 names(hetero_models_autoc_controls) <- model_names
 
 # Save the models
-#saveRDS(hetero_models_autoc_controls, here("Output", "Models", "hetero_models_autoc_controls.rds"))
+saveRDS(hetero_models_autoc_controls, here("Output", "Models", "v2xregime results", "hetero_models_autoc_controls_v2xregime.rds"))
+
 
 # Summary table
 msummary(
@@ -852,3 +901,68 @@ msummary(
 ```
 
 
+
+## Democratization
+
+
+```{r}
+# Creating a function for heterogeneity models
+run_democ_reg_controls <- function(outcome_var,
+                          data = final_data_vdem_clean_gdp ,
+                          controls = c("avg_gdppc_formative",
+                                       "recession_formative"),
+                          fe = c("region", "birth_year"),
+                          cluster_var = "isocode") {
+  
+  # Constructing formula with controls
+  controls_formula <- paste(controls, collapse = " + ")
+  
+  # Creating the full formula with fixed effects
+  formula_str <- paste(
+    outcome_var, "~ democratization +", controls_formula, "|",
+    paste(fe, collapse = " + ")
+  )
+  
+  # Converting string to formula
+  formula <- as.formula(formula_str)
+  
+  # Running the model
+  model <- feols(
+    formula,
+    data = data,
+    cluster = cluster_var
+  )
+  
+  return(model)
+}
+
+# Applying to each preference with controls
+hetero_models_democ_controls <- lapply(preference_vars, function(pref) {
+  run_democ_reg_controls(
+    outcome_var = pref,
+    data = final_data_vdem_clean_gdp 
+  )
+})
+names(hetero_models_democ_controls) <- model_names
+
+# Saving the model as a list for the report
+saveRDS(hetero_models_democ_controls, here("Output", "Models", "v2xregime results", "hetero_models_democ_controls_v2xregime.rds"))
+
+
+
+# Checking the output
+msummary(
+  hetero_models_democ_controls,
+  title = "Heterogeneity by Democratization (Two-way Fixed Effects)",
+  stars = TRUE,
+  coef_rename = c(
+    "democratization" = "Democratization",
+    "avg_gdppc_formative" = "Log of Average GDP per Capita during formative years",
+    "recession_formative" = "Recession experienced during formative years"
+  ),
+  notes = "Standard errors clustered at isocode (country) level. All models include region and birth year fixed effects.",
+  output = "gt"
+)
+
+
+```
