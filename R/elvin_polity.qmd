@@ -1,6 +1,3 @@
-
-
-
 ```{r}
 #| include: false
 library(pacman)
@@ -28,24 +25,10 @@ p_load(haven,
 
 ```
 
-
-
-
-
-
-
 ```{r}
 source(here("R", "Script", "01_Data_loading.R"))
 source(here("R", "Script", "02_filtering.R"))
 ```
-
-
-
-
-
-
-
-
 
 ```{r function for regime change}
 
@@ -103,10 +86,9 @@ create_country_regime_data_polity <- function(polity_data,
 # Apply to your Polity5 dataset (e.g., `p5`)
 regime_data <- create_country_regime_data_polity(p5)
 
+#saving an rds for the visualization
+saveRDS(regime_data, here("Output","Robustness", "polity-regime_data.rds"))
 ```
-
-
-
 
 ```{r}
 #convert to isocode
@@ -189,7 +171,6 @@ final_data_polity <- merge_polity_changes_with_individuals(gps_sub, regime_data)
 
 ```
 
-
 ```{r}
 # 1. Identify countries that experienced any regime change in the Polity dataset
 countries_with_regime_changes_polity <- regime_data %>%
@@ -255,12 +236,6 @@ print("Countries with treated individuals (Polity):")
 print(treated_countries_polity)
 
 ```
-
-
-
-
-
-
 
 ```{r}
 calculate_avg_gdppc <- function(final_data, gdp_data) {
@@ -342,9 +317,6 @@ table(final_data_polity_clean_gdp$formative_regime_change)
 
 
 ```
-
-
-
 
 ```{r}
 
@@ -532,8 +504,8 @@ final_data_polity_clean_gdp$region <- factor(final_data_polity_clean_gdp$region)
 
 ```
 
-
 # Fixed effects: regime_change
+
 ```{r}
 #| echo: false
 # Creating custom function for two-way fixed effects models
@@ -606,8 +578,6 @@ msummary(
 
 ## Combined: autocratization and democratization
 
-
-
 ```{r}
 #| echo: false
 # For heterogeneity models, we need to create democratization and autocratization 
@@ -678,9 +648,8 @@ msummary(
 
 ```
 
-
-
 ## Democratization
+
 ```{r}
 # Creating a function for heterogeneity models
 run_democ_reg <- function(outcome_var,
@@ -743,10 +712,7 @@ msummary(
 
 ```
 
-
-
 ## Autocratization
-
 
 ```{r}
 
@@ -812,12 +778,9 @@ msummary(
 
 ```
 
-
-
 # Fixed effects: adding controls
 
 ## Combined: Autocratization + Democratization
-
 
 ```{r}
 #| echo: false
@@ -882,10 +845,7 @@ msummary(
 
 ```
 
-
-
 ## Autocratization
-
 
 ```{r}
 
@@ -951,11 +911,7 @@ msummary(
 
 ```
 
-
-
-
 ## Democratization
-
 
 ```{r}
 # Creating a function for heterogeneity models
@@ -1019,4 +975,3 @@ msummary(
 
 
 ```
-
