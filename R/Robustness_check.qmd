@@ -568,5 +568,3 @@ joint_balance_test_overall <- function(data) {
 
 joint_test_overall <- joint_balance_test_overall(final_data_gdp)
 ```
-
-## 
