@@ -235,18 +235,63 @@ V2xregime value from VDem data, created by the Varieties of Democracy (V-Dem) Pr
 
 **3 --- Liberal Democracies**: Countries that not only hold free and fair elections but also uphold civil liberties, the rule of law and strong checks and balances on executive power.
 
-These categories are based on V-Dem's extensive dataset, which includes expert-coded indicators on political institutions, rights, and governance.
+These categories are based on V-Dem's extensive dataset, which includes expert-coded indicators on political institutions, rights and governance. The regime change included only from Autocracy to Democracy or vice verca.
 
 ### Base Specification with Heterogenous Effects
 
 
+
+
+```{r}
+ regime_change_lde <- readRDS(here("Output", "Models", "regime_change_models.rds"))
+
+ 
+ regime_change_models_v2xregime <- readRDS(here("Output" , "Models" ,"v2xregime results", "regime_change_models_v2xregime.rds"))
+```
+
+
+### Fixed effects: Regime change comparison
+```{r}
+# Define preference names for titles
+preference_names <- c("Patience", "Risk taking", "Positive reciprocity", 
+                      "Negative reciprocity", "Altruism", "Trust")
+
+# Generate a comparison table for each preference
+comparison_tables <- lapply(seq_along(preference_names), function(i) {
+  msummary(
+    list(
+      "Regime-based model" = regime_change_models_v2xregime[[i]],
+      "LDE-based model"    = regime_change_lde[[i]]
+      
+    ),
+    stars = TRUE,
+    coef_rename = c(
+      "regime_change" = "Regime Change Indicator"
+    ),
+    title = paste("Preference:", preference_names[i]),
+    notes = "Standard errors clustered at isocode (country) level. Fixed effects and controls included.",
+    output = "gt"
+  )
+})
+
+# Display each table one after another
+for (tbl in comparison_tables) {
+  print(tbl)
+}
+```
+
+LDE-based model: Formative regime change has a strong positive and highly significant effect on patience , and strongly positive effect on negative reciprocity. But in regime model there is no significant effect
+
+
+
+###hetero models comparision  Combined: autocratization and democratization
 ```{r}
 hetero_models_v2 <- readRDS(here("Output", "Models", "v2xregime results", "hetero_models_v2xregime.rds"))
 hetero_models_democ_v2 <- readRDS(here("Output", "Models", "v2xregime results", "hetero_models_democ_v2xregime.rds"))
 hetero_models_autoc_v2 <- readRDS(here("Output", "Models", "v2xregime results", "hetero_models_autoc_v2xregime.rds"))
 
 
-# LDE modellərini yüklə (quş olanlar)
+# LDE model
 lde_combined <- readRDS(here("Output", "Models", "hetero_models.rds"))
 lde_democ    <- readRDS(here("Output", "Models","hetero_models_democ.rds"))
 lde_autoc    <- readRDS(here("Output", "Models","hetero_models_autoc.rds"))
@@ -256,7 +301,7 @@ lde_autoc    <- readRDS(here("Output", "Models","hetero_models_autoc.rds"))
 
 
 ```{r}
-# Cədvəlləri birləşdir
+
 comparison_tables <- lapply(seq_along(preference_vars_1), function(i) {
   msummary(
     list(
@@ -278,51 +323,21 @@ comparison_tables <- lapply(seq_along(preference_vars_1), function(i) {
   )
 })
 
-# Cədvəlləri sırayla göstər
+
 for (tbl in comparison_tables) {
   print(tbl)
 }
 ```
 
 
-```{r}
- #Əgər model_names obyektiniz varsa onu istifadə edin, əks halda sadə adlar yaradaq:
-# Başlıq üçün model_names obyektindən istifadə edirik
 
-preference_vars_1 <- c("Patience", "Risk taking", "Positive reciprocity", "Negative reciprocity", "Altruism", "Trust")
-
-titles <- paste("Preference:", preference_vars_1)
-
-# Bütün nəticə cədvəllərini siyahı kimi yaradın
-tables <- lapply(seq_along(hetero_models_v2), function(i) {
-  msummary(
-    list(
-      "Combined (Dem. + Aut.)" = hetero_models_v2[[i]],
-      "Democratization only"   = hetero_models_democ_v2[[i]],
-      "Autocratization only"   = hetero_models_autoc_v2[[i]]
-    ),
-    stars = TRUE,
-    coef_rename = c(
-      "democratization" = "Democratization",
-      "autocratization" = "Autocratization"
-    ),
-    title = titles[i],
-    notes = "Standard errors clustered at isocode (country) level. Fixed effects for region and birth year included.",
-    output = "gt"
-  )
-})
-# Nəticələri növbə ilə göstər
-for (tbl in tables) {
-  print(tbl)
-}
-```
 
 
 ### Specification with Controls
 
 
 ```{r}
-# Əvvəlcə modelləri oxuyuruq
+# Read models first
 hetero_models_controls_v2 <- readRDS(here("Output", "Models", "v2xregime results", "hetero_models_controls_v2xregime.rds"))
 hetero_models_democ_controls_v2 <- readRDS(here("Output", "Models", "v2xregime results", "hetero_models_democ_controls_v2xregime.rds"))
 hetero_models_autoc_controls_v2 <- readRDS(here("Output", "Models", "v2xregime results", "hetero_models_autoc_controls_v2xregime.rds"))
@@ -330,7 +345,7 @@ hetero_models_autoc_controls_v2 <- readRDS(here("Output", "Models", "v2xregime r
 
 
 
-# LDE-based modelləri yükləyirik (quş olanlar)
+# LDE-based model
 lde_controls_combined <- readRDS(here("Output", "Models","hetero_models_controls.rds"))
 lde_controls_democ    <- readRDS(here("Output", "Models","hetero_models_democ_controls.rds"))
 lde_controls_autoc    <- readRDS(here("Output", "Models","hetero_models_autoc_controls.rds"))
@@ -343,7 +358,7 @@ lde_controls_autoc    <- readRDS(here("Output", "Models","hetero_models_autoc_co
 
 
 ```{r}
-# Cədvəlləri siyahı şəklində yarat
+# creating list of table
 comparison_tables_controls <- lapply(seq_along(preference_vars_1), function(i) {
   msummary(
     list(
@@ -367,49 +382,16 @@ comparison_tables_controls <- lapply(seq_along(preference_vars_1), function(i) {
   )
 })
 
-# Nəticələri göstərin
+# Show the results
 for (tbl in comparison_tables_controls) {
   print(tbl)
 }
 
 ```
 
+Patience is positively and strongly associated with the log of average GDP per capita during formative years across all models. This suggests that individuals who grew up in wealthier economic environments tend to be more patient. Risk taking significantly decreases following autocratization in regime-based models. Negative reciprocity significantly declines after autocratization in regime models
+,  indicating that such political transitions may suppress retaliatory economic behaviors. Trust decreases substantially in response to autocratization in regime-based models, highlighting a strong erosion of interpersonal or institutional trust in individuals exposed to such regime shifts.
 
-```{r}
-
-
-
-# Başlıqlar: preference adları
-preference_vars_1 <- c("Patience", "Risk taking", "Positive reciprocity", "Negative reciprocity", "Altruism", "Trust")
-titles <- paste("Preference:", preference_vars_1)
-
-# Bütün nəticə cədvəllərini siyahı kimi yaradın
-tables_controls <- lapply(seq_along(hetero_models_controls_v2), function(i) {
-  msummary(
-    list(
-      "Combined (Dem. + Aut.)" = hetero_models_controls_v2[[i]],
-      "Democratization only"   = hetero_models_democ_controls_v2[[i]],
-      "Autocratization only"   = hetero_models_autoc_controls_v2[[i]]
-    ),
-    stars = TRUE,
-    coef_rename = c(
-      "democratization" = "Democratization",
-      "autocratization" = "Autocratization",
-      "avg_gdppc_formative" = "Log of Average GDP per Capita during formative years",
-      "recession_formative" = "Recession experienced during formative years"
-    ),
-    title = titles[i],
-    notes = "Standard errors clustered at isocode (country) level. All models include region and birth year fixed effects.",
-    output = "gt"
-  )
-})
-
-# Nəticələri növbə ilə göstər
-for (tbl in tables_controls) {
-  print(tbl)
-}
-
-```
 
 
 ## Polity dataset

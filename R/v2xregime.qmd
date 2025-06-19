@@ -484,6 +484,18 @@ final_data_vdem_clean_gdp <- final_data_gdp
 ```
 
 
+```{r Adding country names}
+
+
+
+final_data_vdem_clean_gdp <- final_data_vdem_clean_gdp %>%
+  mutate(
+    country = countrycode(isocode, origin = "iso3c", destination = "country.name")
+  ) %>%
+  relocate(country, .after = isocode)
+```
+
+
 # Fixed effects: regime_change
 
 ```{r}
@@ -494,7 +506,7 @@ run_twfe_reg <- function(outcome_var,
                          controls = c("avg_gdppc_formative"),
                          treatment = "formative_regime_change",
                          fe = c("region", "birth_year"),
-                         cluster_var = "isocode") {
+                         cluster_var = "country") {
   
 # Constructing formula with controls
 controls_formula <- paste(controls, collapse = " +")
@@ -531,7 +543,7 @@ for (pref in preference_vars) {
     controls = NULL,
     treatment = "formative_regime_change", 
     fe = c("region", "birth_year"),
-    cluster_var = "isocode"  # Using country as the cluster variable
+    cluster_var = "country"  # Using country as the cluster variable
   )
 }
 
@@ -573,7 +585,7 @@ run_hetero_reg <- function(outcome_var,
                            data = final_data_vdem_clean_gdp,
                            controls = NULL,
                            fe = c("region", "birth_year"),
-                           cluster_var = "isocode") {
+                           cluster_var = "country") {
   
   # Build control part of the formula
   controls_formula <- if (is.null(controls)) {
@@ -638,7 +650,7 @@ run_democ_reg <- function(outcome_var,
                           data = final_data_vdem_clean_gdp,
                           controls = NULL,
                           fe = c("region", "birth_year"),
-                          cluster_var = "isocode") {
+                          cluster_var = "country") {
   
   # Build control part of the formula
   controls_formula <- if (is.null(controls)) {
@@ -704,7 +716,7 @@ run_autoc_reg <- function(outcome_var,
                           data = final_data_vdem_clean_gdp,
                           controls = NULL,
                           fe = c("region", "birth_year"),
-                          cluster_var = "isocode") {
+                          cluster_var = "country") {
   
   # Build control part of the formula
   controls_formula <- if (is.null(controls)) {
@@ -774,7 +786,7 @@ run_hetero_reg <- function(outcome_var,
                           data = final_data_vdem_clean_gdp , 
                           controls = c("avg_gdppc_formative",  "recession_formative"),
                           fe = c("region", "birth_year"),
-                          cluster_var = "isocode") {
+                          cluster_var = "country") {
   
   # Constructing formula with controls
   controls_formula <- paste(controls, collapse = " + ")
@@ -850,7 +862,7 @@ run_autoc_reg_controls <- function(outcome_var,
                                    data = final_data_vdem_clean_gdp,
                                    controls = c("avg_gdppc_formative"),
                                    fe = c("region", "birth_year"),
-                                   cluster_var = "isocode") {
+                                   cluster_var = "country") {
   
   # Constructing formula with GDP control
   controls_formula <- paste(controls, collapse = " + ")
@@ -914,7 +926,7 @@ run_democ_reg_controls <- function(outcome_var,
                           controls = c("avg_gdppc_formative",
                                        "recession_formative"),
                           fe = c("region", "birth_year"),
-                          cluster_var = "isocode") {
+                          cluster_var = "country") {
   
   # Constructing formula with controls
   controls_formula <- paste(controls, collapse = " + ")
