@@ -453,7 +453,6 @@ final_data_polity_clean_gdp <- calculate_recession_exposure(final_data_polity_cl
 ```
 
 ```{r}
-# Takes a while to compute because of the nested loop
 calculate_avg_polity2 <- function(final_data_polity_clean_gdp, p5) {
   # Ensure numeric types
   final_data_polity_clean_gdp$year_3 <- as.numeric(final_data_polity_clean_gdp$year_3)
@@ -462,21 +461,22 @@ calculate_avg_polity2 <- function(final_data_polity_clean_gdp, p5) {
   # Initialize new column
   final_data_polity_clean_gdp$avg_polity2_formative <- NA
   
-  # Loop over each respondent
+  # Loop over each respondent using isocode
   for (i in 1:nrow(final_data_polity_clean_gdp)) {
     iso <- final_data_polity_clean_gdp$isocode[i]
     start_year <- final_data_polity_clean_gdp$year_3[i]
     end_year <- final_data_polity_clean_gdp$year_adult[i]
     
-    # Filter Polity data for the country and years
-    p5_subset <- p5[p5$scode == iso & 
-                    p5$year >= start_year & 
+    # Filter Polity data by ISO3 and year range
+   p5_subset <- p5[p5$isocode == iso &
+                    p5$year >= start_year &
                     p5$year <= end_year, ]
+
     
-    # Compute mean polity2 index
+    # Compute average polity2 value (skip NAs)
     avg_polity2 <- mean(p5_subset$polity2, na.rm = TRUE)
     
-    # Assign to new column
+    # Assign result to dataset
     final_data_polity_clean_gdp$avg_polity2_formative[i] <- avg_polity2
   }
   
@@ -504,6 +504,21 @@ final_data_polity_clean_gdp$region <- factor(final_data_polity_clean_gdp$region)
 
 ```
 
+
+
+
+```{r}
+final_data_polity_clean_gdp  <- final_data_polity_clean_gdp  %>%
+  mutate(
+    country = countrycode(isocode, origin = "iso3c", destination = "country.name")
+  ) %>%
+  relocate(country, .after = isocode)
+
+final_data_polity_clean_gdp <- final_data_polity_clean_gdp %>%
+  filter(!is.na(avg_polity2_formative))
+saveRDS(final_data_polity_clean_gdp, here("Input", "clean", "final_data_polity_clean_gdp.rds" ))
+```
+
 # Fixed effects: regime_change
 
 ```{r}
@@ -514,7 +529,7 @@ run_twfe_reg <- function(outcome_var,
                          controls = c("avg_gdppc_formative", "avg_polity2_formative"),
                          treatment = "formative_regime_change",
                          fe = c("region", "birth_year"),
-                         cluster_var = "isocode") {
+                         cluster_var = "country") {
   
 # Constructing formula with controls
 controls_formula <- paste(controls, collapse = " +")
@@ -551,13 +566,13 @@ for (pref in preference_vars) {
     controls = NULL,
     treatment = "formative_regime_change", 
     fe = c("region", "birth_year"),
-    cluster_var = "isocode"  # Using country as the cluster variable
+    cluster_var = "country"  # Using country as the cluster variable
   )
 }
 
 names(preference_models) <- model_names
 # saving the model as a list for the report
-#saveRDS(preference_models, here("Output","Models", "regime_change_models.rds"))
+saveRDS(preference_models, here("Output","Models", "polity results", "regime_change_models_polity.rds"))
 
 # Creating a model summary table using msummary
 msummary(
@@ -595,7 +610,7 @@ run_hetero_reg <- function(outcome_var,
                                        "avg_polity2_formative",
                                        "recession_formative"),
                           fe = c("region", "birth_year"),
-                          cluster_var = "isocode") {  # CHANGED HERE
+                          cluster_var = "country") {  # CHANGED HERE
   
   # Constructing formula with controls (if any)
   controls_formula <- if (is.null(controls)) "" else paste("+", paste(controls, collapse = " + "))
@@ -658,7 +673,7 @@ run_democ_reg <- function(outcome_var,
                                        "avg_polity2_formative",
                                        "recession_formative"),
                           fe = c("region", "birth_year"),
-                          cluster_var = "isocode") {
+                          cluster_var = "country") {
   
   # Constructing formula with controls
   controls_formula <- if (is.null(controls)) "" else paste("+", paste(controls, collapse = " + "))
@@ -725,7 +740,7 @@ run_autoc_reg <- function(outcome_var,
                                        "avg_polity2_formative",
                                        "recession_formative"),
                           fe = c("region", "birth_year"),
-                          cluster_var = "isocode") {
+                          cluster_var = "country") {
   
   # Constructing formula with controls
   controls_formula <- if (is.null(controls)) "" else paste("+", paste(controls, collapse = " + "))
@@ -789,7 +804,7 @@ run_hetero_reg <- function(outcome_var,
                           data = final_data_polity_clean_gdp, 
                           controls = c("avg_gdppc_formative", "avg_polity2_formative", "recession_formative"),
                           fe = c("region", "birth_year"),
-                          cluster_var = "isocode") {
+                          cluster_var = "country") {
   
   # Constructing formula with controls
   controls_formula <- paste(controls, collapse = " + ")
@@ -856,7 +871,7 @@ run_autoc_reg_controls <- function(outcome_var,
                                        "avg_polity2_formative",
                                        "recession_formative"),
                           fe = c("region", "birth_year"),
-                          cluster_var = "isocode") {
+                          cluster_var = "country") {
   
   # Constructing formula with controls
   controls_formula <- paste(controls, collapse = " + ")
@@ -921,7 +936,7 @@ run_democ_reg_controls <- function(outcome_var,
                                        "avg_polity2_formative",
                                        "recession_formative"),
                           fe = c("region", "birth_year"),
-                          cluster_var = "isocode") {
+                          cluster_var = "country") {
   
   # Constructing formula with controls
   controls_formula <- paste(controls, collapse = " + ")

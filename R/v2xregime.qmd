@@ -493,6 +493,8 @@ final_data_vdem_clean_gdp <- final_data_vdem_clean_gdp %>%
     country = countrycode(isocode, origin = "iso3c", destination = "country.name")
   ) %>%
   relocate(country, .after = isocode)
+
+saveRDS(final_data_vdem_clean_gdp, here("Input", "clean", "final_data_vdem_clean_gdp.rds" ))
 ```
 
 

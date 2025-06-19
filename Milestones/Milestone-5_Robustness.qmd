@@ -22,12 +22,28 @@ link-citations: true
 #| include: false
 library(pacman)
 
-p_load(gt,
-       knitr,
-       kableExtra,
-       dplyr,
+p_load(haven,
+       here,
        stargazer,
-       here
+       summarytools,
+       readxl,
+       dplyr,
+       lubridate,
+       ggplot2,
+       vdemdata,
+       summarytools,
+       devtools,
+       zoo,
+       tidyverse,
+       fixest,
+       dplyr,
+       tidyr,
+       modelsummary,
+       tinytable,
+       here,
+       countrycode,
+       gt,
+       knit
        )
 ```
 
@@ -396,6 +412,143 @@ Patience is positively and strongly associated with the log of average GDP per c
 
 ## Polity dataset
 
-### Base Specification with Heterogenous Effects
+
+```{r}
+ regime_change_lde <- readRDS(here("Output", "Models", "regime_change_models.rds"))
+
+ 
+ regime_change_models_polity <- readRDS(here("Output" , "Models" ,"polity results", "regime_change_models_polity.rds"))
+```
+
+Coverage: 160+ countries, typically from 1800–2023
+
+Main variable: polity2, a composite score ranging from –10 (full autocracy) to +10 (full democracy)
+
+Tracks regime changes, authority characteristics and durability of political institutions
+
+
+```{r}
+# Define preference names for titles
+preference_names <- c("Patience", "Risk taking", "Positive reciprocity", 
+                      "Negative reciprocity", "Altruism", "Trust")
+
+# Generate a comparison table for each preference
+comparison_tables <- lapply(seq_along(preference_names), function(i) {
+  msummary(
+    list(
+      "Polity-based model" = regime_change_models_polity[[i]],
+      "LDE-based model"    = regime_change_lde[[i]]
+    ),
+    stars = TRUE,
+    coef_rename = c(
+      "regime_change" = "Regime Change Indicator"
+    ),
+    title = paste("Preference:", preference_names[i]),
+    notes = "Standard errors clustered at isocode (country) level. Fixed effects and controls included.",
+    output = "gt"
+  )
+})
+
+# Display each table one after another
+for (tbl in comparison_tables) {
+  print(tbl)
+}
+
+```
+
+
+
+
+###hetero models comparision  Combined: autocratization and democratization
+
+```{r}
+# Load models from the "polity results" folder
+hetero_models_polity <- readRDS(here("Output", "Models", "polity results", "hetero_models_polity.rds"))
+hetero_models_democ_polity <- readRDS(here("Output", "Models", "polity results", "hetero_models_democ_polity.rds"))
+hetero_models_autoc_polity <- readRDS(here("Output", "Models", "polity results", "hetero_models_autoc_polity.rds"))
+
+```
+
+
+
+
+```{r}
+# Comparison table: Polity-based models vs. LDE-based models
+comparison_tables <- lapply(seq_along(preference_vars_1), function(i) {
+  msummary(
+    list(
+      "Polity: Combined"        = hetero_models_polity[[i]],
+      "Polity: Democratization" = hetero_models_democ_polity[[i]],
+      "Polity: Autocratization" = hetero_models_autoc_polity[[i]],
+      "LDE: Combined"           = lde_combined[[i]],
+      "LDE: Democratization"    = lde_democ[[i]],
+      "LDE: Autocratization"    = lde_autoc[[i]]
+    ),
+    stars = TRUE,
+    coef_rename = c(
+      "democratization" = "Democratization",
+      "autocratization" = "Autocratization"
+    ),
+    title = titles[i],
+    notes = "Standard errors clustered at isocode (country) level. All models include region and birth year fixed effects.",
+    output = "gt"
+  )
+})
+
+# Print each comparison table
+for (tbl in comparison_tables) {
+  print(tbl)
+}
+
+```
 
 ### Specification with Controls
+```{r}
+# Read polity-based models with controls
+hetero_models_controls_polity <- readRDS(here("Output", "Models", "polity results", "hetero_models_controls_polity.rds"))
+hetero_models_democ_controls_polity <- readRDS(here("Output", "Models", "polity results", "hetero_models_democ_controls_polity.rds"))
+hetero_models_autoc_controls_polity <- readRDS(here("Output", "Models", "polity results", "hetero_models_autoc_controls_polity.rds"))
+
+```
+
+
+
+
+
+```{r}
+
+
+# Create comparison tables with controls: Polity vs. LDE
+comparison_tables_controls <- lapply(seq_along(preference_vars_1), function(i) {
+  msummary(
+    list(
+      "Polity: Combined"        = hetero_models_controls_polity[[i]],
+      "Polity: Democratization" = hetero_models_democ_controls_polity[[i]],
+      "Polity: Autocratization" = hetero_models_autoc_controls_polity[[i]],
+      "LDE: Combined"           = lde_controls_combined[[i]],
+      "LDE: Democratization"    = lde_controls_democ[[i]],
+      "LDE: Autocratization"    = lde_controls_autoc[[i]]
+    ),
+    stars = TRUE,
+    coef_rename = c(
+      "democratization" = "Democratization",
+      "autocratization" = "Autocratization",
+      "avg_gdppc_formative" = "Log of Average GDP per Capita during formative years",
+      "recession_formative" = "Recession experienced during formative years"
+    ),
+    title = titles[i],
+    notes = "Standard errors clustered at isocode (country) level. All models include region and birth year fixed effects.",
+    output = "gt"
+  )
+})
+
+# Display each table
+for (tbl in comparison_tables_controls) {
+  print(tbl)
+}
+
+```
+
+
+
+
