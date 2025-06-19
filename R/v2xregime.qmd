@@ -131,6 +131,8 @@ create_country_regime_data_vdem <- function(vdem_data,
 
 regime_data <- create_country_regime_data_vdem(vdem_subset)
 
+#saving an rds for the visualization(put this code into v2xregime)
+saveRDS(regime_data, here("Output","Robustness", "RWI-regime_data.rds"))
 
 ```
 
