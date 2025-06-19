@@ -82,7 +82,7 @@ The following code takes a bit longer to generate because of a nested loop struc
 
 -   Average GDP in the country of residence during formative years of the individual (3-18 years)
 
--   Average LDI (Liberal Democracy Index) i nthe country of residence during formative years of the individual (3-18 years)
+-   Average LDI (Liberal Democracy Index) in the country of residence during formative years of the individual (3-18 years)
 
 ```{r average gdppc and democracy index}
 
@@ -104,7 +104,6 @@ source(here("R", "Script", "07_recession_dummy.R"))
 
 ```{r}
 # Saving the final datasets in rds format
-
 # data all osbervations
 saveRDS(final_data, here("Input","clean", "final_data.rds"))
 
