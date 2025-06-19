@@ -80,6 +80,8 @@ sample_composition %>%
   kable_styling(latex_options = c("striped")) %>%
   footnote(general = "Distribution of observations across control and treatment groups.",
            general_title = "Note:")
+
+
 ```
 
 # Different specification
@@ -129,7 +131,7 @@ create_clustering_table_pdf <- function(summary_data, treatment_type) {
 
 ```
 
-The patience affect in @tbl-cluster_democ remains stable across all clustering methods, with standard errors ranging from 0.0207 to 0.0262, maintaining significance at the 5% level or better. This consistency provides **strong evidence** that our main finding—**experiencing democratization during formative years increases patience**—is not just because of our choice of one clustering method.
+The patience affect in @tbl-cluster_democ remains stable across all clustering methods, with standard errors ranging from 0.0207 to 0.0262, maintaining significance at the 5% level or better. This consistency provides **strong evidence** that our main finding---**experiencing democratization during formative years increases patience**---is not just because of our choice of one clustering method.
 
 The similarity between standard errors under country-level (0.025) and two-way clustering (0.024) indicates minimal temporal correlation within countries. Regional clustering yields slightly larger standard errors, as expected given the smaller number of clusters, while cohort clustering produces the smallest standard errors.
 
@@ -178,6 +180,7 @@ conditional_balance %>%
   kable_styling(latex_options = c("striped", "hold_position", "scale_down")) %>%
   footnote(general = "Variables residualized with respect to region and birth year fixed effects. *** p<0.001, ** p<0.01, * p<0.05, + p<0.1",
            general_title = "Note:")
+
 ```
 
 The conditional balance tests show no evidence of systematic selection , strongly supporting the validity of our identification strategy.
@@ -222,9 +225,192 @@ balance_table_overall
 
 ## V-dem: Regime of the World Index
 
+V2xregime value from VDem data, created by the Varieties of Democracy (V-Dem) Project, classifies countries based on their regime type using a four-category system that reflects the degree of democracy and autocracy. The classification is as follows:
+
+**0 --- Closed Autocracies**: Countries where citizens have no meaningful opportunity to participate in elections and political power is highly concentrated.
+
+**1 --- Electoral Autocracies**: Countries that hold de jure multiparty elections, but these are neither free nor fair and core democratic rights are restricted.
+
+**2 --- Electoral Democracies**: Countries where elections are relatively free and fair, but democratic institutions (like judicial independence or media freedom) may be weak or partially undermined.
+
+**3 --- Liberal Democracies**: Countries that not only hold free and fair elections but also uphold civil liberties, the rule of law and strong checks and balances on executive power.
+
+These categories are based on V-Dem's extensive dataset, which includes expert-coded indicators on political institutions, rights, and governance.
+
 ### Base Specification with Heterogenous Effects
 
+
+```{r}
+hetero_models_v2 <- readRDS(here("Output", "Models", "v2xregime results", "hetero_models_v2xregime.rds"))
+hetero_models_democ_v2 <- readRDS(here("Output", "Models", "v2xregime results", "hetero_models_democ_v2xregime.rds"))
+hetero_models_autoc_v2 <- readRDS(here("Output", "Models", "v2xregime results", "hetero_models_autoc_v2xregime.rds"))
+
+
+# LDE modellərini yüklə (quş olanlar)
+lde_combined <- readRDS(here("Output", "Models", "hetero_models.rds"))
+lde_democ    <- readRDS(here("Output", "Models","hetero_models_democ.rds"))
+lde_autoc    <- readRDS(here("Output", "Models","hetero_models_autoc.rds"))
+
+```
+
+
+
+```{r}
+# Cədvəlləri birləşdir
+comparison_tables <- lapply(seq_along(preference_vars_1), function(i) {
+  msummary(
+    list(
+      "Regime: Combined"        = hetero_models_v2[[i]],
+      "Regime: Democratization" = hetero_models_democ_v2[[i]],
+      "Regime: Autocratization" = hetero_models_autoc_v2[[i]],
+      "LDE: Combined"           = lde_combined[[i]],
+      "LDE: Democratization"    = lde_democ[[i]],
+      "LDE: Autocratization"    = lde_autoc[[i]]
+    ),
+    stars = TRUE,
+    coef_rename = c(
+      "democratization" = "Democratization",
+      "autocratization" = "Autocratization"
+    ),
+    title = titles[i],
+    notes = "Standard errors clustered at isocode (country) level. Fixed effects for region and birth year included.",
+    output = "gt"
+  )
+})
+
+# Cədvəlləri sırayla göstər
+for (tbl in comparison_tables) {
+  print(tbl)
+}
+```
+
+
+```{r}
+ #Əgər model_names obyektiniz varsa onu istifadə edin, əks halda sadə adlar yaradaq:
+# Başlıq üçün model_names obyektindən istifadə edirik
+
+preference_vars_1 <- c("Patience", "Risk taking", "Positive reciprocity", "Negative reciprocity", "Altruism", "Trust")
+
+titles <- paste("Preference:", preference_vars_1)
+
+# Bütün nəticə cədvəllərini siyahı kimi yaradın
+tables <- lapply(seq_along(hetero_models_v2), function(i) {
+  msummary(
+    list(
+      "Combined (Dem. + Aut.)" = hetero_models_v2[[i]],
+      "Democratization only"   = hetero_models_democ_v2[[i]],
+      "Autocratization only"   = hetero_models_autoc_v2[[i]]
+    ),
+    stars = TRUE,
+    coef_rename = c(
+      "democratization" = "Democratization",
+      "autocratization" = "Autocratization"
+    ),
+    title = titles[i],
+    notes = "Standard errors clustered at isocode (country) level. Fixed effects for region and birth year included.",
+    output = "gt"
+  )
+})
+# Nəticələri növbə ilə göstər
+for (tbl in tables) {
+  print(tbl)
+}
+```
+
+
 ### Specification with Controls
+
+
+```{r}
+# Əvvəlcə modelləri oxuyuruq
+hetero_models_controls_v2 <- readRDS(here("Output", "Models", "v2xregime results", "hetero_models_controls_v2xregime.rds"))
+hetero_models_democ_controls_v2 <- readRDS(here("Output", "Models", "v2xregime results", "hetero_models_democ_controls_v2xregime.rds"))
+hetero_models_autoc_controls_v2 <- readRDS(here("Output", "Models", "v2xregime results", "hetero_models_autoc_controls_v2xregime.rds"))
+
+
+
+
+# LDE-based modelləri yükləyirik (quş olanlar)
+lde_controls_combined <- readRDS(here("Output", "Models","hetero_models_controls.rds"))
+lde_controls_democ    <- readRDS(here("Output", "Models","hetero_models_democ_controls.rds"))
+lde_controls_autoc    <- readRDS(here("Output", "Models","hetero_models_autoc_controls.rds"))
+```
+
+
+
+
+
+
+
+```{r}
+# Cədvəlləri siyahı şəklində yarat
+comparison_tables_controls <- lapply(seq_along(preference_vars_1), function(i) {
+  msummary(
+    list(
+      "Regime: Combined"        = hetero_models_controls_v2[[i]],
+      "Regime: Democratization" = hetero_models_democ_controls_v2[[i]],
+      "Regime: Autocratization" = hetero_models_autoc_controls_v2[[i]],
+      "LDE: Combined"           = lde_controls_combined[[i]],
+      "LDE: Democratization"    = lde_controls_democ[[i]],
+      "LDE: Autocratization"    = lde_controls_autoc[[i]]
+    ),
+    stars = TRUE,
+    coef_rename = c(
+      "democratization" = "Democratization",
+      "autocratization" = "Autocratization",
+      "avg_gdppc_formative" = "Log of Average GDP per Capita during formative years",
+      "recession_formative" = "Recession experienced during formative years"
+    ),
+    title = titles[i],
+    notes = "Standard errors clustered at isocode (country) level. All models include region and birth year fixed effects.",
+    output = "gt"
+  )
+})
+
+# Nəticələri göstərin
+for (tbl in comparison_tables_controls) {
+  print(tbl)
+}
+
+```
+
+
+```{r}
+
+
+
+# Başlıqlar: preference adları
+preference_vars_1 <- c("Patience", "Risk taking", "Positive reciprocity", "Negative reciprocity", "Altruism", "Trust")
+titles <- paste("Preference:", preference_vars_1)
+
+# Bütün nəticə cədvəllərini siyahı kimi yaradın
+tables_controls <- lapply(seq_along(hetero_models_controls_v2), function(i) {
+  msummary(
+    list(
+      "Combined (Dem. + Aut.)" = hetero_models_controls_v2[[i]],
+      "Democratization only"   = hetero_models_democ_controls_v2[[i]],
+      "Autocratization only"   = hetero_models_autoc_controls_v2[[i]]
+    ),
+    stars = TRUE,
+    coef_rename = c(
+      "democratization" = "Democratization",
+      "autocratization" = "Autocratization",
+      "avg_gdppc_formative" = "Log of Average GDP per Capita during formative years",
+      "recession_formative" = "Recession experienced during formative years"
+    ),
+    title = titles[i],
+    notes = "Standard errors clustered at isocode (country) level. All models include region and birth year fixed effects.",
+    output = "gt"
+  )
+})
+
+# Nəticələri növbə ilə göstər
+for (tbl in tables_controls) {
+  print(tbl)
+}
+
+```
+
 
 ## Polity dataset
 
