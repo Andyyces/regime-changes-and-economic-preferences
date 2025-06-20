@@ -1,0 +1,1375 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\PassOptionsToPackage{dvipsnames,svgnames,x11names}{xcolor}
+%
+\documentclass[
+  letterpaper,
+  DIV=11,
+  numbers=noendperiod]{scrartcl}
+
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else  
+    % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\setcounter{secnumdepth}{5}
+% Make \paragraph and \subparagraph free-standing
+\ifx\paragraph\undefined\else
+  \let\oldparagraph\paragraph
+  \renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+  \let\oldsubparagraph\subparagraph
+  \renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage{colortbl}
+\usepackage{pdflscape}
+\usepackage{tabu}
+\usepackage{threeparttable}
+\usepackage{threeparttablex}
+\usepackage[normalem]{ulem}
+\usepackage{makecell}
+\usepackage{xcolor}
+\usepackage{siunitx}
+
+    \newcolumntype{d}{S[
+      table-align-text-before=false,
+      table-align-text-after=false,
+      input-symbols={-,\*+()}
+    ]}
+  
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage[table]{xcolor}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage{colortbl}
+\usepackage{pdflscape}
+\usepackage{tabularx}
+\usepackage{tabulary}
+\usepackage{threeparttable}
+\KOMAoption{captions}{tableheading}
+\makeatletter
+\makeatother
+\makeatletter
+\makeatother
+\makeatletter
+\@ifpackageloaded{caption}{}{\usepackage{caption}}
+\AtBeginDocument{%
+\ifdefined\contentsname
+  \renewcommand*\contentsname{Table of contents}
+\else
+  \newcommand\contentsname{Table of contents}
+\fi
+\ifdefined\listfigurename
+  \renewcommand*\listfigurename{List of Figures}
+\else
+  \newcommand\listfigurename{List of Figures}
+\fi
+\ifdefined\listtablename
+  \renewcommand*\listtablename{List of figures}
+\else
+  \newcommand\listtablename{List of figures}
+\fi
+\ifdefined\figurename
+  \renewcommand*\figurename{Figure}
+\else
+  \newcommand\figurename{Figure}
+\fi
+\ifdefined\tablename
+  \renewcommand*\tablename{Table}
+\else
+  \newcommand\tablename{Table}
+\fi
+}
+\@ifpackageloaded{float}{}{\usepackage{float}}
+\floatstyle{ruled}
+\@ifundefined{c@chapter}{\newfloat{codelisting}{h}{lop}}{\newfloat{codelisting}{h}{lop}[chapter]}
+\floatname{codelisting}{Listing}
+\newcommand*\listoflistings{\listof{codelisting}{List of Listings}}
+\makeatother
+\makeatletter
+\@ifpackageloaded{caption}{}{\usepackage{caption}}
+\@ifpackageloaded{subcaption}{}{\usepackage{subcaption}}
+\makeatother
+\makeatletter
+\@ifpackageloaded{tcolorbox}{}{\usepackage[skins,breakable]{tcolorbox}}
+\makeatother
+\makeatletter
+\@ifundefined{shadecolor}{\definecolor{shadecolor}{rgb}{.97, .97, .97}}
+\makeatother
+\makeatletter
+\makeatother
+\makeatletter
+\makeatother
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same} % disable monospaced font for URLs
+\hypersetup{
+  pdftitle={Regime Changes and Economic Preferences: Global Evidence},
+  pdfauthor={Andrea Češková and Elvin Mammadov},
+  colorlinks=true,
+  linkcolor={blue},
+  filecolor={Maroon},
+  citecolor={Blue},
+  urlcolor={Blue},
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Regime Changes and Economic Preferences: Global Evidence}
+\usepackage{etoolbox}
+\makeatletter
+\providecommand{\subtitle}[1]{% add subtitle to \maketitle
+  \apptocmd{\@title}{\par {\large #1 \par}}{}{}
+}
+\makeatother
+\subtitle{Milestone 5: Robustness}
+\author{Andrea Češková and Elvin Mammadov}
+\date{}
+
+\begin{document}
+\maketitle
+\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[interior hidden, borderline west={3pt}{0pt}{shadecolor}, frame hidden, breakable, enhanced, sharp corners, boxrule=0pt]}{\end{tcolorbox}}\fi
+
+\renewcommand*\contentsname{Table of contents}
+{
+\hypersetup{linkcolor=}
+\setcounter{tocdepth}{3}
+\tableofcontents
+}
+\hypertarget{sample-composition}{%
+\section{Sample composition}\label{sample-composition}}
+
+Our final analytical sample consists of 47575 individuals across three
+groups:
+
+\hypertarget{tbl-samplecomp}{}
+\begin{table}
+\caption{\label{tbl-samplecomp}Sample Composition by Treatment Type }\tabularnewline
+
+\centering
+\begin{tabular}{l|r|r|r}
+\hline
+Group & N & Proportion & Percentage\\
+\hline
+Control (No regime change) & 26876 & 0.55 & 54.7\\
+\hline
+Democratization & 17344 & 0.35 & 35.3\\
+\hline
+Autocratization & 4949 & 0.10 & 10.1\\
+\hline
+\multicolumn{4}{l}{\textsuperscript{} Distribution of observations across control and}\\
+\multicolumn{4}{l}{treatment groups.}\\
+\end{tabular}
+\end{table}
+
+\hypertarget{different-specification}{%
+\section{Different specification}\label{different-specification}}
+
+\hypertarget{clustering-of-standard-errors}{%
+\subsection{Clustering of standard
+errors}\label{clustering-of-standard-errors}}
+
+Our baseline specification clusters standard errors at the country
+level, reflecting our assumption that the primary source of correlation
+in errors stems from shared country-specific factors such as cultural
+norms, institutional quality, and historical experiences. To assess the
+robustness of our inference, we examine how our results change under
+alternative clustering assumptions.
+
+In this chapter we present sensitivity analysis across four clustering
+methods: \textbf{country-level clustering (our baseline)},
+\textbf{two-way clustering by country and birth cohort},
+\textbf{regional clustering}, and \textbf{birth cohort clustering}. We
+chose to analyse only our baseline specification.
+Table~\ref{tbl-cluster_democ} shows the results for base specification:
+democratization and Table~\ref{tbl-cluster_autoc} for base
+specification: autocratization.
+
+The patience affect in Table~\ref{tbl-cluster_democ} remains stable
+across all clustering methods, with standard errors ranging from 0.0207
+to 0.0262, maintaining significance at the 5\% level or better. This
+consistency provides \textbf{strong evidence} that our main
+finding---\textbf{experiencing democratization during formative years
+increases patience}---is not just because of our choice of one
+clustering method.
+
+The similarity between standard errors under country-level (0.025) and
+two-way clustering (0.024) indicates minimal temporal correlation within
+countries. Regional clustering yields slightly larger standard errors,
+as expected given the smaller number of clusters, while cohort
+clustering produces the smallest standard errors.
+
+Notably, the \textbf{altruism coefficient} exhibits sensitivity to the
+clustering method. While the point estimate remains stable at -0.078, it
+is insignificant under country clustering but becomes \textbf{highly
+significant (p \textless{} 0.001)} under \textbf{cohort clustering}.
+This pattern suggests that altruism preferences exhibit \textbf{stronger
+within-country correlation than within-cohort correlation} - in other
+words, individuals within the same country are more similar to each
+other in their altruism preferences than individuals born in the same
+year globally. This likely reflects the importance of country-specific
+cultural transmission mechanisms in shaping other-regarding preferences.
+
+\hypertarget{tbl-cluster_democ}{}
+\begin{table}
+\caption{\label{tbl-cluster_democ}Sensitivity to Clustering Approaches - Democratization Effects }\tabularnewline
+
+\centering\begingroup\fontsize{10}{12}\selectfont
+
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\begin{threeparttable}
+\begin{tabular}{>{\raggedright\arraybackslash}p{4cm}|>{\centering\arraybackslash}p{2cm}|>{\centering\arraybackslash}p{2cm}|>{\centering\arraybackslash}p{2cm}|>{\centering\arraybackslash}p{2cm}}
+\hline
+\multicolumn{1}{c|}{\textbf{ }} & \multicolumn{4}{c}{\textbf{Clustering Method}} \\
+\cline{2-5}
+\textbf{} & \textbf{Country} & \textbf{Two-way} & \textbf{Region} & \textbf{Cohort}\\
+\hline
+\cellcolor{gray!10}{Patience} & \cellcolor{gray!10}{0.0656** (0.025)} & \cellcolor{gray!10}{0.0656** (0.0237)} & \cellcolor{gray!10}{0.0656* (0.0262)} & \cellcolor{gray!10}{0.0656** (0.0207)}\\
+\hline
+Risk taking & 0.0406 (0.0438) & 0.0406 (0.0447) & 0.0406 (0.0369) & 0.0406 (0.0249)\\
+\hline
+\cellcolor{gray!10}{Positive Reciprocity} & \cellcolor{gray!10}{-0.0275 (0.0504)} & \cellcolor{gray!10}{-0.0275 (0.0511)} & \cellcolor{gray!10}{-0.0275 (0.0313)} & \cellcolor{gray!10}{-0.0275 (0.0273)}\\
+\hline
+Negative Reciprocity & 0.0545 (0.0404) & 0.0545 (0.0404) & 0.0545 (0.0407) & 0.0545* (0.0239)\\
+\hline
+\cellcolor{gray!10}{Altruism} & \cellcolor{gray!10}{-0.0783 (0.0562)} & \cellcolor{gray!10}{-0.0783 (0.0559)} & \cellcolor{gray!10}{-0.0783+ (0.0456)} & \cellcolor{gray!10}{-0.0783*** (0.0237)}\\
+\hline
+Trust & -0.0164 (0.0334) & -0.0164 (0.0335) & -0.0164 (0.0315) & -0.0164 (0.0246)\\
+\hline
+\end{tabular}
+\begin{tablenotes}[para]
+\item \textit{Note:} 
+\item Standard errors clustered as indicated in column headers. All models include region and birth year fixed effects.
+\end{tablenotes}
+\end{threeparttable}}
+\endgroup{}
+\end{table}
+
+Results in \textbf{?@tbl-cluster-autoc} how generally weaker effects
+across all clustering methods, consistent with our main findings. The
+marginal significance of positive reciprocity is relatively stable
+across specifications, while other effects remain statistically
+insignificant regardless of clustering approach.
+
+\hypertarget{tbl-cluster_autoc}{}
+\begin{table}
+\caption{\label{tbl-cluster_autoc}Sensitivity to Clustering Approaches - Autocratization Effects }\tabularnewline
+
+\centering\begingroup\fontsize{10}{12}\selectfont
+
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\begin{threeparttable}
+\begin{tabular}{>{\raggedright\arraybackslash}p{4cm}|>{\centering\arraybackslash}p{2cm}|>{\centering\arraybackslash}p{2cm}|>{\centering\arraybackslash}p{2cm}|>{\centering\arraybackslash}p{2cm}}
+\hline
+\multicolumn{1}{c|}{\textbf{ }} & \multicolumn{4}{c}{\textbf{Clustering Method}} \\
+\cline{2-5}
+\textbf{} & \textbf{Country} & \textbf{Two-way} & \textbf{Region} & \textbf{Cohort}\\
+\hline
+\cellcolor{gray!10}{Patience} & \cellcolor{gray!10}{-0.0124 (0.022)} & \cellcolor{gray!10}{-0.0124 (0.022)} & \cellcolor{gray!10}{-0.0124 (0.0185)} & \cellcolor{gray!10}{-0.0124 (0.0177)}\\
+\hline
+Risk taking & 0.0091 (0.0282) & 0.0091 (0.0302) & 0.0091 (0.0241) & 0.0091 (0.022)\\
+\hline
+\cellcolor{gray!10}{Positive Reciprocity} & \cellcolor{gray!10}{-0.0327+ (0.0189)} & \cellcolor{gray!10}{-0.0327+ (0.0186)} & \cellcolor{gray!10}{-0.0327 (0.0202)} & \cellcolor{gray!10}{-0.0327+ (0.0191)}\\
+\hline
+Negative Reciprocity & 0.0424 (0.0338) & 0.0424 (0.0324) & 0.0424+ (0.0257) & 0.0424* (0.0174)\\
+\hline
+\cellcolor{gray!10}{Altruism} & \cellcolor{gray!10}{0.027 (0.0234)} & \cellcolor{gray!10}{0.027 (0.0226)} & \cellcolor{gray!10}{0.027 (0.0207)} & \cellcolor{gray!10}{0.027 (0.0199)}\\
+\hline
+Trust & -0.0111 (0.0269) & -0.0111 (0.0266) & -0.0111 (0.0197) & -0.0111 (0.0196)\\
+\hline
+\end{tabular}
+\begin{tablenotes}[para]
+\item \textit{Note:} 
+\item Standard errors clustered as indicated in column headers. All models include region and birth year fixed effects.
+\end{tablenotes}
+\end{threeparttable}}
+\endgroup{}
+\end{table}
+
+Overall, these robustness checks strengthen confidence in our core
+findings while highlighting which results are sensitive to different
+clustering approaches. The \textbf{persistence of the
+democratization-patience relationship} across all specifications
+underscores its robustness as our primary empirical contribution.
+
+\hypertarget{different-datasets}{%
+\section{Different Datasets}\label{different-datasets}}
+
+\hypertarget{v-dem-regime-of-the-world-index}{%
+\subsection{V-dem: Regime of the World
+Index}\label{v-dem-regime-of-the-world-index}}
+
+V2xregime value from VDem data, created by the Varieties of Democracy
+(V-Dem) Project, classifies countries based on their regime type using a
+four-category system that reflects the degree of democracy and
+autocracy. The classification is as follows:
+
+\textbf{0 --- Closed Autocracies}: Countries where citizens have no
+meaningful opportunity to participate in elections and political power
+is highly concentrated.
+
+\textbf{1 --- Electoral Autocracies}: Countries that hold de jure
+multiparty elections, but these are neither free nor fair and core
+democratic rights are restricted.
+
+\textbf{2 --- Electoral Democracies}: Countries where elections are
+relatively free and fair, but democratic institutions (like judicial
+independence or media freedom) may be weak or partially undermined.
+
+\textbf{3 --- Liberal Democracies}: Countries that not only hold free
+and fair elections but also uphold civil liberties, the rule of law and
+strong checks and balances on executive power.
+
+These categories are based on V-Dem's extensive dataset, which includes
+expert-coded indicators on political institutions, rights and
+governance. The regime change included only from Autocracy to Democracy
+or vice verca.
+
+\begin{figure}[H]
+
+{\centering \includegraphics{Milestone-5_Robustness_files/figure-pdf/fig-regime-changes-RWI-1.pdf}
+
+}
+
+\caption{\label{fig-regime-changes-RWI}Regime Changes by Country and
+Continent (Post-1920)}
+
+\end{figure}
+
+\hypertarget{base-specification-with-heterogenous-effects}{%
+\subsubsection{Base Specification with Heterogenous
+Effects}\label{base-specification-with-heterogenous-effects}}
+
+\hypertarget{fixed-effects-regime-change-comparison}{%
+\subsubsection{Fixed effects: Regime change
+comparison}\label{fixed-effects-regime-change-comparison}}
+
+\hypertarget{tbl-regime-lde-patience}{}
+\begin{table}
+\centering\centering
+\caption{\label{tbl-regime-lde-patience}Comparison for Patience: Regime vs.~LDE }Patience}
+\centering
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\begin{tabular}[t]{>{\raggedright\arraybackslash}p{4cm}cc}
+\toprule
+\multicolumn{1}{c}{\textbf{ }} & \multicolumn{2}{c}{\textbf{Model Comparison}} \\
+\cmidrule(l{3pt}r{3pt}){2-3}
+  & Regime-based model & LDE-based model\\
+\midrule
+\cellcolor{gray!10}{formative\_regime\_change} & \cellcolor{gray!10}{\num{0.011}} & \cellcolor{gray!10}{\num{0.278}***}\\
+ & (\num{0.117}) & (\num{0.052})\\
+\midrule
+\cellcolor{gray!10}{Num.Obs.} & \cellcolor{gray!10}{\num{48084}} & \cellcolor{gray!10}{\num{47575}}\\
+R2 & \num{0.187} & \num{0.193}\\
+\cellcolor{gray!10}{R2 Adj.} & \cellcolor{gray!10}{\num{0.166}} & \cellcolor{gray!10}{\num{0.173}}\\
+Std.Errors & by: country & by: country\\
+\cellcolor{gray!10}{FE: region} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X}\\
+FE: birth\_year & X & X\\
+\bottomrule
+\multicolumn{3}{l}{\rule{0pt}{1em}+ p $<$ 0.1, * p $<$ 0.05, ** p $<$ 0.01, *** p $<$ 0.001}\\
+\multicolumn{3}{l}{\rule{0pt}{1em}Standard errors clustered at isocode (country) level. Fixed effects and controls included.}\\
+\end{tabular}}
+\end{table}
+
+\hypertarget{tbl-regime-lde-risktaking}{}
+\begin{table}
+\centering\centering
+\caption{\label{tbl-regime-lde-risktaking}Comparison for Risk Taking: Regime vs.~LDE }Risk Taking}
+\centering
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\begin{tabular}[t]{>{\raggedright\arraybackslash}p{4cm}cc}
+\toprule
+\multicolumn{1}{c}{\textbf{ }} & \multicolumn{2}{c}{\textbf{Model Comparison}} \\
+\cmidrule(l{3pt}r{3pt}){2-3}
+  & Regime-based model & LDE-based model\\
+\midrule
+\cellcolor{gray!10}{formative\_regime\_change} & \cellcolor{gray!10}{\num{0.126}} & \cellcolor{gray!10}{\num{0.298}*}\\
+ & (\num{0.139}) & (\num{0.138})\\
+\midrule
+\cellcolor{gray!10}{Num.Obs.} & \cellcolor{gray!10}{\num{48084}} & \cellcolor{gray!10}{\num{47575}}\\
+R2 & \num{0.191} & \num{0.196}\\
+\cellcolor{gray!10}{R2 Adj.} & \cellcolor{gray!10}{\num{0.170}} & \cellcolor{gray!10}{\num{0.175}}\\
+Std.Errors & by: country & by: country\\
+\cellcolor{gray!10}{FE: region} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X}\\
+FE: birth\_year & X & X\\
+\bottomrule
+\multicolumn{3}{l}{\rule{0pt}{1em}+ p $<$ 0.1, * p $<$ 0.05, ** p $<$ 0.01, *** p $<$ 0.001}\\
+\multicolumn{3}{l}{\rule{0pt}{1em}Standard errors clustered at isocode (country) level. Fixed effects and controls included.}\\
+\end{tabular}}
+\end{table}
+
+\hypertarget{tbl-regime-lde-positivereciprocity}{}
+\begin{table}
+\centering\centering
+\caption{\label{tbl-regime-lde-positivereciprocity}Comparison for Positive Reciprocity: Regime vs.~LDE }Positive Reciprocity}
+\centering
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\begin{tabular}[t]{>{\raggedright\arraybackslash}p{4cm}cc}
+\toprule
+\multicolumn{1}{c}{\textbf{ }} & \multicolumn{2}{c}{\textbf{Model Comparison}} \\
+\cmidrule(l{3pt}r{3pt}){2-3}
+  & Regime-based model & LDE-based model\\
+\midrule
+\cellcolor{gray!10}{formative\_regime\_change} & \cellcolor{gray!10}{\num{0.289}+} & \cellcolor{gray!10}{\num{-0.332}}\\
+ & (\num{0.154}) & (\num{0.241})\\
+\midrule
+\cellcolor{gray!10}{Num.Obs.} & \cellcolor{gray!10}{\num{48084}} & \cellcolor{gray!10}{\num{47575}}\\
+R2 & \num{0.235} & \num{0.233}\\
+\cellcolor{gray!10}{R2 Adj.} & \cellcolor{gray!10}{\num{0.216}} & \cellcolor{gray!10}{\num{0.214}}\\
+Std.Errors & by: country & by: country\\
+\cellcolor{gray!10}{FE: region} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X}\\
+FE: birth\_year & X & X\\
+\bottomrule
+\multicolumn{3}{l}{\rule{0pt}{1em}+ p $<$ 0.1, * p $<$ 0.05, ** p $<$ 0.01, *** p $<$ 0.001}\\
+\multicolumn{3}{l}{\rule{0pt}{1em}Standard errors clustered at isocode (country) level. Fixed effects and controls included.}\\
+\end{tabular}}
+\end{table}
+
+\hypertarget{tbl-regime-lde-negativereciprocity}{}
+\begin{table}
+\centering\centering
+\caption{\label{tbl-regime-lde-negativereciprocity}Comparison for Negative Reciprocity: Regime vs.~LDE }Negative Reciprocity}
+\centering
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\begin{tabular}[t]{>{\raggedright\arraybackslash}p{4cm}cc}
+\toprule
+\multicolumn{1}{c}{\textbf{ }} & \multicolumn{2}{c}{\textbf{Model Comparison}} \\
+\cmidrule(l{3pt}r{3pt}){2-3}
+  & Regime-based model & LDE-based model\\
+\midrule
+\cellcolor{gray!10}{formative\_regime\_change} & \cellcolor{gray!10}{\num{-0.177}+} & \cellcolor{gray!10}{\num{0.390}***}\\
+ & (\num{0.104}) & (\num{0.088})\\
+\midrule
+\cellcolor{gray!10}{Num.Obs.} & \cellcolor{gray!10}{\num{48084}} & \cellcolor{gray!10}{\num{47575}}\\
+R2 & \num{0.162} & \num{0.167}\\
+\cellcolor{gray!10}{R2 Adj.} & \cellcolor{gray!10}{\num{0.140}} & \cellcolor{gray!10}{\num{0.146}}\\
+Std.Errors & by: country & by: country\\
+\cellcolor{gray!10}{FE: region} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X}\\
+FE: birth\_year & X & X\\
+\bottomrule
+\multicolumn{3}{l}{\rule{0pt}{1em}+ p $<$ 0.1, * p $<$ 0.05, ** p $<$ 0.01, *** p $<$ 0.001}\\
+\multicolumn{3}{l}{\rule{0pt}{1em}Standard errors clustered at isocode (country) level. Fixed effects and controls included.}\\
+\end{tabular}}
+\end{table}
+
+\hypertarget{tbl-regime-lde-altruism}{}
+\begin{table}
+\centering\centering
+\caption{\label{tbl-regime-lde-altruism}Comparison for Altruism: Regime vs.~LDE }Altruism}
+\centering
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\begin{tabular}[t]{>{\raggedright\arraybackslash}p{4cm}cc}
+\toprule
+\multicolumn{1}{c}{\textbf{ }} & \multicolumn{2}{c}{\textbf{Model Comparison}} \\
+\cmidrule(l{3pt}r{3pt}){2-3}
+  & Regime-based model & LDE-based model\\
+\midrule
+\cellcolor{gray!10}{formative\_regime\_change} & \cellcolor{gray!10}{\num{0.194}} & \cellcolor{gray!10}{\num{-0.416}+}\\
+ & (\num{0.138}) & (\num{0.236})\\
+\midrule
+\cellcolor{gray!10}{Num.Obs.} & \cellcolor{gray!10}{\num{48084}} & \cellcolor{gray!10}{\num{47575}}\\
+R2 & \num{0.186} & \num{0.185}\\
+\cellcolor{gray!10}{R2 Adj.} & \cellcolor{gray!10}{\num{0.165}} & \cellcolor{gray!10}{\num{0.164}}\\
+Std.Errors & by: country & by: country\\
+\cellcolor{gray!10}{FE: region} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X}\\
+FE: birth\_year & X & X\\
+\bottomrule
+\multicolumn{3}{l}{\rule{0pt}{1em}+ p $<$ 0.1, * p $<$ 0.05, ** p $<$ 0.01, *** p $<$ 0.001}\\
+\multicolumn{3}{l}{\rule{0pt}{1em}Standard errors clustered at isocode (country) level. Fixed effects and controls included.}\\
+\end{tabular}}
+\end{table}
+
+\hypertarget{tbl-regime-lde-trust}{}
+\begin{table}
+\centering\centering
+\caption{\label{tbl-regime-lde-trust}Comparison for Trust: Regime vs.~LDE }Trust}
+\centering
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\begin{tabular}[t]{>{\raggedright\arraybackslash}p{4cm}cc}
+\toprule
+\multicolumn{1}{c}{\textbf{ }} & \multicolumn{2}{c}{\textbf{Model Comparison}} \\
+\cmidrule(l{3pt}r{3pt}){2-3}
+  & Regime-based model & LDE-based model\\
+\midrule
+\cellcolor{gray!10}{formative\_regime\_change} & \cellcolor{gray!10}{\num{-0.178}} & \cellcolor{gray!10}{\num{-0.108}}\\
+ & (\num{0.198}) & (\num{0.190})\\
+\midrule
+\cellcolor{gray!10}{Num.Obs.} & \cellcolor{gray!10}{\num{48084}} & \cellcolor{gray!10}{\num{47575}}\\
+R2 & \num{0.167} & \num{0.164}\\
+\cellcolor{gray!10}{R2 Adj.} & \cellcolor{gray!10}{\num{0.146}} & \cellcolor{gray!10}{\num{0.142}}\\
+Std.Errors & by: country & by: country\\
+\cellcolor{gray!10}{FE: region} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X}\\
+FE: birth\_year & X & X\\
+\bottomrule
+\multicolumn{3}{l}{\rule{0pt}{1em}+ p $<$ 0.1, * p $<$ 0.05, ** p $<$ 0.01, *** p $<$ 0.001}\\
+\multicolumn{3}{l}{\rule{0pt}{1em}Standard errors clustered at isocode (country) level. Fixed effects and controls included.}\\
+\end{tabular}}
+\end{table}
+
+LDE-based model: Formative regime change has a strong positive and
+highly significant effect on patience and strongly positive effect on
+negative reciprocity. But in regime model there is no significant effect
+
+\hypertarget{hetero-models-comparision-combined-autocratization-and-democratization}{%
+\subsubsection{Hetero models comparision Combined: autocratization and
+democratization}\label{hetero-models-comparision-combined-autocratization-and-democratization}}
+
+\begin{table}
+
+\end{table}
+
+\hypertarget{tbl-regime-lde-hetero-patience}{}
+\begin{table}
+\centering\centering
+\caption{\label{tbl-regime-lde-hetero-patience}Comparison for Patience (Hetero Models) }Patience}
+\centering
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\begin{tabular}[t]{>{\raggedright\arraybackslash}p{4cm}cccccc}
+\toprule
+\multicolumn{1}{c}{\textbf{ }} & \multicolumn{6}{c}{\textbf{Model Comparison}} \\
+\cmidrule(l{3pt}r{3pt}){2-7}
+  & Regime: Combined & Regime: Democratization & Regime: Autocratization & LDE: Combined & LDE: Democratization & LDE: Autocratization\\
+\midrule
+\cellcolor{gray!10}{Democratization} & \cellcolor{gray!10}{\num{0.011}} & \cellcolor{gray!10}{\num{0.005}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{0.078}**} & \cellcolor{gray!10}{\num{0.066}*} & \cellcolor{gray!10}{}\\
+ & (\num{0.117}) & (\num{0.117}) &  & (\num{0.029}) & (\num{0.025}) & \\
+\cellcolor{gray!10}{Autocratization} & \cellcolor{gray!10}{\num{0.496}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{0.485}} & \cellcolor{gray!10}{\num{0.021}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{-0.012}}\\
+ & (\num{0.582}) &  & (\num{0.570}) & (\num{0.024}) &  & (\num{0.022})\\
+\midrule
+\cellcolor{gray!10}{Num.Obs.} & \cellcolor{gray!10}{\num{48084}} & \cellcolor{gray!10}{\num{48084}} & \cellcolor{gray!10}{\num{48084}} & \cellcolor{gray!10}{\num{47575}} & \cellcolor{gray!10}{\num{47575}} & \cellcolor{gray!10}{\num{47575}}\\
+R2 & \num{0.187} & \num{0.187} & \num{0.187} & \num{0.193} & \num{0.193} & \num{0.193}\\
+\cellcolor{gray!10}{R2 Adj.} & \cellcolor{gray!10}{\num{0.166}} & \cellcolor{gray!10}{\num{0.166}} & \cellcolor{gray!10}{\num{0.166}} & \cellcolor{gray!10}{\num{0.172}} & \cellcolor{gray!10}{\num{0.172}} & \cellcolor{gray!10}{\num{0.172}}\\
+Std.Errors & by: country & by: country & by: country & by: country & by: country & by: country\\
+\cellcolor{gray!10}{FE: region} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X}\\
+FE: birth\_year & X & X & X & X & X & X\\
+\bottomrule
+\multicolumn{7}{l}{\rule{0pt}{1em}+ p $<$ 0.1, * p $<$ 0.05, ** p $<$ 0.01, *** p $<$ 0.001}\\
+\multicolumn{7}{l}{\rule{0pt}{1em}Standard errors clustered at isocode (country) level. Fixed effects for region and birth year included.}\\
+\end{tabular}}
+\end{table}
+
+\hypertarget{tbl-regime-lde-hetero-risktaking}{}
+\begin{table}
+\centering\centering
+\caption{\label{tbl-regime-lde-hetero-risktaking}Comparison for Risk Taking (Hetero Models) }Risk Taking}
+\centering
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\begin{tabular}[t]{>{\raggedright\arraybackslash}p{4cm}cccccc}
+\toprule
+\multicolumn{1}{c}{\textbf{ }} & \multicolumn{6}{c}{\textbf{Model Comparison}} \\
+\cmidrule(l{3pt}r{3pt}){2-7}
+  & Regime: Combined & Regime: Democratization & Regime: Autocratization & LDE: Combined & LDE: Democratization & LDE: Autocratization\\
+\midrule
+\cellcolor{gray!10}{Democratization} & \cellcolor{gray!10}{\num{0.126}} & \cellcolor{gray!10}{\num{0.133}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{0.062}} & \cellcolor{gray!10}{\num{0.041}} & \cellcolor{gray!10}{}\\
+ & (\num{0.139}) & (\num{0.137}) &  & (\num{0.053}) & (\num{0.044}) & \\
+\cellcolor{gray!10}{Autocratization} & \cellcolor{gray!10}{\num{-0.577}***} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{-0.700}***} & \cellcolor{gray!10}{\num{0.036}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{0.009}}\\
+ & (\num{0.158}) &  & (\num{0.079}) & (\num{0.033}) &  & (\num{0.028})\\
+\midrule
+\cellcolor{gray!10}{Num.Obs.} & \cellcolor{gray!10}{\num{48084}} & \cellcolor{gray!10}{\num{48084}} & \cellcolor{gray!10}{\num{48084}} & \cellcolor{gray!10}{\num{47575}} & \cellcolor{gray!10}{\num{47575}} & \cellcolor{gray!10}{\num{47575}}\\
+R2 & \num{0.191} & \num{0.191} & \num{0.191} & \num{0.195} & \num{0.195} & \num{0.195}\\
+\cellcolor{gray!10}{R2 Adj.} & \cellcolor{gray!10}{\num{0.170}} & \cellcolor{gray!10}{\num{0.170}} & \cellcolor{gray!10}{\num{0.170}} & \cellcolor{gray!10}{\num{0.175}} & \cellcolor{gray!10}{\num{0.175}} & \cellcolor{gray!10}{\num{0.175}}\\
+Std.Errors & by: country & by: country & by: country & by: country & by: country & by: country\\
+\cellcolor{gray!10}{FE: region} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X}\\
+FE: birth\_year & X & X & X & X & X & X\\
+\bottomrule
+\multicolumn{7}{l}{\rule{0pt}{1em}+ p $<$ 0.1, * p $<$ 0.05, ** p $<$ 0.01, *** p $<$ 0.001}\\
+\multicolumn{7}{l}{\rule{0pt}{1em}Standard errors clustered at isocode (country) level. Fixed effects for region and birth year included.}\\
+\end{tabular}}
+\end{table}
+
+\hypertarget{tbl-regime-lde-hetero-negrecip}{}
+\begin{table}
+\centering\centering
+\caption{\label{tbl-regime-lde-hetero-negrecip}Comparison for Negative Reciprocity (Hetero Models) }Negative Reciprocity}
+\centering
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\begin{tabular}[t]{>{\raggedright\arraybackslash}p{4cm}cccccc}
+\toprule
+\multicolumn{1}{c}{\textbf{ }} & \multicolumn{6}{c}{\textbf{Model Comparison}} \\
+\cmidrule(l{3pt}r{3pt}){2-7}
+  & Regime: Combined & Regime: Democratization & Regime: Autocratization & LDE: Combined & LDE: Democratization & LDE: Autocratization\\
+\midrule
+\cellcolor{gray!10}{Democratization} & \cellcolor{gray!10}{\num{-0.177}+} & \cellcolor{gray!10}{\num{-0.161}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{0.109}*} & \cellcolor{gray!10}{\num{0.055}} & \cellcolor{gray!10}{}\\
+ & (\num{0.104}) & (\num{0.103}) &  & (\num{0.047}) & (\num{0.040}) & \\
+\cellcolor{gray!10}{Autocratization} & \cellcolor{gray!10}{\num{-1.213}**} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{-1.039}**} & \cellcolor{gray!10}{\num{0.089}*} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{0.042}}\\
+ & (\num{0.403}) &  & (\num{0.389}) & (\num{0.039}) &  & (\num{0.034})\\
+\midrule
+\cellcolor{gray!10}{Num.Obs.} & \cellcolor{gray!10}{\num{48084}} & \cellcolor{gray!10}{\num{48084}} & \cellcolor{gray!10}{\num{48084}} & \cellcolor{gray!10}{\num{47575}} & \cellcolor{gray!10}{\num{47575}} & \cellcolor{gray!10}{\num{47575}}\\
+R2 & \num{0.162} & \num{0.162} & \num{0.162} & \num{0.167} & \num{0.167} & \num{0.167}\\
+\cellcolor{gray!10}{R2 Adj.} & \cellcolor{gray!10}{\num{0.141}} & \cellcolor{gray!10}{\num{0.140}} & \cellcolor{gray!10}{\num{0.140}} & \cellcolor{gray!10}{\num{0.146}} & \cellcolor{gray!10}{\num{0.145}} & \cellcolor{gray!10}{\num{0.145}}\\
+Std.Errors & by: country & by: country & by: country & by: country & by: country & by: country\\
+\cellcolor{gray!10}{FE: region} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X}\\
+FE: birth\_year & X & X & X & X & X & X\\
+\bottomrule
+\multicolumn{7}{l}{\rule{0pt}{1em}+ p $<$ 0.1, * p $<$ 0.05, ** p $<$ 0.01, *** p $<$ 0.001}\\
+\multicolumn{7}{l}{\rule{0pt}{1em}Standard errors clustered at isocode (country) level. Fixed effects for region and birth year included.}\\
+\end{tabular}}
+\end{table}
+
+\hypertarget{tbl-regime-lde-hetero-trust}{}
+\begin{table}
+\centering\centering
+\caption{\label{tbl-regime-lde-hetero-trust}Comparison for Trust (Hetero Models) }Trust}
+\centering
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\begin{tabular}[t]{>{\raggedright\arraybackslash}p{4cm}cccccc}
+\toprule
+\multicolumn{1}{c}{\textbf{ }} & \multicolumn{6}{c}{\textbf{Model Comparison}} \\
+\cmidrule(l{3pt}r{3pt}){2-7}
+  & Regime: Combined & Regime: Democratization & Regime: Autocratization & LDE: Combined & LDE: Democratization & LDE: Autocratization\\
+\midrule
+\cellcolor{gray!10}{Democratization} & \cellcolor{gray!10}{\num{-0.178}} & \cellcolor{gray!10}{\num{-0.170}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{-0.031}} & \cellcolor{gray!10}{\num{-0.016}} & \cellcolor{gray!10}{}\\
+ & (\num{0.198}) & (\num{0.193}) &  & (\num{0.043}) & (\num{0.033}) & \\
+\cellcolor{gray!10}{Autocratization} & \cellcolor{gray!10}{\num{-0.676}**} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{-0.502}***} & \cellcolor{gray!10}{\num{-0.024}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{-0.011}}\\
+ & (\num{0.218}) &  & (\num{0.099}) & (\num{0.034}) &  & (\num{0.027})\\
+\midrule
+\cellcolor{gray!10}{Num.Obs.} & \cellcolor{gray!10}{\num{48084}} & \cellcolor{gray!10}{\num{48084}} & \cellcolor{gray!10}{\num{48084}} & \cellcolor{gray!10}{\num{47575}} & \cellcolor{gray!10}{\num{47575}} & \cellcolor{gray!10}{\num{47575}}\\
+R2 & \num{0.167} & \num{0.167} & \num{0.167} & \num{0.164} & \num{0.164} & \num{0.164}\\
+\cellcolor{gray!10}{R2 Adj.} & \cellcolor{gray!10}{\num{0.146}} & \cellcolor{gray!10}{\num{0.146}} & \cellcolor{gray!10}{\num{0.146}} & \cellcolor{gray!10}{\num{0.142}} & \cellcolor{gray!10}{\num{0.142}} & \cellcolor{gray!10}{\num{0.142}}\\
+Std.Errors & by: country & by: country & by: country & by: country & by: country & by: country\\
+\cellcolor{gray!10}{FE: region} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X}\\
+FE: birth\_year & X & X & X & X & X & X\\
+\bottomrule
+\multicolumn{7}{l}{\rule{0pt}{1em}+ p $<$ 0.1, * p $<$ 0.05, ** p $<$ 0.01, *** p $<$ 0.001}\\
+\multicolumn{7}{l}{\rule{0pt}{1em}Standard errors clustered at isocode (country) level. Fixed effects for region and birth year included.}\\
+\end{tabular}}
+\end{table}
+
+In regime models, Autocratization has strongly negative effect on risk
+taking and trust of individiuals, also it has also effect on negative
+reciprocity, but this one is strongly significant.
+
+\hypertarget{specification-with-controls}{%
+\subsubsection{Specification with
+Controls}\label{specification-with-controls}}
+
+\begin{table}
+
+\end{table}
+
+\hypertarget{tbl-regime-lde-controls-patience}{}
+\begin{table}
+\centering\centering
+\caption{\label{tbl-regime-lde-controls-patience}Specification with Controls for Patience }Patience}
+\centering
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\begin{tabular}[t]{>{\raggedright\arraybackslash}p{4cm}cccccc}
+\toprule
+\multicolumn{1}{c}{\textbf{ }} & \multicolumn{6}{c}{\textbf{Model Comparison}} \\
+\cmidrule(l{3pt}r{3pt}){2-7}
+  & Regime: Combined & Regime: Democratization & Regime: Autocratization & LDE: Combined & LDE: Democratization & LDE: Autocratization\\
+\midrule
+\cellcolor{gray!10}{Democratization} & \cellcolor{gray!10}{\num{0.085}} & \cellcolor{gray!10}{\num{0.079}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{0.074}*} & \cellcolor{gray!10}{\num{0.053}+} & \cellcolor{gray!10}{}\\
+ & (\num{0.079}) & (\num{0.080}) &  & (\num{0.032}) & (\num{0.031}) & \\
+\cellcolor{gray!10}{Autocratization} & \cellcolor{gray!10}{\num{0.514}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{0.427}} & \cellcolor{gray!10}{\num{0.042}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{0.014}}\\
+ & (\num{0.576}) &  & (\num{0.570}) & (\num{0.027}) &  & (\num{0.027})\\
+\cellcolor{gray!10}{Log of Average GDP per Capita during formative years} & \cellcolor{gray!10}{\num{0.125}***} & \cellcolor{gray!10}{\num{0.124}***} & \cellcolor{gray!10}{\num{0.114}***} & \cellcolor{gray!10}{\num{0.123}***} & \cellcolor{gray!10}{\num{0.121}***} & \cellcolor{gray!10}{\num{0.123}***}\\
+ & (\num{0.029}) & (\num{0.029}) & (\num{0.030}) & (\num{0.032}) & (\num{0.032}) & (\num{0.032})\\
+\cellcolor{gray!10}{Recession experienced during formative years} & \cellcolor{gray!10}{\num{0.008}} & \cellcolor{gray!10}{\num{0.007}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{0.007}} & \cellcolor{gray!10}{\num{0.008}} & \cellcolor{gray!10}{\num{0.007}}\\
+ & (\num{0.013}) & (\num{0.013}) &  & (\num{0.014}) & (\num{0.014}) & (\num{0.014})\\
+\cellcolor{gray!10}{avg\_libdem\_formative} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{0.059}} & \cellcolor{gray!10}{\num{0.030}} & \cellcolor{gray!10}{\num{0.079}}\\
+ &  &  &  & (\num{0.079}) & (\num{0.073}) & (\num{0.077})\\
+\midrule
+\cellcolor{gray!10}{Num.Obs.} & \cellcolor{gray!10}{\num{48084}} & \cellcolor{gray!10}{\num{48084}} & \cellcolor{gray!10}{\num{48084}} & \cellcolor{gray!10}{\num{47575}} & \cellcolor{gray!10}{\num{47575}} & \cellcolor{gray!10}{\num{47575}}\\
+R2 & \num{0.188} & \num{0.188} & \num{0.188} & \num{0.194} & \num{0.194} & \num{0.194}\\
+\cellcolor{gray!10}{R2 Adj.} & \cellcolor{gray!10}{\num{0.167}} & \cellcolor{gray!10}{\num{0.167}} & \cellcolor{gray!10}{\num{0.167}} & \cellcolor{gray!10}{\num{0.173}} & \cellcolor{gray!10}{\num{0.173}} & \cellcolor{gray!10}{\num{0.173}}\\
+Std.Errors & by: country & by: country & by: country & by: country & by: country & by: country\\
+\cellcolor{gray!10}{FE: region} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X}\\
+FE: birth\_year & X & X & X & X & X & X\\
+\bottomrule
+\multicolumn{7}{l}{\rule{0pt}{1em}+ p $<$ 0.1, * p $<$ 0.05, ** p $<$ 0.01, *** p $<$ 0.001}\\
+\multicolumn{7}{l}{\rule{0pt}{1em}Standard errors clustered at isocode (country) level. All models include region and birth year fixed effects.}\\
+\end{tabular}}
+\end{table}
+
+\hypertarget{tbl-regime-lde-controls-risktaking}{}
+\begin{table}
+\centering\centering
+\caption{\label{tbl-regime-lde-controls-risktaking}Specification with Controls for Risk Taking }Risk Taking}
+\centering
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\begin{tabular}[t]{>{\raggedright\arraybackslash}p{4cm}cccccc}
+\toprule
+\multicolumn{1}{c}{\textbf{ }} & \multicolumn{6}{c}{\textbf{Model Comparison}} \\
+\cmidrule(l{3pt}r{3pt}){2-7}
+  & Regime: Combined & Regime: Democratization & Regime: Autocratization & LDE: Combined & LDE: Democratization & LDE: Autocratization\\
+\midrule
+\cellcolor{gray!10}{Democratization} & \cellcolor{gray!10}{\num{0.218}+} & \cellcolor{gray!10}{\num{0.226}+} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{0.077}} & \cellcolor{gray!10}{\num{0.066}} & \cellcolor{gray!10}{}\\
+ & (\num{0.118}) & (\num{0.116}) &  & (\num{0.051}) & (\num{0.046}) & \\
+\cellcolor{gray!10}{Autocratization} & \cellcolor{gray!10}{\num{-0.562}***} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{-0.766}***} & \cellcolor{gray!10}{\num{0.022}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{-0.007}}\\
+ & (\num{0.131}) &  & (\num{0.066}) & (\num{0.034}) &  & (\num{0.030})\\
+\cellcolor{gray!10}{Log of Average GDP per Capita during formative years} & \cellcolor{gray!10}{\num{0.149}*} & \cellcolor{gray!10}{\num{0.149}*} & \cellcolor{gray!10}{\num{0.129}*} & \cellcolor{gray!10}{\num{0.122}*} & \cellcolor{gray!10}{\num{0.121}*} & \cellcolor{gray!10}{\num{0.121}*}\\
+ & (\num{0.062}) & (\num{0.062}) & (\num{0.061}) & (\num{0.055}) & (\num{0.055}) & (\num{0.055})\\
+\cellcolor{gray!10}{Recession experienced during formative years} & \cellcolor{gray!10}{\num{-0.000}} & \cellcolor{gray!10}{\num{-0.000}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{-0.009}} & \cellcolor{gray!10}{\num{-0.008}} & \cellcolor{gray!10}{\num{-0.008}}\\
+ & (\num{0.021}) & (\num{0.021}) &  & (\num{0.020}) & (\num{0.019}) & (\num{0.019})\\
+\cellcolor{gray!10}{avg\_libdem\_formative} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{-0.202}*} & \cellcolor{gray!10}{\num{-0.217}*} & \cellcolor{gray!10}{\num{-0.181}*}\\
+ &  &  &  & (\num{0.090}) & (\num{0.087}) & (\num{0.090})\\
+\midrule
+\cellcolor{gray!10}{Num.Obs.} & \cellcolor{gray!10}{\num{48084}} & \cellcolor{gray!10}{\num{48084}} & \cellcolor{gray!10}{\num{48084}} & \cellcolor{gray!10}{\num{47575}} & \cellcolor{gray!10}{\num{47575}} & \cellcolor{gray!10}{\num{47575}}\\
+R2 & \num{0.192} & \num{0.192} & \num{0.192} & \num{0.196} & \num{0.196} & \num{0.196}\\
+\cellcolor{gray!10}{R2 Adj.} & \cellcolor{gray!10}{\num{0.171}} & \cellcolor{gray!10}{\num{0.171}} & \cellcolor{gray!10}{\num{0.171}} & \cellcolor{gray!10}{\num{0.175}} & \cellcolor{gray!10}{\num{0.175}} & \cellcolor{gray!10}{\num{0.175}}\\
+Std.Errors & by: country & by: country & by: country & by: country & by: country & by: country\\
+\cellcolor{gray!10}{FE: region} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X}\\
+FE: birth\_year & X & X & X & X & X & X\\
+\bottomrule
+\multicolumn{7}{l}{\rule{0pt}{1em}+ p $<$ 0.1, * p $<$ 0.05, ** p $<$ 0.01, *** p $<$ 0.001}\\
+\multicolumn{7}{l}{\rule{0pt}{1em}Standard errors clustered at isocode (country) level. All models include region and birth year fixed effects.}\\
+\end{tabular}}
+\end{table}
+
+\hypertarget{tbl-regime-lde-controls-negrecip}{}
+\begin{table}
+\centering\centering
+\caption{\label{tbl-regime-lde-controls-negrecip}Specification with Controls for Negative Reciprocity }Negative Reciprocity}
+\centering
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\begin{tabular}[t]{>{\raggedright\arraybackslash}p{4cm}cccccc}
+\toprule
+\multicolumn{1}{c}{\textbf{ }} & \multicolumn{6}{c}{\textbf{Model Comparison}} \\
+\cmidrule(l{3pt}r{3pt}){2-7}
+  & Regime: Combined & Regime: Democratization & Regime: Autocratization & LDE: Combined & LDE: Democratization & LDE: Autocratization\\
+\midrule
+\cellcolor{gray!10}{Democratization} & \cellcolor{gray!10}{\num{-0.169}} & \cellcolor{gray!10}{\num{-0.154}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{0.101}*} & \cellcolor{gray!10}{\num{0.048}} & \cellcolor{gray!10}{}\\
+ & (\num{0.103}) & (\num{0.102}) &  & (\num{0.048}) & (\num{0.043}) & \\
+\cellcolor{gray!10}{Autocratization} & \cellcolor{gray!10}{\num{-1.203}**} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{-1.055}**} & \cellcolor{gray!10}{\num{0.107}**} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{0.068}*}\\
+ & (\num{0.402}) &  & (\num{0.389}) & (\num{0.039}) &  & (\num{0.033})\\
+\cellcolor{gray!10}{Log of Average GDP per Capita during formative years} & \cellcolor{gray!10}{\num{0.020}} & \cellcolor{gray!10}{\num{0.020}} & \cellcolor{gray!10}{\num{0.032}} & \cellcolor{gray!10}{\num{0.039}} & \cellcolor{gray!10}{\num{0.033}} & \cellcolor{gray!10}{\num{0.038}}\\
+ & (\num{0.050}) & (\num{0.050}) & (\num{0.051}) & (\num{0.058}) & (\num{0.058}) & (\num{0.058})\\
+\cellcolor{gray!10}{Recession experienced during formative years} & \cellcolor{gray!10}{\num{0.011}} & \cellcolor{gray!10}{\num{0.012}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{0.008}} & \cellcolor{gray!10}{\num{0.011}} & \cellcolor{gray!10}{\num{0.009}}\\
+ & (\num{0.018}) & (\num{0.018}) &  & (\num{0.020}) & (\num{0.020}) & (\num{0.020})\\
+\cellcolor{gray!10}{avg\_libdem\_formative} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{0.107}} & \cellcolor{gray!10}{\num{0.034}} & \cellcolor{gray!10}{\num{0.134}}\\
+ &  &  &  & (\num{0.112}) & (\num{0.109}) & (\num{0.112})\\
+\midrule
+\cellcolor{gray!10}{Num.Obs.} & \cellcolor{gray!10}{\num{48084}} & \cellcolor{gray!10}{\num{48084}} & \cellcolor{gray!10}{\num{48084}} & \cellcolor{gray!10}{\num{47575}} & \cellcolor{gray!10}{\num{47575}} & \cellcolor{gray!10}{\num{47575}}\\
+R2 & \num{0.162} & \num{0.162} & \num{0.162} & \num{0.167} & \num{0.167} & \num{0.167}\\
+\cellcolor{gray!10}{R2 Adj.} & \cellcolor{gray!10}{\num{0.141}} & \cellcolor{gray!10}{\num{0.140}} & \cellcolor{gray!10}{\num{0.140}} & \cellcolor{gray!10}{\num{0.146}} & \cellcolor{gray!10}{\num{0.145}} & \cellcolor{gray!10}{\num{0.146}}\\
+Std.Errors & by: country & by: country & by: country & by: country & by: country & by: country\\
+\cellcolor{gray!10}{FE: region} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X}\\
+FE: birth\_year & X & X & X & X & X & X\\
+\bottomrule
+\multicolumn{7}{l}{\rule{0pt}{1em}+ p $<$ 0.1, * p $<$ 0.05, ** p $<$ 0.01, *** p $<$ 0.001}\\
+\multicolumn{7}{l}{\rule{0pt}{1em}Standard errors clustered at isocode (country) level. All models include region and birth year fixed effects.}\\
+\end{tabular}}
+\end{table}
+
+\hypertarget{tbl-regime-lde-controls-altruism}{}
+\begin{table}
+\centering\centering
+\caption{\label{tbl-regime-lde-controls-altruism}Specification with Controls for Altruism }Altruism}
+\centering
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\begin{tabular}[t]{>{\raggedright\arraybackslash}p{4cm}cccccc}
+\toprule
+\multicolumn{1}{c}{\textbf{ }} & \multicolumn{6}{c}{\textbf{Model Comparison}} \\
+\cmidrule(l{3pt}r{3pt}){2-7}
+  & Regime: Combined & Regime: Democratization & Regime: Autocratization & LDE: Combined & LDE: Democratization & LDE: Autocratization\\
+\midrule
+\cellcolor{gray!10}{Democratization} & \cellcolor{gray!10}{\num{0.198}} & \cellcolor{gray!10}{\num{0.204}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{-0.092}} & \cellcolor{gray!10}{\num{-0.094}} & \cellcolor{gray!10}{}\\
+ & (\num{0.135}) & (\num{0.133}) &  & (\num{0.074}) & (\num{0.061}) & \\
+\cellcolor{gray!10}{Autocratization} & \cellcolor{gray!10}{\num{-0.502}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{-0.683}} & \cellcolor{gray!10}{\num{0.005}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{0.040}+}\\
+ & (\num{0.583}) &  & (\num{0.569}) & (\num{0.036}) &  & (\num{0.023})\\
+\cellcolor{gray!10}{Log of Average GDP per Capita during formative years} & \cellcolor{gray!10}{\num{0.003}} & \cellcolor{gray!10}{\num{0.003}} & \cellcolor{gray!10}{\num{-0.013}} & \cellcolor{gray!10}{\num{-0.002}} & \cellcolor{gray!10}{\num{-0.002}} & \cellcolor{gray!10}{\num{-0.001}}\\
+ & (\num{0.053}) & (\num{0.053}) & (\num{0.049}) & (\num{0.069}) & (\num{0.069}) & (\num{0.069})\\
+\cellcolor{gray!10}{Recession experienced during formative years} & \cellcolor{gray!10}{\num{-0.005}} & \cellcolor{gray!10}{\num{-0.004}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{0.013}} & \cellcolor{gray!10}{\num{0.013}} & \cellcolor{gray!10}{\num{0.012}}\\
+ & (\num{0.016}) & (\num{0.016}) &  & (\num{0.017}) & (\num{0.017}) & (\num{0.017})\\
+\cellcolor{gray!10}{avg\_libdem\_formative} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{0.112}} & \cellcolor{gray!10}{\num{0.108}} & \cellcolor{gray!10}{\num{0.087}}\\
+ &  &  &  & (\num{0.096}) & (\num{0.101}) & (\num{0.092})\\
+\midrule
+\cellcolor{gray!10}{Num.Obs.} & \cellcolor{gray!10}{\num{48084}} & \cellcolor{gray!10}{\num{48084}} & \cellcolor{gray!10}{\num{48084}} & \cellcolor{gray!10}{\num{47575}} & \cellcolor{gray!10}{\num{47575}} & \cellcolor{gray!10}{\num{47575}}\\
+R2 & \num{0.186} & \num{0.186} & \num{0.185} & \num{0.185} & \num{0.185} & \num{0.185}\\
+\cellcolor{gray!10}{R2 Adj.} & \cellcolor{gray!10}{\num{0.165}} & \cellcolor{gray!10}{\num{0.165}} & \cellcolor{gray!10}{\num{0.165}} & \cellcolor{gray!10}{\num{0.164}} & \cellcolor{gray!10}{\num{0.164}} & \cellcolor{gray!10}{\num{0.164}}\\
+Std.Errors & by: country & by: country & by: country & by: country & by: country & by: country\\
+\cellcolor{gray!10}{FE: region} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X}\\
+FE: birth\_year & X & X & X & X & X & X\\
+\bottomrule
+\multicolumn{7}{l}{\rule{0pt}{1em}+ p $<$ 0.1, * p $<$ 0.05, ** p $<$ 0.01, *** p $<$ 0.001}\\
+\multicolumn{7}{l}{\rule{0pt}{1em}Standard errors clustered at isocode (country) level. All models include region and birth year fixed effects.}\\
+\end{tabular}}
+\end{table}
+
+\hypertarget{tbl-regime-lde-controls-trust}{}
+\begin{table}
+\centering\centering
+\caption{\label{tbl-regime-lde-controls-trust}Specification with Controls for Trust }Trust}
+\centering
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\begin{tabular}[t]{>{\raggedright\arraybackslash}p{4cm}cccccc}
+\toprule
+\multicolumn{1}{c}{\textbf{ }} & \multicolumn{6}{c}{\textbf{Model Comparison}} \\
+\cmidrule(l{3pt}r{3pt}){2-7}
+  & Regime: Combined & Regime: Democratization & Regime: Autocratization & LDE: Combined & LDE: Democratization & LDE: Autocratization\\
+\midrule
+\cellcolor{gray!10}{Democratization} & \cellcolor{gray!10}{\num{-0.197}} & \cellcolor{gray!10}{\num{-0.189}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{-0.029}} & \cellcolor{gray!10}{\num{-0.015}} & \cellcolor{gray!10}{}\\
+ & (\num{0.204}) & (\num{0.199}) &  & (\num{0.042}) & (\num{0.036}) & \\
+\cellcolor{gray!10}{Autocratization} & \cellcolor{gray!10}{\num{-0.686}**} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{-0.494}***} & \cellcolor{gray!10}{\num{-0.028}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{-0.017}}\\
+ & (\num{0.226}) &  & (\num{0.103}) & (\num{0.040}) &  & (\num{0.036})\\
+\cellcolor{gray!10}{Log of Average GDP per Capita during formative years} & \cellcolor{gray!10}{\num{-0.036}} & \cellcolor{gray!10}{\num{-0.036}} & \cellcolor{gray!10}{\num{-0.016}} & \cellcolor{gray!10}{\num{0.008}} & \cellcolor{gray!10}{\num{0.009}} & \cellcolor{gray!10}{\num{0.008}}\\
+ & (\num{0.055}) & (\num{0.055}) & (\num{0.061}) & (\num{0.080}) & (\num{0.080}) & (\num{0.080})\\
+\cellcolor{gray!10}{Recession experienced during formative years} & \cellcolor{gray!10}{\num{-0.008}} & \cellcolor{gray!10}{\num{-0.008}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{0.003}} & \cellcolor{gray!10}{\num{0.002}} & \cellcolor{gray!10}{\num{0.003}}\\
+ & (\num{0.016}) & (\num{0.016}) &  & (\num{0.018}) & (\num{0.019}) & (\num{0.018})\\
+\cellcolor{gray!10}{avg\_libdem\_formative} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{-0.032}} & \cellcolor{gray!10}{\num{-0.012}} & \cellcolor{gray!10}{\num{-0.040}}\\
+ &  &  &  & (\num{0.115}) & (\num{0.101}) & (\num{0.116})\\
+\midrule
+\cellcolor{gray!10}{Num.Obs.} & \cellcolor{gray!10}{\num{48084}} & \cellcolor{gray!10}{\num{48084}} & \cellcolor{gray!10}{\num{48084}} & \cellcolor{gray!10}{\num{47575}} & \cellcolor{gray!10}{\num{47575}} & \cellcolor{gray!10}{\num{47575}}\\
+R2 & \num{0.167} & \num{0.167} & \num{0.167} & \num{0.164} & \num{0.164} & \num{0.164}\\
+\cellcolor{gray!10}{R2 Adj.} & \cellcolor{gray!10}{\num{0.146}} & \cellcolor{gray!10}{\num{0.146}} & \cellcolor{gray!10}{\num{0.146}} & \cellcolor{gray!10}{\num{0.142}} & \cellcolor{gray!10}{\num{0.142}} & \cellcolor{gray!10}{\num{0.142}}\\
+Std.Errors & by: country & by: country & by: country & by: country & by: country & by: country\\
+\cellcolor{gray!10}{FE: region} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X}\\
+FE: birth\_year & X & X & X & X & X & X\\
+\bottomrule
+\multicolumn{7}{l}{\rule{0pt}{1em}+ p $<$ 0.1, * p $<$ 0.05, ** p $<$ 0.01, *** p $<$ 0.001}\\
+\multicolumn{7}{l}{\rule{0pt}{1em}Standard errors clustered at isocode (country) level. All models include region and birth year fixed effects.}\\
+\end{tabular}}
+\end{table}
+
+Patience is positively and strongly associated with the log of average
+GDP per capita during formative years across all models. This suggests
+that individuals who grew up in wealthier economic environments tend to
+be more patient. Risk taking significantly decreases following
+autocratization in regime-based models. Negative reciprocity
+significantly declines after autocratization in regime models ,
+indicating that such political transitions may suppress retaliatory
+economic behaviors. Trust decreases substantially in response to
+autocratization in regime-based models, highlighting a strong erosion of
+interpersonal or institutional trust in individuals exposed to such
+regime shifts.
+
+\hypertarget{polity-dataset}{%
+\subsection{Polity dataset}\label{polity-dataset}}
+
+\begin{figure}[H]
+
+{\centering \includegraphics{Milestone-5_Robustness_files/figure-pdf/fig-regime-changes-polity-1.pdf}
+
+}
+
+\caption{\label{fig-regime-changes-polity}Regime Changes by Country and
+Continent (Post-1920)}
+
+\end{figure}
+
+Coverage: 160+ countries, typically from 1800--2023
+
+Main variable: polity2, a composite score ranging from --10 (full
+autocracy) to +10 (full democracy) threshold for polity2 : polity2
+\textgreater= +6 is determined as Democratization, polity2 \textless{}
++6 Autocratization
+
+Tracks regime changes, authority characteristics and durability of
+political institutions
+
+\begin{table}
+
+\end{table}
+
+\hypertarget{tbl-polity-lde-altruism}{}
+\begin{table}
+\centering\centering
+\caption{\label{tbl-polity-lde-altruism}Comparison for Altruism: Polity vs.~LDE }Altruism}
+\centering
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\begin{tabular}[t]{>{\raggedright\arraybackslash}p{4cm}cc}
+\toprule
+\multicolumn{1}{c}{\textbf{ }} & \multicolumn{2}{c}{\textbf{Model Comparison}} \\
+\cmidrule(l{3pt}r{3pt}){2-3}
+  & Polity-based model & LDE-based model\\
+\midrule
+\cellcolor{gray!10}{formative\_regime\_change} & \cellcolor{gray!10}{\num{-0.639}***} & \cellcolor{gray!10}{\num{-0.416}+}\\
+ & (\num{0.095}) & (\num{0.236})\\
+\midrule
+\cellcolor{gray!10}{Num.Obs.} & \cellcolor{gray!10}{\num{45769}} & \cellcolor{gray!10}{\num{47575}}\\
+R2 & \num{0.185} & \num{0.185}\\
+\cellcolor{gray!10}{R2 Adj.} & \cellcolor{gray!10}{\num{0.164}} & \cellcolor{gray!10}{\num{0.164}}\\
+Std.Errors & by: country & by: country\\
+\cellcolor{gray!10}{FE: region} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X}\\
+FE: birth\_year & X & X\\
+\bottomrule
+\multicolumn{3}{l}{\rule{0pt}{1em}+ p $<$ 0.1, * p $<$ 0.05, ** p $<$ 0.01, *** p $<$ 0.001}\\
+\multicolumn{3}{l}{\rule{0pt}{1em}Standard errors clustered at isocode (country) level. Fixed effects and controls included.}\\
+\end{tabular}}
+\end{table}
+
+Compare to the LDE model and regime based model , in Polity-based model,
+formative regime change has strongly negative effect on altuism.
+
+\#\#\#hetero models comparision Combined: autocratization and
+democratization
+
+\begin{table}
+
+\end{table}
+
+\hypertarget{tbl-polity-lde-hetero-patience}{}
+\begin{table}
+\centering\centering
+\caption{\label{tbl-polity-lde-hetero-patience}Heterogeneous Effects on Patience: Polity vs.~LDE }Patience}
+\centering
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\begin{tabular}[t]{>{\raggedright\arraybackslash}p{4cm}cccccc}
+\toprule
+\multicolumn{1}{c}{\textbf{ }} & \multicolumn{6}{c}{\textbf{Model Comparison}} \\
+\cmidrule(l{3pt}r{3pt}){2-7}
+  & Polity: Combined & Polity: Democratization & Polity: Autocratization & LDE: Combined & LDE: Democratization & LDE: Autocratization\\
+\midrule
+\cellcolor{gray!10}{Democratization} & \cellcolor{gray!10}{\num{0.034}} & \cellcolor{gray!10}{\num{0.035}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{0.078}**} & \cellcolor{gray!10}{\num{0.066}*} & \cellcolor{gray!10}{}\\
+ & (\num{0.039}) & (\num{0.032}) &  & (\num{0.029}) & (\num{0.025}) & \\
+\cellcolor{gray!10}{Autocratization} & \cellcolor{gray!10}{\num{-0.001}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{-0.012}} & \cellcolor{gray!10}{\num{0.021}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{-0.012}}\\
+ & (\num{0.030}) &  & (\num{0.025}) & (\num{0.024}) &  & (\num{0.022})\\
+\midrule
+\cellcolor{gray!10}{Num.Obs.} & \cellcolor{gray!10}{\num{45769}} & \cellcolor{gray!10}{\num{45769}} & \cellcolor{gray!10}{\num{45769}} & \cellcolor{gray!10}{\num{47575}} & \cellcolor{gray!10}{\num{47575}} & \cellcolor{gray!10}{\num{47575}}\\
+R2 & \num{0.185} & \num{0.185} & \num{0.185} & \num{0.193} & \num{0.193} & \num{0.193}\\
+\cellcolor{gray!10}{R2 Adj.} & \cellcolor{gray!10}{\num{0.165}} & \cellcolor{gray!10}{\num{0.165}} & \cellcolor{gray!10}{\num{0.165}} & \cellcolor{gray!10}{\num{0.172}} & \cellcolor{gray!10}{\num{0.172}} & \cellcolor{gray!10}{\num{0.172}}\\
+Std.Errors & by: country & by: country & by: country & by: country & by: country & by: country\\
+\cellcolor{gray!10}{FE: region} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X}\\
+FE: birth\_year & X & X & X & X & X & X\\
+\bottomrule
+\multicolumn{7}{l}{\rule{0pt}{1em}+ p $<$ 0.1, * p $<$ 0.05, ** p $<$ 0.01, *** p $<$ 0.001}\\
+\multicolumn{7}{l}{\rule{0pt}{1em}Standard errors clustered at isocode (country) level. All models include region and birth year fixed effects.}\\
+\end{tabular}}
+\end{table}
+
+\hypertarget{tbl-polity-lde-hetero-risktaking}{}
+\begin{table}
+\centering\centering
+\caption{\label{tbl-polity-lde-hetero-risktaking}Heterogeneous Effects on Risk Taking: Polity vs.~LDE }Risk Taking}
+\centering
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\begin{tabular}[t]{>{\raggedright\arraybackslash}p{4cm}cccccc}
+\toprule
+\multicolumn{1}{c}{\textbf{ }} & \multicolumn{6}{c}{\textbf{Model Comparison}} \\
+\cmidrule(l{3pt}r{3pt}){2-7}
+  & Polity: Combined & Polity: Democratization & Polity: Autocratization & LDE: Combined & LDE: Democratization & LDE: Autocratization\\
+\midrule
+\cellcolor{gray!10}{Democratization} & \cellcolor{gray!10}{\num{0.040}} & \cellcolor{gray!10}{\num{0.042}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{0.062}} & \cellcolor{gray!10}{\num{0.041}} & \cellcolor{gray!10}{}\\
+ & (\num{0.053}) & (\num{0.051}) &  & (\num{0.053}) & (\num{0.044}) & \\
+\cellcolor{gray!10}{Autocratization} & \cellcolor{gray!10}{\num{-0.005}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{-0.018}} & \cellcolor{gray!10}{\num{0.036}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{0.009}}\\
+ & (\num{0.032}) &  & (\num{0.033}) & (\num{0.033}) &  & (\num{0.028})\\
+\midrule
+\cellcolor{gray!10}{Num.Obs.} & \cellcolor{gray!10}{\num{45769}} & \cellcolor{gray!10}{\num{45769}} & \cellcolor{gray!10}{\num{45769}} & \cellcolor{gray!10}{\num{47575}} & \cellcolor{gray!10}{\num{47575}} & \cellcolor{gray!10}{\num{47575}}\\
+R2 & \num{0.203} & \num{0.203} & \num{0.203} & \num{0.195} & \num{0.195} & \num{0.195}\\
+\cellcolor{gray!10}{R2 Adj.} & \cellcolor{gray!10}{\num{0.183}} & \cellcolor{gray!10}{\num{0.183}} & \cellcolor{gray!10}{\num{0.183}} & \cellcolor{gray!10}{\num{0.175}} & \cellcolor{gray!10}{\num{0.175}} & \cellcolor{gray!10}{\num{0.175}}\\
+Std.Errors & by: country & by: country & by: country & by: country & by: country & by: country\\
+\cellcolor{gray!10}{FE: region} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X}\\
+FE: birth\_year & X & X & X & X & X & X\\
+\bottomrule
+\multicolumn{7}{l}{\rule{0pt}{1em}+ p $<$ 0.1, * p $<$ 0.05, ** p $<$ 0.01, *** p $<$ 0.001}\\
+\multicolumn{7}{l}{\rule{0pt}{1em}Standard errors clustered at isocode (country) level. All models include region and birth year fixed effects.}\\
+\end{tabular}}
+\end{table}
+
+\hypertarget{tbl-polity-lde-hetero-posrecip}{}
+\begin{table}
+\centering\centering
+\caption{\label{tbl-polity-lde-hetero-posrecip}Heterogeneous Effects on Positive Reciprocity: Polity vs.~LDE }Positive Reciprocity}
+\centering
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\begin{tabular}[t]{>{\raggedright\arraybackslash}p{4cm}cccccc}
+\toprule
+\multicolumn{1}{c}{\textbf{ }} & \multicolumn{6}{c}{\textbf{Model Comparison}} \\
+\cmidrule(l{3pt}r{3pt}){2-7}
+  & Polity: Combined & Polity: Democratization & Polity: Autocratization & LDE: Combined & LDE: Democratization & LDE: Autocratization\\
+\midrule
+\cellcolor{gray!10}{Democratization} & \cellcolor{gray!10}{\num{-0.049}} & \cellcolor{gray!10}{\num{-0.040}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{-0.064}} & \cellcolor{gray!10}{\num{-0.027}} & \cellcolor{gray!10}{}\\
+ & (\num{0.066}) & (\num{0.056}) &  & (\num{0.063}) & (\num{0.050}) & \\
+\cellcolor{gray!10}{Autocratization} & \cellcolor{gray!10}{\num{-0.019}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{-0.003}} & \cellcolor{gray!10}{\num{-0.060}+} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{-0.033}+}\\
+ & (\num{0.046}) &  & (\num{0.037}) & (\num{0.033}) &  & (\num{0.019})\\
+\midrule
+\cellcolor{gray!10}{Num.Obs.} & \cellcolor{gray!10}{\num{45769}} & \cellcolor{gray!10}{\num{45769}} & \cellcolor{gray!10}{\num{45769}} & \cellcolor{gray!10}{\num{47575}} & \cellcolor{gray!10}{\num{47575}} & \cellcolor{gray!10}{\num{47575}}\\
+R2 & \num{0.229} & \num{0.229} & \num{0.229} & \num{0.233} & \num{0.233} & \num{0.233}\\
+\cellcolor{gray!10}{R2 Adj.} & \cellcolor{gray!10}{\num{0.209}} & \cellcolor{gray!10}{\num{0.209}} & \cellcolor{gray!10}{\num{0.209}} & \cellcolor{gray!10}{\num{0.213}} & \cellcolor{gray!10}{\num{0.213}} & \cellcolor{gray!10}{\num{0.213}}\\
+Std.Errors & by: country & by: country & by: country & by: country & by: country & by: country\\
+\cellcolor{gray!10}{FE: region} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X}\\
+FE: birth\_year & X & X & X & X & X & X\\
+\bottomrule
+\multicolumn{7}{l}{\rule{0pt}{1em}+ p $<$ 0.1, * p $<$ 0.05, ** p $<$ 0.01, *** p $<$ 0.001}\\
+\multicolumn{7}{l}{\rule{0pt}{1em}Standard errors clustered at isocode (country) level. All models include region and birth year fixed effects.}\\
+\end{tabular}}
+\end{table}
+
+\hypertarget{tbl-polity-lde-hetero-negrecip}{}
+\begin{table}
+\centering\centering
+\caption{\label{tbl-polity-lde-hetero-negrecip}Heterogeneous Effects on Negative Reciprocity: Polity vs.~LDE }Negative Reciprocity}
+\centering
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\begin{tabular}[t]{>{\raggedright\arraybackslash}p{4cm}cccccc}
+\toprule
+\multicolumn{1}{c}{\textbf{ }} & \multicolumn{6}{c}{\textbf{Model Comparison}} \\
+\cmidrule(l{3pt}r{3pt}){2-7}
+  & Polity: Combined & Polity: Democratization & Polity: Autocratization & LDE: Combined & LDE: Democratization & LDE: Autocratization\\
+\midrule
+\cellcolor{gray!10}{Democratization} & \cellcolor{gray!10}{\num{0.033}} & \cellcolor{gray!10}{\num{0.035}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{0.109}*} & \cellcolor{gray!10}{\num{0.055}} & \cellcolor{gray!10}{}\\
+ & (\num{0.049}) & (\num{0.039}) &  & (\num{0.047}) & (\num{0.040}) & \\
+\cellcolor{gray!10}{Autocratization} & \cellcolor{gray!10}{\num{-0.005}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{-0.016}} & \cellcolor{gray!10}{\num{0.089}*} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{0.042}}\\
+ & (\num{0.041}) &  & (\num{0.032}) & (\num{0.039}) &  & (\num{0.034})\\
+\midrule
+\cellcolor{gray!10}{Num.Obs.} & \cellcolor{gray!10}{\num{45769}} & \cellcolor{gray!10}{\num{45769}} & \cellcolor{gray!10}{\num{45769}} & \cellcolor{gray!10}{\num{47575}} & \cellcolor{gray!10}{\num{47575}} & \cellcolor{gray!10}{\num{47575}}\\
+R2 & \num{0.166} & \num{0.166} & \num{0.166} & \num{0.167} & \num{0.167} & \num{0.167}\\
+\cellcolor{gray!10}{R2 Adj.} & \cellcolor{gray!10}{\num{0.145}} & \cellcolor{gray!10}{\num{0.145}} & \cellcolor{gray!10}{\num{0.145}} & \cellcolor{gray!10}{\num{0.146}} & \cellcolor{gray!10}{\num{0.145}} & \cellcolor{gray!10}{\num{0.145}}\\
+Std.Errors & by: country & by: country & by: country & by: country & by: country & by: country\\
+\cellcolor{gray!10}{FE: region} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X}\\
+FE: birth\_year & X & X & X & X & X & X\\
+\bottomrule
+\multicolumn{7}{l}{\rule{0pt}{1em}+ p $<$ 0.1, * p $<$ 0.05, ** p $<$ 0.01, *** p $<$ 0.001}\\
+\multicolumn{7}{l}{\rule{0pt}{1em}Standard errors clustered at isocode (country) level. All models include region and birth year fixed effects.}\\
+\end{tabular}}
+\end{table}
+
+\hypertarget{tbl-polity-lde-hetero-altruism}{}
+\begin{table}
+\centering\centering
+\caption{\label{tbl-polity-lde-hetero-altruism}Heterogeneous Effects on Altruism: Polity vs.~LDE }Altruism}
+\centering
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\begin{tabular}[t]{>{\raggedright\arraybackslash}p{4cm}cccccc}
+\toprule
+\multicolumn{1}{c}{\textbf{ }} & \multicolumn{6}{c}{\textbf{Model Comparison}} \\
+\cmidrule(l{3pt}r{3pt}){2-7}
+  & Polity: Combined & Polity: Democratization & Polity: Autocratization & LDE: Combined & LDE: Democratization & LDE: Autocratization\\
+\midrule
+\cellcolor{gray!10}{Democratization} & \cellcolor{gray!10}{\num{-0.153}*} & \cellcolor{gray!10}{\num{-0.120}*} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{-0.084}} & \cellcolor{gray!10}{\num{-0.078}} & \cellcolor{gray!10}{}\\
+ & (\num{0.068}) & (\num{0.057}) &  & (\num{0.073}) & (\num{0.056}) & \\
+\cellcolor{gray!10}{Autocratization} & \cellcolor{gray!10}{\num{-0.076}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{-0.027}} & \cellcolor{gray!10}{\num{-0.009}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{0.027}}\\
+ & (\num{0.051}) &  & (\num{0.039}) & (\num{0.039}) &  & (\num{0.023})\\
+\midrule
+\cellcolor{gray!10}{Num.Obs.} & \cellcolor{gray!10}{\num{45769}} & \cellcolor{gray!10}{\num{45769}} & \cellcolor{gray!10}{\num{45769}} & \cellcolor{gray!10}{\num{47575}} & \cellcolor{gray!10}{\num{47575}} & \cellcolor{gray!10}{\num{47575}}\\
+R2 & \num{0.183} & \num{0.183} & \num{0.183} & \num{0.185} & \num{0.185} & \num{0.185}\\
+\cellcolor{gray!10}{R2 Adj.} & \cellcolor{gray!10}{\num{0.163}} & \cellcolor{gray!10}{\num{0.163}} & \cellcolor{gray!10}{\num{0.162}} & \cellcolor{gray!10}{\num{0.164}} & \cellcolor{gray!10}{\num{0.164}} & \cellcolor{gray!10}{\num{0.164}}\\
+Std.Errors & by: country & by: country & by: country & by: country & by: country & by: country\\
+\cellcolor{gray!10}{FE: region} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X}\\
+FE: birth\_year & X & X & X & X & X & X\\
+\bottomrule
+\multicolumn{7}{l}{\rule{0pt}{1em}+ p $<$ 0.1, * p $<$ 0.05, ** p $<$ 0.01, *** p $<$ 0.001}\\
+\multicolumn{7}{l}{\rule{0pt}{1em}Standard errors clustered at isocode (country) level. All models include region and birth year fixed effects.}\\
+\end{tabular}}
+\end{table}
+
+\hypertarget{tbl-polity-lde-hetero-trust}{}
+\begin{table}
+\centering\centering
+\caption{\label{tbl-polity-lde-hetero-trust}Heterogeneous Effects on Trust: Polity vs.~LDE }Trust}
+\centering
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\begin{tabular}[t]{>{\raggedright\arraybackslash}p{4cm}cccccc}
+\toprule
+\multicolumn{1}{c}{\textbf{ }} & \multicolumn{6}{c}{\textbf{Model Comparison}} \\
+\cmidrule(l{3pt}r{3pt}){2-7}
+  & Polity: Combined & Polity: Democratization & Polity: Autocratization & LDE: Combined & LDE: Democratization & LDE: Autocratization\\
+\midrule
+\cellcolor{gray!10}{Democratization} & \cellcolor{gray!10}{\num{0.008}} & \cellcolor{gray!10}{\num{-0.003}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{-0.031}} & \cellcolor{gray!10}{\num{-0.016}} & \cellcolor{gray!10}{}\\
+ & (\num{0.043}) & (\num{0.036}) &  & (\num{0.043}) & (\num{0.033}) & \\
+\cellcolor{gray!10}{Autocratization} & \cellcolor{gray!10}{\num{0.024}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{0.021}} & \cellcolor{gray!10}{\num{-0.024}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{-0.011}}\\
+ & (\num{0.033}) &  & (\num{0.027}) & (\num{0.034}) &  & (\num{0.027})\\
+\midrule
+\cellcolor{gray!10}{Num.Obs.} & \cellcolor{gray!10}{\num{45769}} & \cellcolor{gray!10}{\num{45769}} & \cellcolor{gray!10}{\num{45769}} & \cellcolor{gray!10}{\num{47575}} & \cellcolor{gray!10}{\num{47575}} & \cellcolor{gray!10}{\num{47575}}\\
+R2 & \num{0.158} & \num{0.158} & \num{0.158} & \num{0.164} & \num{0.164} & \num{0.164}\\
+\cellcolor{gray!10}{R2 Adj.} & \cellcolor{gray!10}{\num{0.137}} & \cellcolor{gray!10}{\num{0.137}} & \cellcolor{gray!10}{\num{0.137}} & \cellcolor{gray!10}{\num{0.142}} & \cellcolor{gray!10}{\num{0.142}} & \cellcolor{gray!10}{\num{0.142}}\\
+Std.Errors & by: country & by: country & by: country & by: country & by: country & by: country\\
+\cellcolor{gray!10}{FE: region} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X}\\
+FE: birth\_year & X & X & X & X & X & X\\
+\bottomrule
+\multicolumn{7}{l}{\rule{0pt}{1em}+ p $<$ 0.1, * p $<$ 0.05, ** p $<$ 0.01, *** p $<$ 0.001}\\
+\multicolumn{7}{l}{\rule{0pt}{1em}Standard errors clustered at isocode (country) level. All models include region and birth year fixed effects.}\\
+\end{tabular}}
+\end{table}
+
+\hypertarget{specification-with-controls-1}{%
+\subsubsection{Specification with
+Controls}\label{specification-with-controls-1}}
+
+\hypertarget{tbl-polity-lde-controls-patience}{}
+\begin{table}
+\centering\centering
+\caption{\label{tbl-polity-lde-controls-patience}Specification with Controls - Patience: Polity vs.~LDE }Patience}
+\centering
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\begin{tabular}[t]{>{\raggedright\arraybackslash}p{4cm}cccccc}
+\toprule
+\multicolumn{1}{c}{\textbf{ }} & \multicolumn{6}{c}{\textbf{Model Comparison}} \\
+\cmidrule(l{3pt}r{3pt}){2-7}
+  & Polity: Combined & Polity: Democratization & Polity: Autocratization & LDE: Combined & LDE: Democratization & LDE: Autocratization\\
+\midrule
+\cellcolor{gray!10}{Democratization} & \cellcolor{gray!10}{\num{0.038}} & \cellcolor{gray!10}{\num{0.030}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{0.074}*} & \cellcolor{gray!10}{\num{0.053}+} & \cellcolor{gray!10}{}\\
+ & (\num{0.034}) & (\num{0.030}) &  & (\num{0.032}) & (\num{0.031}) & \\
+\cellcolor{gray!10}{Autocratization} & \cellcolor{gray!10}{\num{0.022}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{0.011}} & \cellcolor{gray!10}{\num{0.042}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{0.014}}\\
+ & (\num{0.033}) &  & (\num{0.030}) & (\num{0.027}) &  & (\num{0.027})\\
+\cellcolor{gray!10}{Log of Average GDP per Capita during formative years} & \cellcolor{gray!10}{\num{0.874}**} & \cellcolor{gray!10}{\num{0.847}**} & \cellcolor{gray!10}{\num{0.864}**} & \cellcolor{gray!10}{\num{0.123}***} & \cellcolor{gray!10}{\num{0.121}***} & \cellcolor{gray!10}{\num{0.123}***}\\
+ & (\num{0.263}) & (\num{0.259}) & (\num{0.262}) & (\num{0.032}) & (\num{0.032}) & (\num{0.032})\\
+\cellcolor{gray!10}{avg\_polity2\_formative} & \cellcolor{gray!10}{\num{0.001}} & \cellcolor{gray!10}{\num{0.000}} & \cellcolor{gray!10}{\num{0.001}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{}\\
+ & (\num{0.002}) & (\num{0.002}) & (\num{0.002}) &  &  & \\
+\cellcolor{gray!10}{Recession experienced during formative years} & \cellcolor{gray!10}{\num{-0.005}} & \cellcolor{gray!10}{\num{-0.006}} & \cellcolor{gray!10}{\num{-0.005}} & \cellcolor{gray!10}{\num{0.007}} & \cellcolor{gray!10}{\num{0.008}} & \cellcolor{gray!10}{\num{0.007}}\\
+ & (\num{0.018}) & (\num{0.018}) & (\num{0.018}) & (\num{0.014}) & (\num{0.014}) & (\num{0.014})\\
+\cellcolor{gray!10}{avg\_libdem\_formative} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{0.059}} & \cellcolor{gray!10}{\num{0.030}} & \cellcolor{gray!10}{\num{0.079}}\\
+ &  &  &  & (\num{0.079}) & (\num{0.073}) & (\num{0.077})\\
+\midrule
+\cellcolor{gray!10}{Num.Obs.} & \cellcolor{gray!10}{\num{45769}} & \cellcolor{gray!10}{\num{45769}} & \cellcolor{gray!10}{\num{45769}} & \cellcolor{gray!10}{\num{47575}} & \cellcolor{gray!10}{\num{47575}} & \cellcolor{gray!10}{\num{47575}}\\
+R2 & \num{0.186} & \num{0.186} & \num{0.186} & \num{0.194} & \num{0.194} & \num{0.194}\\
+\cellcolor{gray!10}{R2 Adj.} & \cellcolor{gray!10}{\num{0.165}} & \cellcolor{gray!10}{\num{0.165}} & \cellcolor{gray!10}{\num{0.165}} & \cellcolor{gray!10}{\num{0.173}} & \cellcolor{gray!10}{\num{0.173}} & \cellcolor{gray!10}{\num{0.173}}\\
+Std.Errors & by: country & by: country & by: country & by: country & by: country & by: country\\
+\cellcolor{gray!10}{FE: region} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X}\\
+FE: birth\_year & X & X & X & X & X & X\\
+\bottomrule
+\multicolumn{7}{l}{\rule{0pt}{1em}+ p $<$ 0.1, * p $<$ 0.05, ** p $<$ 0.01, *** p $<$ 0.001}\\
+\multicolumn{7}{l}{\rule{0pt}{1em}Standard errors clustered at isocode (country) level. All models include region and birth year fixed effects.}\\
+\end{tabular}}
+\end{table}
+
+\hypertarget{tbl-polity-lde-controls-risktaking}{}
+\begin{table}
+\centering\centering
+\caption{\label{tbl-polity-lde-controls-risktaking}Specification with Controls - Risk Taking: Polity vs.~LDE }Risk Taking}
+\centering
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\begin{tabular}[t]{>{\raggedright\arraybackslash}p{4cm}cccccc}
+\toprule
+\multicolumn{1}{c}{\textbf{ }} & \multicolumn{6}{c}{\textbf{Model Comparison}} \\
+\cmidrule(l{3pt}r{3pt}){2-7}
+  & Polity: Combined & Polity: Democratization & Polity: Autocratization & LDE: Combined & LDE: Democratization & LDE: Autocratization\\
+\midrule
+\cellcolor{gray!10}{Democratization} & \cellcolor{gray!10}{\num{0.060}} & \cellcolor{gray!10}{\num{0.066}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{0.077}} & \cellcolor{gray!10}{\num{0.066}} & \cellcolor{gray!10}{}\\
+ & (\num{0.052}) & (\num{0.047}) &  & (\num{0.051}) & (\num{0.046}) & \\
+\cellcolor{gray!10}{Autocratization} & \cellcolor{gray!10}{\num{-0.016}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{-0.033}} & \cellcolor{gray!10}{\num{0.022}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{-0.007}}\\
+ & (\num{0.036}) &  & (\num{0.034}) & (\num{0.034}) &  & (\num{0.030})\\
+\cellcolor{gray!10}{Log of Average GDP per Capita during formative years} & \cellcolor{gray!10}{\num{0.167}} & \cellcolor{gray!10}{\num{0.187}} & \cellcolor{gray!10}{\num{0.151}} & \cellcolor{gray!10}{\num{0.122}*} & \cellcolor{gray!10}{\num{0.121}*} & \cellcolor{gray!10}{\num{0.121}*}\\
+ & (\num{0.584}) & (\num{0.571}) & (\num{0.581}) & (\num{0.055}) & (\num{0.055}) & (\num{0.055})\\
+\cellcolor{gray!10}{avg\_polity2\_formative} & \cellcolor{gray!10}{\num{-0.006}} & \cellcolor{gray!10}{\num{-0.006}} & \cellcolor{gray!10}{\num{-0.005}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{}\\
+ & (\num{0.004}) & (\num{0.004}) & (\num{0.004}) &  &  & \\
+\cellcolor{gray!10}{Recession experienced during formative years} & \cellcolor{gray!10}{\num{-0.045}+} & \cellcolor{gray!10}{\num{-0.044}+} & \cellcolor{gray!10}{\num{-0.044}+} & \cellcolor{gray!10}{\num{-0.009}} & \cellcolor{gray!10}{\num{-0.008}} & \cellcolor{gray!10}{\num{-0.008}}\\
+ & (\num{0.023}) & (\num{0.023}) & (\num{0.023}) & (\num{0.020}) & (\num{0.019}) & (\num{0.019})\\
+\cellcolor{gray!10}{avg\_libdem\_formative} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{-0.202}*} & \cellcolor{gray!10}{\num{-0.217}*} & \cellcolor{gray!10}{\num{-0.181}*}\\
+ &  &  &  & (\num{0.090}) & (\num{0.087}) & (\num{0.090})\\
+\midrule
+\cellcolor{gray!10}{Num.Obs.} & \cellcolor{gray!10}{\num{45769}} & \cellcolor{gray!10}{\num{45769}} & \cellcolor{gray!10}{\num{45769}} & \cellcolor{gray!10}{\num{47575}} & \cellcolor{gray!10}{\num{47575}} & \cellcolor{gray!10}{\num{47575}}\\
+R2 & \num{0.204} & \num{0.204} & \num{0.203} & \num{0.196} & \num{0.196} & \num{0.196}\\
+\cellcolor{gray!10}{R2 Adj.} & \cellcolor{gray!10}{\num{0.183}} & \cellcolor{gray!10}{\num{0.183}} & \cellcolor{gray!10}{\num{0.183}} & \cellcolor{gray!10}{\num{0.175}} & \cellcolor{gray!10}{\num{0.175}} & \cellcolor{gray!10}{\num{0.175}}\\
+Std.Errors & by: country & by: country & by: country & by: country & by: country & by: country\\
+\cellcolor{gray!10}{FE: region} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X}\\
+FE: birth\_year & X & X & X & X & X & X\\
+\bottomrule
+\multicolumn{7}{l}{\rule{0pt}{1em}+ p $<$ 0.1, * p $<$ 0.05, ** p $<$ 0.01, *** p $<$ 0.001}\\
+\multicolumn{7}{l}{\rule{0pt}{1em}Standard errors clustered at isocode (country) level. All models include region and birth year fixed effects.}\\
+\end{tabular}}
+\end{table}
+
+\hypertarget{tbl-polity-lde-controls-posrecip}{}
+\begin{table}
+\centering\centering
+\caption{\label{tbl-polity-lde-controls-posrecip}Specification with Controls - Positive Reciprocity: Polity vs.~LDE }Positive Reciprocity}
+\centering
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\begin{tabular}[t]{>{\raggedright\arraybackslash}p{4cm}cccccc}
+\toprule
+\multicolumn{1}{c}{\textbf{ }} & \multicolumn{6}{c}{\textbf{Model Comparison}} \\
+\cmidrule(l{3pt}r{3pt}){2-7}
+  & Polity: Combined & Polity: Democratization & Polity: Autocratization & LDE: Combined & LDE: Democratization & LDE: Autocratization\\
+\midrule
+\cellcolor{gray!10}{Democratization} & \cellcolor{gray!10}{\num{-0.056}} & \cellcolor{gray!10}{\num{-0.051}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{-0.065}} & \cellcolor{gray!10}{\num{-0.043}} & \cellcolor{gray!10}{}\\
+ & (\num{0.066}) & (\num{0.058}) &  & (\num{0.063}) & (\num{0.055}) & \\
+\cellcolor{gray!10}{Autocratization} & \cellcolor{gray!10}{\num{-0.013}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{0.003}} & \cellcolor{gray!10}{\num{-0.045}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{-0.020}}\\
+ & (\num{0.046}) &  & (\num{0.039}) & (\num{0.030}) &  & (\num{0.022})\\
+\cellcolor{gray!10}{Log of Average GDP per Capita during formative years} & \cellcolor{gray!10}{\num{0.147}} & \cellcolor{gray!10}{\num{0.163}} & \cellcolor{gray!10}{\num{0.162}} & \cellcolor{gray!10}{\num{0.056}} & \cellcolor{gray!10}{\num{0.058}} & \cellcolor{gray!10}{\num{0.056}}\\
+ & (\num{0.429}) & (\num{0.436}) & (\num{0.431}) & (\num{0.041}) & (\num{0.042}) & (\num{0.042})\\
+\cellcolor{gray!10}{avg\_polity2\_formative} & \cellcolor{gray!10}{\num{0.003}} & \cellcolor{gray!10}{\num{0.003}} & \cellcolor{gray!10}{\num{0.002}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{}\\
+ & (\num{0.003}) & (\num{0.003}) & (\num{0.003}) &  &  & \\
+\cellcolor{gray!10}{Recession experienced during formative years} & \cellcolor{gray!10}{\num{-0.031}+} & \cellcolor{gray!10}{\num{-0.031}+} & \cellcolor{gray!10}{\num{-0.032}+} & \cellcolor{gray!10}{\num{-0.029}*} & \cellcolor{gray!10}{\num{-0.030}*} & \cellcolor{gray!10}{\num{-0.029}*}\\
+ & (\num{0.016}) & (\num{0.016}) & (\num{0.016}) & (\num{0.012}) & (\num{0.012}) & (\num{0.012})\\
+\cellcolor{gray!10}{avg\_libdem\_formative} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{0.036}} & \cellcolor{gray!10}{\num{0.067}} & \cellcolor{gray!10}{\num{0.019}}\\
+ &  &  &  & (\num{0.076}) & (\num{0.079}) & (\num{0.073})\\
+\midrule
+\cellcolor{gray!10}{Num.Obs.} & \cellcolor{gray!10}{\num{45769}} & \cellcolor{gray!10}{\num{45769}} & \cellcolor{gray!10}{\num{45769}} & \cellcolor{gray!10}{\num{47575}} & \cellcolor{gray!10}{\num{47575}} & \cellcolor{gray!10}{\num{47575}}\\
+R2 & \num{0.229} & \num{0.229} & \num{0.229} & \num{0.233} & \num{0.233} & \num{0.233}\\
+\cellcolor{gray!10}{R2 Adj.} & \cellcolor{gray!10}{\num{0.210}} & \cellcolor{gray!10}{\num{0.210}} & \cellcolor{gray!10}{\num{0.210}} & \cellcolor{gray!10}{\num{0.213}} & \cellcolor{gray!10}{\num{0.213}} & \cellcolor{gray!10}{\num{0.213}}\\
+Std.Errors & by: country & by: country & by: country & by: country & by: country & by: country\\
+\cellcolor{gray!10}{FE: region} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X}\\
+FE: birth\_year & X & X & X & X & X & X\\
+\bottomrule
+\multicolumn{7}{l}{\rule{0pt}{1em}+ p $<$ 0.1, * p $<$ 0.05, ** p $<$ 0.01, *** p $<$ 0.001}\\
+\multicolumn{7}{l}{\rule{0pt}{1em}Standard errors clustered at isocode (country) level. All models include region and birth year fixed effects.}\\
+\end{tabular}}
+\end{table}
+
+\hypertarget{tbl-polity-lde-controls-negrecip}{}
+\begin{table}
+\centering\centering
+\caption{\label{tbl-polity-lde-controls-negrecip}Specification with Controls - Negative Reciprocity: Polity vs.~LDE }Negative Reciprocity}
+\centering
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\begin{tabular}[t]{>{\raggedright\arraybackslash}p{4cm}cccccc}
+\toprule
+\multicolumn{1}{c}{\textbf{ }} & \multicolumn{6}{c}{\textbf{Model Comparison}} \\
+\cmidrule(l{3pt}r{3pt}){2-7}
+  & Polity: Combined & Polity: Democratization & Polity: Autocratization & LDE: Combined & LDE: Democratization & LDE: Autocratization\\
+\midrule
+\cellcolor{gray!10}{Democratization} & \cellcolor{gray!10}{\num{0.012}} & \cellcolor{gray!10}{\num{0.002}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{0.101}*} & \cellcolor{gray!10}{\num{0.048}} & \cellcolor{gray!10}{}\\
+ & (\num{0.046}) & (\num{0.040}) &  & (\num{0.048}) & (\num{0.043}) & \\
+\cellcolor{gray!10}{Autocratization} & \cellcolor{gray!10}{\num{0.026}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{0.023}} & \cellcolor{gray!10}{\num{0.107}**} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{0.068}*}\\
+ & (\num{0.039}) &  & (\num{0.033}) & (\num{0.039}) &  & (\num{0.033})\\
+\cellcolor{gray!10}{Log of Average GDP per Capita during formative years} & \cellcolor{gray!10}{\num{0.636}} & \cellcolor{gray!10}{\num{0.604}} & \cellcolor{gray!10}{\num{0.633}} & \cellcolor{gray!10}{\num{0.039}} & \cellcolor{gray!10}{\num{0.033}} & \cellcolor{gray!10}{\num{0.038}}\\
+ & (\num{0.444}) & (\num{0.440}) & (\num{0.444}) & (\num{0.058}) & (\num{0.058}) & (\num{0.058})\\
+\cellcolor{gray!10}{avg\_polity2\_formative} & \cellcolor{gray!10}{\num{0.008}*} & \cellcolor{gray!10}{\num{0.008}*} & \cellcolor{gray!10}{\num{0.009}*} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{}\\
+ & (\num{0.004}) & (\num{0.004}) & (\num{0.004}) &  &  & \\
+\cellcolor{gray!10}{Recession experienced during formative years} & \cellcolor{gray!10}{\num{-0.006}} & \cellcolor{gray!10}{\num{-0.007}} & \cellcolor{gray!10}{\num{-0.006}} & \cellcolor{gray!10}{\num{0.008}} & \cellcolor{gray!10}{\num{0.011}} & \cellcolor{gray!10}{\num{0.009}}\\
+ & (\num{0.025}) & (\num{0.024}) & (\num{0.025}) & (\num{0.020}) & (\num{0.020}) & (\num{0.020})\\
+\cellcolor{gray!10}{avg\_libdem\_formative} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{0.107}} & \cellcolor{gray!10}{\num{0.034}} & \cellcolor{gray!10}{\num{0.134}}\\
+ &  &  &  & (\num{0.112}) & (\num{0.109}) & (\num{0.112})\\
+\midrule
+\cellcolor{gray!10}{Num.Obs.} & \cellcolor{gray!10}{\num{45769}} & \cellcolor{gray!10}{\num{45769}} & \cellcolor{gray!10}{\num{45769}} & \cellcolor{gray!10}{\num{47575}} & \cellcolor{gray!10}{\num{47575}} & \cellcolor{gray!10}{\num{47575}}\\
+R2 & \num{0.167} & \num{0.167} & \num{0.167} & \num{0.167} & \num{0.167} & \num{0.167}\\
+\cellcolor{gray!10}{R2 Adj.} & \cellcolor{gray!10}{\num{0.146}} & \cellcolor{gray!10}{\num{0.146}} & \cellcolor{gray!10}{\num{0.146}} & \cellcolor{gray!10}{\num{0.146}} & \cellcolor{gray!10}{\num{0.145}} & \cellcolor{gray!10}{\num{0.146}}\\
+Std.Errors & by: country & by: country & by: country & by: country & by: country & by: country\\
+\cellcolor{gray!10}{FE: region} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X}\\
+FE: birth\_year & X & X & X & X & X & X\\
+\bottomrule
+\multicolumn{7}{l}{\rule{0pt}{1em}+ p $<$ 0.1, * p $<$ 0.05, ** p $<$ 0.01, *** p $<$ 0.001}\\
+\multicolumn{7}{l}{\rule{0pt}{1em}Standard errors clustered at isocode (country) level. All models include region and birth year fixed effects.}\\
+\end{tabular}}
+\end{table}
+
+\hypertarget{tbl-polity-lde-controls-altruism}{}
+\begin{table}
+\centering\centering
+\caption{\label{tbl-polity-lde-controls-altruism}Specification with Controls - Altruism: Polity vs.~LDE }Altruism}
+\centering
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\begin{tabular}[t]{>{\raggedright\arraybackslash}p{4cm}cccccc}
+\toprule
+\multicolumn{1}{c}{\textbf{ }} & \multicolumn{6}{c}{\textbf{Model Comparison}} \\
+\cmidrule(l{3pt}r{3pt}){2-7}
+  & Polity: Combined & Polity: Democratization & Polity: Autocratization & LDE: Combined & LDE: Democratization & LDE: Autocratization\\
+\midrule
+\cellcolor{gray!10}{Democratization} & \cellcolor{gray!10}{\num{-0.142}*} & \cellcolor{gray!10}{\num{-0.105}+} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{-0.092}} & \cellcolor{gray!10}{\num{-0.094}} & \cellcolor{gray!10}{}\\
+ & (\num{0.064}) & (\num{0.057}) &  & (\num{0.074}) & (\num{0.061}) & \\
+\cellcolor{gray!10}{Autocratization} & \cellcolor{gray!10}{\num{-0.099}*} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{-0.059}} & \cellcolor{gray!10}{\num{0.005}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{0.040}+}\\
+ & (\num{0.047}) &  & (\num{0.037}) & (\num{0.036}) &  & (\num{0.023})\\
+\cellcolor{gray!10}{Log of Average GDP per Capita during formative years} & \cellcolor{gray!10}{\num{-0.503}} & \cellcolor{gray!10}{\num{-0.380}} & \cellcolor{gray!10}{\num{-0.465}} & \cellcolor{gray!10}{\num{-0.002}} & \cellcolor{gray!10}{\num{-0.002}} & \cellcolor{gray!10}{\num{-0.001}}\\
+ & (\num{0.406}) & (\num{0.426}) & (\num{0.430}) & (\num{0.069}) & (\num{0.069}) & (\num{0.069})\\
+\cellcolor{gray!10}{avg\_polity2\_formative} & \cellcolor{gray!10}{\num{-0.005}+} & \cellcolor{gray!10}{\num{-0.004}} & \cellcolor{gray!10}{\num{-0.007}*} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{}\\
+ & (\num{0.003}) & (\num{0.003}) & (\num{0.003}) &  &  & \\
+\cellcolor{gray!10}{Recession experienced during formative years} & \cellcolor{gray!10}{\num{-0.010}} & \cellcolor{gray!10}{\num{-0.006}} & \cellcolor{gray!10}{\num{-0.011}} & \cellcolor{gray!10}{\num{0.013}} & \cellcolor{gray!10}{\num{0.013}} & \cellcolor{gray!10}{\num{0.012}}\\
+ & (\num{0.016}) & (\num{0.017}) & (\num{0.017}) & (\num{0.017}) & (\num{0.017}) & (\num{0.017})\\
+\cellcolor{gray!10}{avg\_libdem\_formative} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{0.112}} & \cellcolor{gray!10}{\num{0.108}} & \cellcolor{gray!10}{\num{0.087}}\\
+ &  &  &  & (\num{0.096}) & (\num{0.101}) & (\num{0.092})\\
+\midrule
+\cellcolor{gray!10}{Num.Obs.} & \cellcolor{gray!10}{\num{45769}} & \cellcolor{gray!10}{\num{45769}} & \cellcolor{gray!10}{\num{45769}} & \cellcolor{gray!10}{\num{47575}} & \cellcolor{gray!10}{\num{47575}} & \cellcolor{gray!10}{\num{47575}}\\
+R2 & \num{0.184} & \num{0.183} & \num{0.183} & \num{0.185} & \num{0.185} & \num{0.185}\\
+\cellcolor{gray!10}{R2 Adj.} & \cellcolor{gray!10}{\num{0.163}} & \cellcolor{gray!10}{\num{0.163}} & \cellcolor{gray!10}{\num{0.162}} & \cellcolor{gray!10}{\num{0.164}} & \cellcolor{gray!10}{\num{0.164}} & \cellcolor{gray!10}{\num{0.164}}\\
+Std.Errors & by: country & by: country & by: country & by: country & by: country & by: country\\
+\cellcolor{gray!10}{FE: region} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X}\\
+FE: birth\_year & X & X & X & X & X & X\\
+\bottomrule
+\multicolumn{7}{l}{\rule{0pt}{1em}+ p $<$ 0.1, * p $<$ 0.05, ** p $<$ 0.01, *** p $<$ 0.001}\\
+\multicolumn{7}{l}{\rule{0pt}{1em}Standard errors clustered at isocode (country) level. All models include region and birth year fixed effects.}\\
+\end{tabular}}
+\end{table}
+
+\hypertarget{tbl-polity-lde-controls-trust}{}
+\begin{table}
+\centering\centering
+\caption{\label{tbl-polity-lde-controls-trust}Specification with Controls - Trust: Polity vs.~LDE }Trust}
+\centering
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\begin{tabular}[t]{>{\raggedright\arraybackslash}p{4cm}cccccc}
+\toprule
+\multicolumn{1}{c}{\textbf{ }} & \multicolumn{6}{c}{\textbf{Model Comparison}} \\
+\cmidrule(l{3pt}r{3pt}){2-7}
+  & Polity: Combined & Polity: Democratization & Polity: Autocratization & LDE: Combined & LDE: Democratization & LDE: Autocratization\\
+\midrule
+\cellcolor{gray!10}{Democratization} & \cellcolor{gray!10}{\num{0.016}} & \cellcolor{gray!10}{\num{0.008}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{-0.029}} & \cellcolor{gray!10}{\num{-0.015}} & \cellcolor{gray!10}{}\\
+ & (\num{0.041}) & (\num{0.038}) &  & (\num{0.042}) & (\num{0.036}) & \\
+\cellcolor{gray!10}{Autocratization} & \cellcolor{gray!10}{\num{0.022}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{0.018}} & \cellcolor{gray!10}{\num{-0.028}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{-0.017}}\\
+ & (\num{0.034}) &  & (\num{0.031}) & (\num{0.040}) &  & (\num{0.036})\\
+\cellcolor{gray!10}{Log of Average GDP per Capita during formative years} & \cellcolor{gray!10}{\num{0.136}} & \cellcolor{gray!10}{\num{0.108}} & \cellcolor{gray!10}{\num{0.132}} & \cellcolor{gray!10}{\num{0.008}} & \cellcolor{gray!10}{\num{0.009}} & \cellcolor{gray!10}{\num{0.008}}\\
+ & (\num{0.522}) & (\num{0.519}) & (\num{0.523}) & (\num{0.080}) & (\num{0.080}) & (\num{0.080})\\
+\cellcolor{gray!10}{avg\_polity2\_formative} & \cellcolor{gray!10}{\num{-0.003}} & \cellcolor{gray!10}{\num{-0.003}} & \cellcolor{gray!10}{\num{-0.002}} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{}\\
+ & (\num{0.004}) & (\num{0.004}) & (\num{0.004}) &  &  & \\
+\cellcolor{gray!10}{Recession experienced during formative years} & \cellcolor{gray!10}{\num{-0.002}} & \cellcolor{gray!10}{\num{-0.002}} & \cellcolor{gray!10}{\num{-0.001}} & \cellcolor{gray!10}{\num{0.003}} & \cellcolor{gray!10}{\num{0.002}} & \cellcolor{gray!10}{\num{0.003}}\\
+ & (\num{0.017}) & (\num{0.017}) & (\num{0.017}) & (\num{0.018}) & (\num{0.019}) & (\num{0.018})\\
+\cellcolor{gray!10}{avg\_libdem\_formative} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{} & \cellcolor{gray!10}{\num{-0.032}} & \cellcolor{gray!10}{\num{-0.012}} & \cellcolor{gray!10}{\num{-0.040}}\\
+ &  &  &  & (\num{0.115}) & (\num{0.101}) & (\num{0.116})\\
+\midrule
+\cellcolor{gray!10}{Num.Obs.} & \cellcolor{gray!10}{\num{45769}} & \cellcolor{gray!10}{\num{45769}} & \cellcolor{gray!10}{\num{45769}} & \cellcolor{gray!10}{\num{47575}} & \cellcolor{gray!10}{\num{47575}} & \cellcolor{gray!10}{\num{47575}}\\
+R2 & \num{0.158} & \num{0.158} & \num{0.158} & \num{0.164} & \num{0.164} & \num{0.164}\\
+\cellcolor{gray!10}{R2 Adj.} & \cellcolor{gray!10}{\num{0.137}} & \cellcolor{gray!10}{\num{0.137}} & \cellcolor{gray!10}{\num{0.137}} & \cellcolor{gray!10}{\num{0.142}} & \cellcolor{gray!10}{\num{0.142}} & \cellcolor{gray!10}{\num{0.142}}\\
+Std.Errors & by: country & by: country & by: country & by: country & by: country & by: country\\
+\cellcolor{gray!10}{FE: region} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X} & \cellcolor{gray!10}{X}\\
+FE: birth\_year & X & X & X & X & X & X\\
+\bottomrule
+\multicolumn{7}{l}{\rule{0pt}{1em}+ p $<$ 0.1, * p $<$ 0.05, ** p $<$ 0.01, *** p $<$ 0.001}\\
+\multicolumn{7}{l}{\rule{0pt}{1em}Standard errors clustered at isocode (country) level. All models include region and birth year fixed effects.}\\
+\end{tabular}}
+\end{table}
+
+But in all 3 different data based models, we can see that Log of Average
+GDP per Capita has strongly positive effect on Patience. This
+coefficient from Polity based model is way more than rest 2 different
+data based models.
+
+
+
+\end{document}
