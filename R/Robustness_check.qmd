@@ -119,6 +119,20 @@ for (pref in preferences) {
   clustering_comparison_auto <- rbind(clustering_comparison_auto, temp)
 }
 
+# Creating summary tables
+# democratization
+demo_summary <- clustering_comparison_demo %>%
+  mutate(coef_se = paste0(coefficient, significance, " (", std_error, ")")) %>%
+  select(preference, clustering, coef_se) %>%
+  pivot_wider(names_from = clustering, values_from = coef_se)
+
+auto_summary <- clustering_comparison_auto %>%
+  mutate(coef_se = paste0(coefficient, significance, " (", std_error, ")")) %>%
+  select(preference, clustering, coef_se) %>%
+  pivot_wider(names_from = clustering, values_from = coef_se)
+
+
+# autocratization
 main_comparison <- data.frame(
   Preference = c("Trust", "Patience", "Risk Taking", "Positive Reciprocity", 
                  "Negative Reciprocity", "Altruism"),
@@ -138,9 +152,6 @@ clustering_results <- list(
 )
 
 saveRDS(clustering_results, here("Output", "Robustness", "clustering_results.rds"))
-```
-
-```{r}
 ```
 
 ```{r}
@@ -567,4 +578,64 @@ joint_balance_test_overall <- function(data) {
 }
 
 joint_test_overall <- joint_balance_test_overall(final_data_gdp)
+```
+
+```{r}
+country_summary <- readRDS(here("Input", "clean", "country_summary.rds"))
+
+create_summary_table <- function() {
+  
+  # Defining group labels 
+  group_labels <- c(
+    "0" = "Control (No regime change)",  
+    "1" = "Autocratization",              
+    "2" = "Democratization"             
+  )
+  
+  # Calculating summary statistics
+  summary_table <- country_summary %>%
+    group_by(first_formative_type) %>%
+    summarise(
+      N = sum(n_individuals, na.rm = TRUE),
+      .groups = 'drop'
+    ) %>%
+    mutate(
+      Group = case_when(
+        first_formative_type == 0 ~ "Control (No regime change)",
+        first_formative_type == 1 ~ "Autocratization", 
+        first_formative_type == 2 ~ "Democratization",
+        TRUE ~ as.character(first_formative_type)
+      ),
+      Proportion = round(N / sum(N), 2),
+      Percentage = round((N / sum(N)) * 100, 1)
+    ) %>%
+    select(Group, N, Proportion, Percentage) %>%
+    arrange(desc(N))  # Sorting by sample size, largest first
+  
+  return(summary_table)
+}
+
+# Generating the table
+table_data <- create_summary_table()
+
+# Creating a formatted table
+formatted_table <- table_data %>%
+  kable(
+    caption = "Sample Composition by Treatment Type",
+    col.names = c("Group", "N", "Proportion", "Percentage"),
+    align = c("l", "r", "r", "r"),
+    format = "latex"
+  ) %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover"),
+    full_width = FALSE,
+    position = "center"
+  ) %>%
+  add_footnote(
+    "Distribution of observations across control and treatment groups.",
+    notation = "none"
+  )
+
+# Displaying the formatted table
+formatted_table
 ```

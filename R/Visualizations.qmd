@@ -10,7 +10,8 @@ p_load(tidyverse,
        ggplot2,
        gridExtra,
        viridis,
-       scales)
+       scales,
+       here)
 ```
 
 ```{r}
@@ -323,8 +324,7 @@ all_countries_plot_polity <- ggplot(regime_data_ordered_polity,
     panel.spacing = unit(0.5, "lines")
   ) +
   labs(x = "Year", y = "Country",
-       title = "Regime Changes by Country and Continent (Post-1920)",
-       subtitle = "Polity5 Dataset")
+       title = "Polity5 Dataset")
 
 # Displaying the plot
 print(all_countries_plot_polity)
@@ -345,10 +345,6 @@ saveRDS(all_countries_plot_polity, here("Output","figures", "all_countries_plot_
 # VDem RWI
 
 ```{r visualization RWI}
-#saving an rds for the visualization(put this code into v2xregime)
-saveRDS(regime_data, here("Output","Robustness", "RWI-regime_data.rds"))
-
-
 regime_data <- readRDS(here("Output", "Robustness", "RWI-regime_data.rds"))
 
 # First, prepare the regime_change data with proper column names
@@ -401,7 +397,7 @@ regime_data_ordered_RWI <- regime_data_continents_RWI %>%
   mutate(country_text_id = factor(country_text_id, levels = country_order))
 
 # Creating the visualization with A4 dimensions
-all_countries_plot_RWI <- ggplot(regime_data_ordered,
+all_countries_plot_RWI <- ggplot(regime_data_ordered_RWI,
                             aes(x = year, y = country_text_id, fill = treatment_factor)) +
   geom_tile(color = "white", size = 0.05) +
   scale_fill_manual(values = c("No change" = "gray95", 
@@ -425,8 +421,7 @@ all_countries_plot_RWI <- ggplot(regime_data_ordered,
     panel.spacing = unit(0.5, "lines")
   ) +
   labs(x = "Year", y = "Country",
-       title = "Regime Changes by Country and Continent (Post-1920)",
-       subtitle = "VDem Regimes of the World Index")
+       title = "VDem Regimes of the World Index")
 
 # Displaying the plot
 print(all_countries_plot_RWI)
