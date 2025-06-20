@@ -135,7 +135,6 @@ table_data <- create_summary_table()
 # Creating a formatted table
 formatted_table <- table_data %>%
   kable(
-    caption = "Sample Composition by Treatment Type",
     col.names = c("Group", "N", "Proportion", "Percentage"),
     align = c("l", "r", "r", "r"),
     format = "latex"
@@ -213,7 +212,8 @@ Notably, the **altruism coefficient** exhibits sensitivity to the clustering met
 #| echo: false
 #| label: tbl-cluster_democ
 #| tbl-cap: "Sensitivity to Clustering Approaches - Democratization Effects"
-#| tbl-pos: h
+#| tbl-pos: "h"
+#| fig-pos: "h"
 demo_table_pdf <- create_clustering_table_pdf(demo_summary, 
                                               "democratization")
 
@@ -224,9 +224,10 @@ Results in @tbl-cluster-autoc how generally weaker effects across all clustering
 
 ```{r}
 #| echo: false
-#| label: tbl-cluster-autoc
+#| label: tbl-cluster_autoc
 #| tbl-cap: "Sensitivity to Clustering Approaches - Autocratization Effects"
-#| tbl-pos: h
+#| tbl-pos: "h"
+#| fig-pos: "h"
 auto_table_pdf <- create_clustering_table_pdf(auto_summary, 
                                               "autocratization")
 auto_table_pdf
@@ -348,9 +349,7 @@ for (tbl in comparison_tables) {
 }
 ```
 
-
 In regime models, Autocratization has strongly negative effect on risk taking and trust of individiuals, also it has also effect on negative reciprocity, but this one is strongly significant.
-
 
 ### Specification with Controls
 
@@ -426,8 +425,7 @@ all_countries_plot_polity
 
 Coverage: 160+ countries, typically from 1800–2023
 
-Main variable: polity2, a composite score ranging from –10 (full autocracy) to +10 (full democracy)
-threshold for polity2 : polity2 >= +6 is determined as Democratization, polity2 < +6 Autocratization
+Main variable: polity2, a composite score ranging from –10 (full autocracy) to +10 (full democracy) threshold for polity2 : polity2 \>= +6 is determined as Democratization, polity2 \< +6 Autocratization
 
 Tracks regime changes, authority characteristics and durability of political institutions
 
@@ -542,6 +540,5 @@ for (tbl in comparison_tables_controls) {
 }
 
 ```
-
 
 But in all 3 different data based models, we can see that Log of Average GDP per Capita has strongly positive effect on Patience. This coefficient from Polity based model is way more than rest 2 different data based models.
