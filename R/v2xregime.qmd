@@ -67,28 +67,31 @@ source(here("R", "Script", "02_filtering.R"))
 
 
 ```{r function for regime change}
-
 create_country_regime_data_vdem <- function(vdem_data,
                                             lag_years = 10,
                                             country_filter = NULL) {
   
-  # 1. Apply country filter if provided (based on isocode)
   if (!is.null(country_filter)) {
     vdem_data <- vdem_data %>%
       filter(isocode %in% country_filter)
   }
   
-  # 2. Calculate regime change using lag comparison
   country_regime_changes <- vdem_data %>%
     arrange(isocode, year) %>%
     group_by(isocode) %>%
     mutate(
       v2x_regime_lag = lag(v2x_regime, lag_years),
-      regime_change = case_when(
-        !is.na(v2x_regime_lag) & v2x_regime_lag %in% 0:1 & v2x_regime %in% 2:3 ~ 2,  # Democratization
-        !is.na(v2x_regime_lag) & v2x_regime_lag %in% 2:3 & v2x_regime %in% 0:1 ~ 1,  # Autocratization
-        TRUE ~ 0  # No major regime change
+      
+      # raw classification
+      regime_change_raw = case_when(
+        !is.na(v2x_regime_lag) & v2x_regime_lag %in% 0:1 & v2x_regime %in% 2:3 ~ 2,
+        !is.na(v2x_regime_lag) & v2x_regime_lag %in% 2:3 & v2x_regime %in% 0:1 ~ 1,
+        TRUE ~ 0
       ),
+
+      # here: keep all regime changes, even repeated
+      regime_change = regime_change_raw,
+
       treatment_factor = factor(regime_change,
                                 levels = c(0, 1, 2),
                                 labels = c("No change", "Autocratization", "Democratization"))
@@ -96,7 +99,6 @@ create_country_regime_data_vdem <- function(vdem_data,
     ungroup() %>%
     filter(year >= 1920)
 
-  # 3. Identify the first regime change for each country (by isocode)
   first_change_direction <- country_regime_changes %>%
     filter(regime_change != 0) %>%
     group_by(isocode) %>%
@@ -114,7 +116,6 @@ create_country_regime_data_vdem <- function(vdem_data,
     select(isocode, first_regime_change_year, first_regime_change_type,
            formative_democratization, formative_autocratization)
 
-  # 4. Merge the first regime change info and add new columns
   country_regime_changes <- country_regime_changes %>%
     left_join(first_change_direction, by = "isocode") %>%
     mutate(

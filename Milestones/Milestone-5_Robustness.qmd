@@ -302,7 +302,7 @@ for (tbl in comparison_tables) {
 }
 ```
 
-LDE-based model: Formative regime change has a strong positive and highly significant effect on patience , and strongly positive effect on negative reciprocity. But in regime model there is no significant effect
+LDE-based model: Formative regime change has a strong positive and highly significant effect on patience and strongly positive effect on negative reciprocity. But in regime model there is no significant effect
 
 ###hetero models comparision Combined: autocratization and democratization
 
@@ -321,7 +321,7 @@ lde_autoc    <- readRDS(here("Output", "Models","hetero_models_autoc.rds"))
 
 ```{r}
 
-comparison_tables <- lapply(seq_along(preference_vars_1), function(i) {
+comparison_tables <- lapply(seq_along(preference_names), function(i) {
   msummary(
     list(
       "Regime: Combined"        = hetero_models_v2[[i]],
@@ -336,7 +336,7 @@ comparison_tables <- lapply(seq_along(preference_vars_1), function(i) {
       "democratization" = "Democratization",
       "autocratization" = "Autocratization"
     ),
-    title = titles[i],
+    title = preference_names[i],
     notes = "Standard errors clustered at isocode (country) level. Fixed effects for region and birth year included.",
     output = "gt"
   )
@@ -347,6 +347,10 @@ for (tbl in comparison_tables) {
   print(tbl)
 }
 ```
+
+
+In regime models, Autocratization has strongly negative effect on risk taking and trust of individiuals, also it has also effect on negative reciprocity, but this one is strongly significant.
+
 
 ### Specification with Controls
 
@@ -367,7 +371,7 @@ lde_controls_autoc    <- readRDS(here("Output", "Models","hetero_models_autoc_co
 
 ```{r}
 # creating list of table
-comparison_tables_controls <- lapply(seq_along(preference_vars_1), function(i) {
+comparison_tables_controls <- lapply(seq_along(preference_names), function(i) {
   msummary(
     list(
       "Regime: Combined"        = hetero_models_controls_v2[[i]],
@@ -384,7 +388,7 @@ comparison_tables_controls <- lapply(seq_along(preference_vars_1), function(i) {
       "avg_gdppc_formative" = "Log of Average GDP per Capita during formative years",
       "recession_formative" = "Recession experienced during formative years"
     ),
-    title = titles[i],
+    title = preference_names[i],
     notes = "Standard errors clustered at isocode (country) level. All models include region and birth year fixed effects.",
     output = "gt"
   )
@@ -423,6 +427,7 @@ all_countries_plot_polity
 Coverage: 160+ countries, typically from 1800–2023
 
 Main variable: polity2, a composite score ranging from –10 (full autocracy) to +10 (full democracy)
+threshold for polity2 : polity2 >= +6 is determined as Democratization, polity2 < +6 Autocratization
 
 Tracks regime changes, authority characteristics and durability of political institutions
 
@@ -455,6 +460,8 @@ for (tbl in comparison_tables) {
 
 ```
 
+Compare to the LDE model and regime based model , in Polity-based model, formative regime change has strongly negative effect on altuism.
+
 ###hetero models comparision Combined: autocratization and democratization
 
 ```{r}
@@ -467,7 +474,7 @@ hetero_models_autoc_polity <- readRDS(here("Output", "Models", "polity results",
 
 ```{r}
 # Comparison table: Polity-based models vs. LDE-based models
-comparison_tables <- lapply(seq_along(preference_vars_1), function(i) {
+comparison_tables <- lapply(seq_along(preference_names), function(i) {
   msummary(
     list(
       "Polity: Combined"        = hetero_models_polity[[i]],
@@ -482,7 +489,7 @@ comparison_tables <- lapply(seq_along(preference_vars_1), function(i) {
       "democratization" = "Democratization",
       "autocratization" = "Autocratization"
     ),
-    title = titles[i],
+    title = preference_names[i],
     notes = "Standard errors clustered at isocode (country) level. All models include region and birth year fixed effects.",
     output = "gt"
   )
@@ -506,7 +513,7 @@ hetero_models_autoc_controls_polity <- readRDS(here("Output", "Models", "polity 
 
 ```{r}
 # Create comparison tables with controls: Polity vs. LDE
-comparison_tables_controls <- lapply(seq_along(preference_vars_1), function(i) {
+comparison_tables_controls <- lapply(seq_along(preference_names), function(i) {
   msummary(
     list(
       "Polity: Combined"        = hetero_models_controls_polity[[i]],
@@ -523,7 +530,7 @@ comparison_tables_controls <- lapply(seq_along(preference_vars_1), function(i) {
       "avg_gdppc_formative" = "Log of Average GDP per Capita during formative years",
       "recession_formative" = "Recession experienced during formative years"
     ),
-    title = titles[i],
+    title = preference_names[i],
     notes = "Standard errors clustered at isocode (country) level. All models include region and birth year fixed effects.",
     output = "gt"
   )
@@ -535,3 +542,6 @@ for (tbl in comparison_tables_controls) {
 }
 
 ```
+
+
+But in all 3 different data based models, we can see that Log of Average GDP per Capita has strongly positive effect on Patience. This coefficient from Polity based model is way more than rest 2 different data based models.

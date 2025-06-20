@@ -252,7 +252,7 @@ print(waves_summary)
 regime_data_polity <- readRDS(here("Output", "Robustness", "polity-regime_data.rds"))
 
 regime_data_processed_polity <- regime_data_polity %>%
-  rename(country_text_id = scode) %>%
+  rename(country_text_id = isocode) %>%
   # Filter for periods after 1920
   filter(year > 1920) %>%
   # Ensure we have the treatment variables we need
