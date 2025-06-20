@@ -48,21 +48,6 @@ p_load(haven,
        )
 ```
 
-```{r}
-#| eval: false
-#| message: false
-#| warning: false
-#| include: false
-#  Load the function from extract_codes.R
-script_files <- list.files(
-  path = here("R", "Script"),
-  pattern = "\\.R$",
-  full.names = TRUE
-)
-
-# Hamısını source et
-walk(script_files, source)
-```
 
 ```{r}
 #| include: false
@@ -266,6 +251,10 @@ all_countries_plot_RWI
 ### Base Specification with Heterogenous Effects
 
 ```{r}
+#| message: false
+#| warning: false
+#| include: false
+
  regime_change_lde <- readRDS(here("Output", "Models", "regime_change_models.rds"))
 
  
@@ -275,6 +264,11 @@ all_countries_plot_RWI
 ### Fixed effects: Regime change comparison
 
 ```{r}
+#| echo: false
+#| label: tbl-regime_regime_lde
+#| tbl-cap: "The results of regime and LDE data based models (Regime change comparison)"
+#| tbl-pos: "h"
+#| fig-pos: "h"
 # Define preference names for titles
 preference_names <- c("Patience", "Risk taking", "Positive reciprocity", 
                       "Negative reciprocity", "Altruism", "Trust")
@@ -308,6 +302,11 @@ LDE-based model: Formative regime change has a strong positive and highly signif
 ###hetero models comparision Combined: autocratization and democratization
 
 ```{r}
+#| message: false
+#| warning: false
+#| include: false
+
+# Define preference names for titles
 hetero_models_v2 <- readRDS(here("Output", "Models", "v2xregime results", "hetero_models_v2xregime.rds"))
 hetero_models_democ_v2 <- readRDS(here("Output", "Models", "v2xregime results", "hetero_models_democ_v2xregime.rds"))
 hetero_models_autoc_v2 <- readRDS(here("Output", "Models", "v2xregime results", "hetero_models_autoc_v2xregime.rds"))
@@ -321,7 +320,11 @@ lde_autoc    <- readRDS(here("Output", "Models","hetero_models_autoc.rds"))
 ```
 
 ```{r}
-
+#| echo: false
+#| label: tbl-fe_regime_lde_hetero
+#| tbl-cap: "The results of regime and LDE data based models (hetero models comparision Combined)"
+#| tbl-pos: "h"
+#| fig-pos: "h"
 comparison_tables <- lapply(seq_along(preference_names), function(i) {
   msummary(
     list(
@@ -354,6 +357,10 @@ In regime models, Autocratization has strongly negative effect on risk taking an
 ### Specification with Controls
 
 ```{r}
+#| message: false
+#| warning: false
+#| include: false
+
 # Read models first
 hetero_models_controls_v2 <- readRDS(here("Output", "Models", "v2xregime results", "hetero_models_controls_v2xregime.rds"))
 hetero_models_democ_controls_v2 <- readRDS(here("Output", "Models", "v2xregime results", "hetero_models_democ_controls_v2xregime.rds"))
@@ -369,6 +376,11 @@ lde_controls_autoc    <- readRDS(here("Output", "Models","hetero_models_autoc_co
 ```
 
 ```{r}
+#| echo: false
+#| label: tbl-fe_regime_lde_controls
+#| tbl-cap: "The results of regime and LDE data based models (Specification with Controls)"
+#| tbl-pos: "h"
+#| fig-pos: "h"
 # creating list of table
 comparison_tables_controls <- lapply(seq_along(preference_names), function(i) {
   msummary(
@@ -417,6 +429,10 @@ all_countries_plot_polity
 ```
 
 ```{r}
+#| message: false
+#| warning: false
+#| include: false
+
  regime_change_lde <- readRDS(here("Output", "Models", "regime_change_models.rds"))
 
  
@@ -430,6 +446,11 @@ Main variable: polity2, a composite score ranging from –10 (full autocracy) to
 Tracks regime changes, authority characteristics and durability of political institutions
 
 ```{r}
+#| echo: false
+#| label: tbl-fe_polity_lde_regime
+#| tbl-cap: "The results of polity and LDE data based models (Regime change)"
+#| tbl-pos: "h"
+#| fig-pos: "h"
 # Define preference names for titles
 preference_names <- c("Patience", "Risk taking", "Positive reciprocity", 
                       "Negative reciprocity", "Altruism", "Trust")
@@ -463,6 +484,10 @@ Compare to the LDE model and regime based model , in Polity-based model, formati
 ###hetero models comparision Combined: autocratization and democratization
 
 ```{r}
+#| message: false
+#| warning: false
+#| include: false
+
 # Load models from the "polity results" folder
 hetero_models_polity <- readRDS(here("Output", "Models", "polity results", "hetero_models_polity.rds"))
 hetero_models_democ_polity <- readRDS(here("Output", "Models", "polity results", "hetero_models_democ_polity.rds"))
@@ -471,6 +496,11 @@ hetero_models_autoc_polity <- readRDS(here("Output", "Models", "polity results",
 ```
 
 ```{r}
+#| echo: false
+#| label: tbl-fe_polity_lde_hetero
+#| tbl-cap: "The results of polity and LDE data based models (hetero models comparision Combined)"
+#| tbl-pos: "h"
+#| fig-pos: "h"
 # Comparison table: Polity-based models vs. LDE-based models
 comparison_tables <- lapply(seq_along(preference_names), function(i) {
   msummary(
@@ -502,6 +532,10 @@ for (tbl in comparison_tables) {
 ### Specification with Controls
 
 ```{r}
+#| message: false
+#| warning: false
+#| include: false
+
 # Read polity-based models with controls
 hetero_models_controls_polity <- readRDS(here("Output", "Models", "polity results", "hetero_models_controls_polity.rds"))
 hetero_models_democ_controls_polity <- readRDS(here("Output", "Models", "polity results", "hetero_models_democ_controls_polity.rds"))
@@ -510,6 +544,11 @@ hetero_models_autoc_controls_polity <- readRDS(here("Output", "Models", "polity 
 ```
 
 ```{r}
+#| echo: false
+#| label: tbl-fe_polity_lde_controls
+#| tbl-cap: "The results of polity and LDE data based models (Specification with Controls)"
+#| tbl-pos: "h"
+#| fig-pos: "h"
 # Create comparison tables with controls: Polity vs. LDE
 comparison_tables_controls <- lapply(seq_along(preference_names), function(i) {
   msummary(
