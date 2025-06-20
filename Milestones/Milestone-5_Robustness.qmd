@@ -43,7 +43,8 @@ p_load(haven,
        here,
        countrycode,
        gt,
-       knit
+       knitr,
+       kableExtra
        )
 ```
 
@@ -70,6 +71,13 @@ democratization_balance <- readRDS(here("Output", "Tables", "balance_table_democ
 overall_balance <- readRDS(here("Output", "Tables", "balance_table_overall.rds"))
 sample_composition <- readRDS(here("Output", "Tables", "sample_composition.rds"))
 clustering_results <- readRDS(here("Output", "Robustness", "clustering_results.rds"))
+country_summary <- readRDS(here("Input", "clean", "country_summary.rds"))
+
+# Regime changes visualization
+# Polity5
+all_countries_plot_polity <- readRDS(here("Output", "figures", "all_countries_plot_polity.rds"))
+# RWI
+all_countries_plot_RWI <- readRDS(here("Output", "figures", "all_countries_plot_RWI.rds"))
 ```
 
 ```{r}
@@ -89,13 +97,61 @@ Our final analytical sample consists of `r sum(sample_composition$n)` individual
 #| label: tbl-samplecomp
 #| tbl-cap: "Sample Composition by Treatment Type"
 #| tbl-pos: "h"
-sample_composition %>%
-  kable(format = "latex",
-        digits = 2,
-        col.names = c("Group", "N", "Proportion", "Percentage")) %>%
-  kable_styling(latex_options = c("striped")) %>%
-  footnote(general = "Distribution of observations across control and treatment groups.",
-           general_title = "Note:")
+create_summary_table <- function() {
+  
+  # Defining group labels 
+  group_labels <- c(
+    "0" = "Control (No regime change)",  
+    "1" = "Autocratization",              
+    "2" = "Democratization"             
+  )
+  
+  # Calculating summary statistics
+  summary_table <- country_summary %>%
+    group_by(first_formative_type) %>%
+    summarise(
+      N = sum(n_individuals, na.rm = TRUE),
+      .groups = 'drop'
+    ) %>%
+    mutate(
+      Group = case_when(
+        first_formative_type == 0 ~ "Control (No regime change)",
+        first_formative_type == 1 ~ "Autocratization", 
+        first_formative_type == 2 ~ "Democratization",
+        TRUE ~ as.character(first_formative_type)
+      ),
+      Proportion = round(N / sum(N), 2),
+      Percentage = round((N / sum(N)) * 100, 1)
+    ) %>%
+    select(Group, N, Proportion, Percentage) %>%
+    arrange(desc(N))  # Sorting by sample size, largest first
+  
+  return(summary_table)
+}
+
+# Generating the table
+table_data <- create_summary_table()
+
+# Creating a formatted table
+formatted_table <- table_data %>%
+  kable(
+    caption = "Sample Composition by Treatment Type",
+    col.names = c("Group", "N", "Proportion", "Percentage"),
+    align = c("l", "r", "r", "r"),
+    format = "latex"
+  ) %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover"),
+    full_width = FALSE,
+    position = "center"
+  ) %>%
+  add_footnote(
+    "Distribution of observations across control and treatment groups.",
+    notation = "none"
+  )
+
+# Displaying the formatted table
+formatted_table
 
 
 ```
@@ -178,65 +234,6 @@ auto_table_pdf
 
 Overall, these robustness checks strengthen confidence in our core findings while highlighting which results are sensitive to different clustering approaches. The **persistence of the democratization-patience relationship** across all specifications underscores its robustness as our primary empirical contribution.
 
-## Definition of formative age
-
-# Balancing tests
-
-## Conditional Balance Tests (Primary Identification Test)
-
-The following TWFE examines whether treatment assignment is random conditional on our fixed effects.
-
-```{r}
-#| echo: false
-conditional_balance %>%
-  kbl(format = "latex", 
-        caption = "Conditional Balance Tests (Residualized Variables)",
-        booktabs = TRUE,
-        digits = 4) %>%
-  kable_styling(latex_options = c("striped", "hold_position", "scale_down")) %>%
-  footnote(general = "Variables residualized with respect to region and birth year fixed effects. *** p<0.001, ** p<0.01, * p<0.05, + p<0.1",
-           general_title = "Note:")
-
-```
-
-The conditional balance tests show no evidence of systematic selection , strongly supporting the validity of our identification strategy.
-
-## Overall Treatment vs Control Balance (Descriptive)
-
-As expected, countries that experienced regime changes differ systematically from stable countries:
-
-```{r}
-#| echo: false
-overall_balance %>%
-  kable(format = "latex",
-        caption = "Overall Balance: Any Treatment vs Control",
-        booktabs = TRUE,
-        digits = 3,
-        col.names = c("Variable", "Control Mean (SD)", "Treated Mean (SD)", 
-                     "Difference [95% CI]", "t-statistic", "p-value", "Sig.")) %>%
-  kable_styling(latex_options = c("striped", "hold_position")) %>%
-  footnote(general = "Large differences expected and do not threaten identification. Our fixed effects strategy accounts for these systematic differences.",
-           general_title = "Note:")
-```
-
-## Treatment Type Comparison
-
-Within the treated sample, we examine balance between democratization and autocratization:
-
-```{r}
-#| echo: false
-democratization_balance %>%
-  kable(format = "latex",
-        caption = "Balance Tests: Democratization vs Autocratization",
-        booktabs = TRUE,
-        digits = 3) %>%
-  kable_styling(latex_options = c("striped", "hold_position")) %>%
-  footnote(general = "Mean (SD) for control variables within treated sample. *** p<0.001, ** p<0.01, * p<0.05, + p<0.1",
-           general_title = "Note:")
-```
-
-balance_table_overall
-
 # Different Datasets
 
 ## V-dem: Regime of the World Index
@@ -253,10 +250,19 @@ V2xregime value from VDem data, created by the Varieties of Democracy (V-Dem) Pr
 
 These categories are based on V-Dem's extensive dataset, which includes expert-coded indicators on political institutions, rights and governance. The regime change included only from Autocracy to Democracy or vice verca.
 
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+#| fig-width: 16
+#| fig-height: 12
+#| fig-cap: "Regime Changes by Country and Continent (Post-1920)"
+#| label: fig-regime-changes-RWI
+
+all_countries_plot_RWI
+```
+
 ### Base Specification with Heterogenous Effects
-
-
-
 
 ```{r}
  regime_change_lde <- readRDS(here("Output", "Models", "regime_change_models.rds"))
@@ -265,8 +271,8 @@ These categories are based on V-Dem's extensive dataset, which includes expert-c
  regime_change_models_v2xregime <- readRDS(here("Output" , "Models" ,"v2xregime results", "regime_change_models_v2xregime.rds"))
 ```
 
-
 ### Fixed effects: Regime change comparison
+
 ```{r}
 # Define preference names for titles
 preference_names <- c("Patience", "Risk taking", "Positive reciprocity", 
@@ -298,9 +304,8 @@ for (tbl in comparison_tables) {
 
 LDE-based model: Formative regime change has a strong positive and highly significant effect on patience , and strongly positive effect on negative reciprocity. But in regime model there is no significant effect
 
+###hetero models comparision Combined: autocratization and democratization
 
-
-###hetero models comparision  Combined: autocratization and democratization
 ```{r}
 hetero_models_v2 <- readRDS(here("Output", "Models", "v2xregime results", "hetero_models_v2xregime.rds"))
 hetero_models_democ_v2 <- readRDS(here("Output", "Models", "v2xregime results", "hetero_models_democ_v2xregime.rds"))
@@ -313,8 +318,6 @@ lde_democ    <- readRDS(here("Output", "Models","hetero_models_democ.rds"))
 lde_autoc    <- readRDS(here("Output", "Models","hetero_models_autoc.rds"))
 
 ```
-
-
 
 ```{r}
 
@@ -345,12 +348,7 @@ for (tbl in comparison_tables) {
 }
 ```
 
-
-
-
-
 ### Specification with Controls
-
 
 ```{r}
 # Read models first
@@ -366,12 +364,6 @@ lde_controls_combined <- readRDS(here("Output", "Models","hetero_models_controls
 lde_controls_democ    <- readRDS(here("Output", "Models","hetero_models_democ_controls.rds"))
 lde_controls_autoc    <- readRDS(here("Output", "Models","hetero_models_autoc_controls.rds"))
 ```
-
-
-
-
-
-
 
 ```{r}
 # creating list of table
@@ -405,13 +397,21 @@ for (tbl in comparison_tables_controls) {
 
 ```
 
-Patience is positively and strongly associated with the log of average GDP per capita during formative years across all models. This suggests that individuals who grew up in wealthier economic environments tend to be more patient. Risk taking significantly decreases following autocratization in regime-based models. Negative reciprocity significantly declines after autocratization in regime models
-,  indicating that such political transitions may suppress retaliatory economic behaviors. Trust decreases substantially in response to autocratization in regime-based models, highlighting a strong erosion of interpersonal or institutional trust in individuals exposed to such regime shifts.
-
-
+Patience is positively and strongly associated with the log of average GDP per capita during formative years across all models. This suggests that individuals who grew up in wealthier economic environments tend to be more patient. Risk taking significantly decreases following autocratization in regime-based models. Negative reciprocity significantly declines after autocratization in regime models , indicating that such political transitions may suppress retaliatory economic behaviors. Trust decreases substantially in response to autocratization in regime-based models, highlighting a strong erosion of interpersonal or institutional trust in individuals exposed to such regime shifts.
 
 ## Polity dataset
 
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+#| fig-width: 16
+#| fig-height: 12
+#| fig-cap: "Regime Changes by Country and Continent (Post-1920)"
+#| label: fig-regime-changes-polity
+
+all_countries_plot_polity
+```
 
 ```{r}
  regime_change_lde <- readRDS(here("Output", "Models", "regime_change_models.rds"))
@@ -425,7 +425,6 @@ Coverage: 160+ countries, typically from 1800–2023
 Main variable: polity2, a composite score ranging from –10 (full autocracy) to +10 (full democracy)
 
 Tracks regime changes, authority characteristics and durability of political institutions
-
 
 ```{r}
 # Define preference names for titles
@@ -456,10 +455,7 @@ for (tbl in comparison_tables) {
 
 ```
 
-
-
-
-###hetero models comparision  Combined: autocratization and democratization
+###hetero models comparision Combined: autocratization and democratization
 
 ```{r}
 # Load models from the "polity results" folder
@@ -468,9 +464,6 @@ hetero_models_democ_polity <- readRDS(here("Output", "Models", "polity results",
 hetero_models_autoc_polity <- readRDS(here("Output", "Models", "polity results", "hetero_models_autoc_polity.rds"))
 
 ```
-
-
-
 
 ```{r}
 # Comparison table: Polity-based models vs. LDE-based models
@@ -499,10 +492,10 @@ comparison_tables <- lapply(seq_along(preference_vars_1), function(i) {
 for (tbl in comparison_tables) {
   print(tbl)
 }
-
 ```
 
 ### Specification with Controls
+
 ```{r}
 # Read polity-based models with controls
 hetero_models_controls_polity <- readRDS(here("Output", "Models", "polity results", "hetero_models_controls_polity.rds"))
@@ -511,13 +504,7 @@ hetero_models_autoc_controls_polity <- readRDS(here("Output", "Models", "polity 
 
 ```
 
-
-
-
-
 ```{r}
-
-
 # Create comparison tables with controls: Polity vs. LDE
 comparison_tables_controls <- lapply(seq_along(preference_vars_1), function(i) {
   msummary(
@@ -548,7 +535,3 @@ for (tbl in comparison_tables_controls) {
 }
 
 ```
-
-
-
-
