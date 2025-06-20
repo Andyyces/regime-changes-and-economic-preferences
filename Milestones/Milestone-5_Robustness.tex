@@ -77,6 +77,29 @@
 \makeatletter
 \def\fps@figure{htbp}
 \makeatother
+\newlength{\cslhangindent}
+\setlength{\cslhangindent}{1.5em}
+\newlength{\csllabelwidth}
+\setlength{\csllabelwidth}{3em}
+\newlength{\cslentryspacingunit} % times entry-spacing
+\setlength{\cslentryspacingunit}{\parskip}
+\newenvironment{CSLReferences}[2] % #1 hanging-ident, #2 entry spacing
+ {% don't indent paragraphs
+  \setlength{\parindent}{0pt}
+  % turn on hanging indent if param 1 is 1
+  \ifodd #1
+  \let\oldpar\par
+  \def\par{\hangindent=\cslhangindent\oldpar}
+  \fi
+  % set entry spacing
+  \setlength{\parskip}{#2\cslentryspacingunit}
+ }%
+ {}
+\usepackage{calc}
+\newcommand{\CSLBlock}[1]{#1\hfill\break}
+\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{#1}}
+\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{#1}\break}
+\newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
 
 \usepackage{booktabs}
 \usepackage{longtable}
@@ -195,7 +218,7 @@
 
 \begin{document}
 \maketitle
-\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[interior hidden, borderline west={3pt}{0pt}{shadecolor}, frame hidden, breakable, enhanced, sharp corners, boxrule=0pt]}{\end{tcolorbox}}\fi
+\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[borderline west={3pt}{0pt}{shadecolor}, breakable, frame hidden, interior hidden, enhanced, boxrule=0pt, sharp corners]}{\end{tcolorbox}}\fi
 
 \renewcommand*\contentsname{Table of contents}
 {
@@ -914,15 +937,31 @@ Continent (Post-1920)}
 
 \end{figure}
 
+The Polity5 dataset, developed by the Center for Systemic Peace,
+provides measures of political regime characteristics and transitions
+for independent states worldwide from 1800 to 2018. The dataset covers
+all major independent countries with populations exceeding 500,000 (167
+countries as of 2018)
+(\protect\hyperlink{ref-noauthor_polityproject_nodate}{{``{PolityProject}''}
+n.d.}).
+
+The dataset's core measurement framework centers on three key dimensions
+of political authority: (1) executive recruitment (how leaders come to
+power), (2) executive constraints (limitations on executive power), and
+(3) political competition (the extent of political participation and
+opposition). These components are combined to create composite democracy
+(DEMOC) and autocracy (AUTOC) scores, each ranging from 0 to 10, which
+can be further combined into the POLITY score ranging from -10 (full
+autocracy) to +10 (full democracy)
+(\protect\hyperlink{ref-noauthor_polityproject_nodate}{{``{PolityProject}''}
+n.d.}).
+
 Coverage: 160+ countries, typically from 1800--2023
 
 Main variable: polity2, a composite score ranging from --10 (full
 autocracy) to +10 (full democracy) threshold for polity2 : polity2
 \textgreater= +6 is determined as Democratization, polity2 \textless{}
 +6 Autocratization
-
-Tracks regime changes, authority characteristics and durability of
-political institutions
 
 \begin{table}
 
@@ -958,8 +997,9 @@ FE: birth\_year & X & X\\
 Compare to the LDE model and regime based model , in Polity-based model,
 formative regime change has strongly negative effect on altuism.
 
-\#\#\#hetero models comparision Combined: autocratization and
-democratization
+\hypertarget{hetero-models-comparision-combined-autocratization-and-democratization-1}{%
+\subsubsection{Hetero models comparision Combined: autocratization and
+democratization}\label{hetero-models-comparision-combined-autocratization-and-democratization-1}}
 
 \begin{table}
 
@@ -1369,6 +1409,14 @@ But in all 3 different data based models, we can see that Log of Average
 GDP per Capita has strongly positive effect on Patience. This
 coefficient from Polity based model is way more than rest 2 different
 data based models.
+
+\hypertarget{refs}{}
+\begin{CSLReferences}{1}{0}
+\leavevmode\vadjust pre{\hypertarget{ref-noauthor_polityproject_nodate}{}}%
+{``{PolityProject}.''} n.d. Accessed June 20, 2025.
+\url{https://www.systemicpeace.org/polityproject.html}.
+
+\end{CSLReferences}
 
 
 
