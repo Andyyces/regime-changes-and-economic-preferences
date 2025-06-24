@@ -50,5 +50,7 @@ gdp_data <- get_dataframe_by_id(
 )
 
 
-p5 <- read_excel(here("Input", "p5v2018.xls"))
+#Readding file from URL
+polity_url <- "http://www.systemicpeace.org/inscr/p4v2015.sav"
+p5 <- read_sav(polity_url)
 
