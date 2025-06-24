@@ -6,32 +6,38 @@
 
 ##### Starting date: 14.04.2025
 
-In this project, we are analyzing the relationship between economic preferences and regime changes in global context. We'll use TWFE to examine whether regime changes have a causal effect on varying level of economic preferences. We also capture the direction of change (autocratization or democratization) and differentiate between those in our analysis.
+This project investigates the relationship between economic preferences and regime changes in a global context. We employ Two-Way Fixed Effects (TWFE) regression to examine whether regime changes have a causal impact on various economic preferences. Our analysis distinguishes between the direction of change (autocratization versus democratization) to capture differential effects.
 
 ## Data sources
 
-This project build on two data sets: [V-Dem dataset](https://v-dem.net/data/the-v-dem-dataset/) and [Global Preference Survey](https://gps.iza.org/home). From the V-Dem Dataset, we work mainly with the aggregated data on country level: **Liberal Democracy index**. [Here](https://v-dem.net/documents/57/structureofaggregation.pdf) you can see the structure of aggregation. The GDP data is taken from the [Maddison Project Database](https://www.rug.nl/ggdc/historicaldevelopment/maddison/releases/maddison-project-database-2023).
+This project utilizes two primary datasets: [V-Dem dataset](https://v-dem.net/data/the-v-dem-dataset/) and [Global Preference Survey](https://gps.iza.org/home). From the V-Dem Dataset. We derive treatment indicators from changes in the V-Dem **Liberal Democracy index** at the country level. [Here](https://v-dem.net/documents/57/structureofaggregation.pdf) you can see the structure of aggregation. The GDP data comes from the [Maddison Project D](https://www.rug.nl/ggdc/historicaldevelopment/maddison/releases/maddison-project-database-2023)
 
-For the robustness check, we test the same methods on two different country-level datasets:
+For robustness checks, we validate our methodology using two alternative country-level datasets for treatment calculation:
 
 -   [Polity 5: Regime Authority Characteristics and Transition Datasets](https://www.systemicpeace.org/inscrdata.html)
 
 -   [V-Dem dataset](https://v-dem.net/data/the-v-dem-dataset/): **Regimes of the World Index**
 
-### How to run ?
+## Running the analysis
 
-1)  Before running any part of the project, restore the R package environment using `renv`.
+1.  First, restore the R package environment using `renv`:
 
 `if (!require("renv")) install.packages("renv") renv::restore()`
 
-All analysis and most scripts depend on the cleaned data created in the wrangling step. So that is why you should run first `"R/Data_wragling.Rmd"`. There is also "`R/Script"` folder that contains codes used in `"Data_wragling.Rmd"`, so these codes automatically run when you run `"Data_wragling.Rmd"`.
+2.  The empirical analysis requires cleaned data generated in the data wrangling step. Therefore, begin by running `/R/Data_wragling.Rmd`. Each code chunk in this file sources a corresponding script from the `/R/Script` folder. Running the code chunks in `/R/Data_wragling.Rmd` executes the code sequentially.
 
-2.  There are files in `/Milestones` folder that consist of milestones reports.
+```         
+After processing, `/R/Data_wragling.Rmd` saves the cleaned datasets as RDS files in the `/Input/clean` folder.
+```
 
-3.  After successful data wrangling, you can render each milestone report from the `/Milestones` folder using:
+3.  `/R/Regression.qmd` contains empirical strategies and analyses. Output from these regressions is saved in the `/Output` folder.
 
-`quarto::render("Milestones/Milestone-2-Data.qmd") quarto::render("Milestones/Milestone-3_Econometrich-Approach.qmd") quarto::render("Milestones/Milestone-4_Results.qmd") quarto::render("Milestones/Milestone-5_Robustness.qmd")`
+4.  The `R/Robustness_check.qmd` produces additional statistical diagnostics related to treatment/control group comparison and validity assessments. Our robustness checks apply the same methodology to different country-level datasets: `/R/Polity results.qmd` analyzes the Polity 5 dataset, while `/R/Regime based results.qmd` examines the Regimes of the World Index from V-Dem.
 
-4.  The `/R/Regression.qmd` consist of empirical strategies that were used in our analysis. The output of these regressions is located in `/Output` folder.
+5.  `R/Visualizations.qmd` generates country-level visualizations of regime changes across all three datasets: V-Dem Liberal Democracy Index, V-Dem Regimes of the World Index and Polity5. Outputs are saved in the `/Output` folder.
 
-5.  Optional: `R/Visualizations.qmd` and `R/Robustness_check.qmd`, these generate exploratory plots and additional statistical diagnostics related to treatment/control group comparison and validity checks.
+## Report Rendering
+
+The `/Milestones` folder contains both source (.qmd) and rendered PDF files of project milestone reports. After successfuly completing all analyses as described above, each milestone report from the `/Milestones` can be rendered using:
+
+`quarto::render("Milestones/Milestone-2-Data.qmd")``quarto::render("Milestones/Milestone-2-Data.qmd")quarto::render("Milestones/Milestone-3_Econometrich-Approach.qmd")quarto::render("Milestones/Milestone-4_Results.qmd")quarto::render("Milestones/Milestone-5_Robustness.qmd")`
