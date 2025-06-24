@@ -3,3 +3,7 @@
 .RData
 .Ruserdata
 Visualizations
+Output/Models/polity results/*.rds
+Output/figures/*.rds
+Output/Models/v2xregime results/*.rds
+Output/Robustness/*.rds
