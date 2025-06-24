@@ -13,14 +13,11 @@ p_load(haven,
        devtools,
        zoo,
        tidyverse,
-       dataverse)
-
-#install.packages("summarytools")
-#install.packages("devtools")
-#devtools::install_github("vdeminstitute/vdemdata")
-
+       dataverse,
+       devtools)
 
 # Downloading Vdem data 
+devtools::install_github("vdeminstitute/vdemdata")
 vdem <- vdemdata::vdem
 
 
