@@ -4,6 +4,8 @@ date: "2025-04-20"
 output: html_document 
 ---
 
+# Data loading
+
 ```{r Loading the Data}
 
 library(pacman)
@@ -27,24 +29,6 @@ source(here("R", "Script", "01_data_loading.R"))
 ```
 
 # Data wrangling
-
-Questions for meeting on 29.04. :
-
--   **How to decide on a threshold of assigning *generate_regime_change*?** So far, we have been working with liberal democracy index from V-Dem, but there are more options -\> should we aggregate them into one?
-
-    *answer whether its a sudden change or linear -\> which are better suited?*
-
-*Restrict just to one schock: autoritative -\> democratic*
-
--   **Separate model for each preference / try to combine them?** *check for literature- maybe choose 2 based on this, if we use all of them, Lessmann will ask about multiple hypotheses testing :)*
-
-*time, age, cohort fixed effects*
-
-*age/cohort effects could be problematic*
-
-*net out age effect from economic preferences -\>whats the effect of risk aversion? (next step)*
-
-*if not DiD: mean comparisons -\> give up on causal effects -\> more about living under regime than regime changes -\>already dome evidence on this*
 
 ```{r}
 source(here("R", "Script", "02_filtering.R"))
@@ -76,9 +60,9 @@ The approach above assigns following individuals to be part of the control group
 source(here("R", "Script", "05_exploring_both_groups.R"))
 ```
 
-## Calculating controls
+# Calculating controls
 
-The following code takes a bit longer to generate because of a nested loop structure. It calculates the following controls:
+The following code takes a bit longer to generate because of a necessary nested loop structure. It calculates the following controls:
 
 -   Average GDP in the country of residence during formative years of the individual (3-18 years)
 
@@ -100,7 +84,7 @@ The recession is calculated based on country-specific volatility
 source(here("R", "Script", "07_recession_dummy.R"))
 ```
 
-## Saving the datasets in RDS format for later use
+# Saving the datasets in RDS format
 
 ```{r}
 # Saving the final datasets in rds format
