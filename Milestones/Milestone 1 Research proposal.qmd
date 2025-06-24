@@ -1,5 +1,8 @@
 ---
 title: "Milestone 1"
+author: 
+  - "Andrea Češková"
+  - "Elvin Mammadov"
 format: 
   pdf:
     keep-tex: false
@@ -13,6 +16,8 @@ bibliography: references.bib
 ```{r}
 #| eval: false
 #| include: false
+#| message: false
+#| warning: false
 #  Load the function from extract_codes.R
 script_files <- list.files(
   path = here("R", "Script"),
@@ -26,13 +31,9 @@ walk(script_files, source)
 
 
 
-```{r}
+```{r include=FALSE}
 
-#| echo: false
-#| warning: false
-#| message: false
-#| fig-cap: "Liberal Democracy Index by Country (2018)"
-#| fig-align: center
+
 
 library(ggplot2)
 library(dplyr)
@@ -58,6 +59,12 @@ vdem_2018 <- vdem_data %>%
 # Merge with world map data
 world_data <- left_join(world, vdem_2018, by = "iso_a3")
 
+
+```
+
+
+
+```{r include=FALSE}
 # Plot the map
 world_map <- ggplot(data = world_data) +
   geom_sf(aes(fill = v2x_libdem), color = "gray30", size = 0.1) +
@@ -125,8 +132,8 @@ Then we established a democratic participation threshold by adding 18 years to e
 #| message: false
 #| warning: false
 
-
-df <- final_data_gdp  
+ df <- readRDS(here("Input" , "clean" , "final_data_gdp.rds"))
+df  
 
 # creating ages groups
 df <- df %>%
