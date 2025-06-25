@@ -11,3 +11,5 @@ Input/clean/*.rds
 Input/raw
 Milestones/map_Andrea.qmd
 Milestones/Table_Andrea.qmd
+Output/figures/*.pdf
+Output/figures/*.png
