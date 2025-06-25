@@ -29,6 +29,11 @@ final_data_gdp <- readRDS(here("Input", "clean", "final_data_gdp.rds"))
 final_data <- readRDS(here("Input", "clean", "final_data.rds"))
 final_data_clean <- readRDS(here("Input", "clean", "final_data_clean.rds"))
 country_summary <- readRDS(here("Input", "clean", "country_summary.rds"))
+
+# Creating a reproducible directory structure
+if (!dir.exists(here("Output","Robustness"))) {
+  dir.create(here("Output","Robustness"))
+}
 ```
 
 ```{r}
