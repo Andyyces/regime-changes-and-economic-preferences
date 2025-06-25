@@ -46,10 +46,10 @@ p_load(haven,
 
 Economic preferences: patience, risk taking, positive reciprocity, negative reciprocity, altruism, trust
 
-|                                   |                                                           |                           |                                |
-|:-------------------:|:-------------------:|---------------|---------------|
-|               V-Dem               |                 General Preference Survey                 | Polity V                  | V-Dem Regime of World          |
-|        Panel from 1789-now        |              Cross-section collected in 2012              | panel 1800--2023          | Panel from 1789-now            |
+|  |  |  |  |
+|:--:|:--:|----|----|
+| V-Dem | General Preference Survey | Polity V | V-Dem Regime of World |
+| Panel from 1789-now | Cross-section collected in 2012 | panel 1800--2023 | Panel from 1789-now |
 | Liberal Democracy Index ( 0 - 1 ) | 6 economic preferences, country, age, math skills, gender | Polity2 index \[-10: 10\] | categorical regime index (0-3) |
 
 -   Combination of both: approx 75.000 individuals from 1910-2012 from 76 countries
