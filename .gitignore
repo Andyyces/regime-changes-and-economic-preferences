@@ -8,3 +8,6 @@ Output/figures/*.rds
 Output/Models/v2xregime results/*.rds
 Output/Robustness/*.rds
 Input/clean/*.rds
+Input/raw
+Milestones/map_Andrea.qmd
+MilestonesTable_Andrea.qmd
