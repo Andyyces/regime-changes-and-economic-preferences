@@ -16,16 +16,17 @@ link-citations: true
 #| message: false
 #| warning: false
 #| include: false
-#  Load the function from extract_codes.R
-script_files <- list.files(
-  path = here("R", "Script"),
-  pattern = "\\.R$",
-  full.names = TRUE
-)
 
-# source everything with frequency
-walk(script_files, source)
-
+library(pacman)
+p_load(here,
+       dplyr,
+       ggplot2,
+       tidyr,
+       stringr,
+       haven)
+# Data
+final_data_gdp <- readRDS(here("Input", "clean", "final_data_gdp.rds"))
+final_data <- readRDS(here("Input", "clean", "final_data.rds"))
 
 ```
 
@@ -75,9 +76,11 @@ The following table @tbl-gps shows how were the economic preferences from the GP
 Economic preferences from the Global Preference Survey
 :::
 
-| Value | Measurement approach | Description | Scale (min -- max) |
-|----|----|----|----|
++--------------------------------------+------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------+
+| Value                                | Measurement approach                                                   | Description                                                                                                                                                                                | Scale (min -- max)                                                    |
++======================================+========================================================================+============================================================================================================================================================================================+=======================================================================+
 | Liberal democracy index (v2x_libdem) | Aggregation of **55 unique indicators** using Bayesian factor analysis | The indicators come from the Liberal Democracy index and Liberal component index. [Here](https://www.v-dem.net/documents/57/structureofaggregation.pdf) you can find the exact indicators. | **0**(least liberal democratic) **--** **1**(most liberal democratic) |
++--------------------------------------+------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------+
 
 ::: {#tbl-libdem .tbl-Liberal}
 Liberal democracy index information
