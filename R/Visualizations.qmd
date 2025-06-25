@@ -33,6 +33,11 @@ walk(script_files, source)
 
 ```{r continent level data preparation}
 country_data <- readRDS(here("Input", "clean", "country_data.rds"))
+
+# Creating a reproducible directory structure
+if (!dir.exists(here("Output","Robustness"))) {
+  dir.create(here("Output","Robustness"))
+}
 #Assigning each country to a continent
 country_continents <- data.frame(
   country_text_id = c(
