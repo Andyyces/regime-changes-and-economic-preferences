@@ -1,24 +1,56 @@
 ---
-author: Andrea Češková, Elvin Mammadov
-title: Regime Changes and Economic Preferences Global evidence
-subtitle: Empirical Research Task
-format:
-  tud-typst:
-    has_section_slides: false
-
+title: "Regime Changes and Economic Preferences: Global Evidence"
+subtitle: "Empirical Research Task"
+author:
+  - Andrea Češková
+  - Elvin Mammadov
+format: pdf
 bibliography: references.bib
 bibliographystyle: apa
 ---
 
-# Data 
+```{r}
+#| message: false
+#| warning: false
+#| include: false
+library(pacman)
+
+p_load(haven,
+       here,
+       stargazer,
+       summarytools,
+       readxl,
+       dplyr,
+       lubridate,
+       ggplot2,
+       vdemdata,
+       summarytools,
+       devtools,
+       zoo,
+       tidyverse,
+       fixest,
+       dplyr,
+       tidyr,
+       modelsummary,
+       tinytable,
+       here,
+       countrycode,
+       gt,
+       knitr,
+       kableExtra
+       )
+
+```
+
+# Data
 
 Economic preferences: patience, risk taking, positive reciprocity, negative reciprocity, altruism, trust
 
-|  |  |
-|:----------------------------------:|:----------------------------------:|
-| V-Dem | General Preference Survey |
-| Panel from 1789-now | Cross-section collected in 2012 |
-| Liberal Democracy Index ( 0 - 1 ) | 6 economic preferences, country, age, math skills, gender |
+|                                   |                                                           |                           |                                |
+|:-------------------:|:-------------------:|---------------|---------------|
+|               V-Dem               |                 General Preference Survey                 | Polity V                  | V-Dem Regime of World          |
+|        Panel from 1789-now        |              Cross-section collected in 2012              | panel 1800--2023          | Panel from 1789-now            |
+| Liberal Democracy Index ( 0 - 1 ) | 6 economic preferences, country, age, math skills, gender | Polity2 index \[-10: 10\] | categorical regime index (0-3) |
 
 -   Combination of both: approx 75.000 individuals from 1910-2012 from 76 countries
 
@@ -26,7 +58,19 @@ Economic preferences: patience, risk taking, positive reciprocity, negative reci
 
 ## Economic preferences
 
-Note: přidej všechny preferences, jak byly měřeny a scale
+The **General Preference Survey (GPS)** measures the following **economic preferences**:
+
+1.  **Patience** -- The extent to which individuals value future benefits over immediate rewards.
+
+2.  **Risk-taking** -- Willingness to engage in decisions involving uncertainty or risk.
+
+3.  **Positive reciprocity** -- The tendency to return a favor when treated kindly.
+
+4.  **Negative reciprocity** -- The inclination to punish or retaliate when treated unfairly.
+
+5.  **Altruism** -- Willingness to sacrifice personal gain for the benefit of others.
+
+6.  **Trust** -- General belief in the reliability or integrity of other people.
 
 # Setting
 
@@ -38,11 +82,26 @@ Note: přidej všechny preferences, jak byly měřeny a scale
         -   Was individual's age between 3-18 during this identified year -\> treated
 -   **New approach**: democratization / autocratization as a treatment
 
-Note: Přidej graf regime changes na urovni zemi
+```{r echo = FALSE}
+ LDI_regime_change_visualization <- readRDS(here("Output" ,"figures",  "LDI_regime_change_visualization.rds"))
+ 
+ plot(LDI_regime_change_visualization)
 
-## Control group 
 
-Note: přidej tabulku pocty pozorovani v jednotlivych skupinach + rozdeleni zemi
+
+```
+
+## Control group
+
+The approach above assigns following individuals to be part of the control group:
+
+-   **True controls:** Individuals from countries that never experienced any regime changes
+
+-   **Contaminated controls:** Individuals from countries that did experience regime changes, but these individuals happen to be outside of their formative years when it occured -\> problematic, because they might have indirect exposure effect, they still lived through regime changes as adults outside of formative years. The following part of the code removes these individuals from out dataset.
+
+```{r echo=FALSE}
+
+```
 
 # Econometric models
 
@@ -54,8 +113,7 @@ $$
 
 $$
 Y_{ict} = \alpha + \beta \cdot \text{Democratization}_{ic} + \gamma_c + \delta_t  + \varepsilon_{ict}
-$$
-Where:
+$$ Where:
 
 $Y_{ict}$: **Preference outcome** (trust, patience, etc.) for **individual** ( i ), **country** ( c ), **birth cohort** ( t )
 

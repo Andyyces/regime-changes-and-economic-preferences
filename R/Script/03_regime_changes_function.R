@@ -94,3 +94,4 @@ country_data_binary <- country_data %>%
     democratization = ifelse(treatment == 2, 1, 0),
     any_change = ifelse(treatment != 0, 1, 0)
   )
+saveRDS(country_data, file = here("Input", "clean", "country_data.rds"))
