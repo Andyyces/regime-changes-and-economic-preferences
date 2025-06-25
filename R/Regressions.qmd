@@ -105,6 +105,15 @@ for (pref in preference_vars) {
 }
 
 names(preference_models) <- model_names
+
+if (!dir.exists(here("Output"))) {
+  dir.create(here("Output"))
+}
+
+if (!dir.exists(here("Output","Models"))) {
+  dir.create(here("Output","Models"))
+}
+
 # saving the model as a list for the report
 saveRDS(preference_models, here("Output","Models", "regime_change_models.rds"))
 
