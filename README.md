@@ -22,13 +22,13 @@ For robustness checks, we validate our methodology using two alternative country
 
 1.  First, restore the R package environment using `renv`:
 
-`if (!require("renv")) install.packages("renv") renv::restore()`
+```         
+renv::restore()
+```
 
 2.  The empirical analysis requires cleaned data generated in the data wrangling step. Therefore, begin by running `/R/Data_wragling.Rmd`. Each code chunk in this file sources a corresponding script from the `/R/Script` folder. Running the code chunks in `/R/Data_wragling.Rmd` executes the code sequentially.
 
-```         
-After processing, `/R/Data_wragling.Rmd` saves the cleaned datasets as RDS files in the `/Input/clean` folder.
-```
+    After processing, `/R/Data_wragling.Rmd` saves the cleaned datasets as RDS files in the `/Input/clean` folder.
 
 3.  `/R/Regression.qmd` contains empirical strategies and analyses. Output from these regressions is saved in the `/Output` folder.
 
@@ -38,6 +38,4 @@ After processing, `/R/Data_wragling.Rmd` saves the cleaned datasets as RDS files
 
 ## Report Rendering
 
-The `/Milestones` folder contains both source (.qmd) and rendered PDF files of project milestone reports. After successfuly completing all analyses as described above, each milestone report from the `/Milestones` can be rendered using:
-
-`quarto::render("Milestones/Milestone-2-Data.qmd")``quarto::render("Milestones/Milestone-2-Data.qmd")quarto::render("Milestones/Milestone-3_Econometrich-Approach.qmd")quarto::render("Milestones/Milestone-4_Results.qmd")quarto::render("Milestones/Milestone-5_Robustness.qmd")`
+The `/Milestones` folder contains both source (.qmd) and rendered PDF files of the 5 project milestone reports. After successfuly completing all analyses as described above, each milestone report from the `/Milestones` can be rendered.
