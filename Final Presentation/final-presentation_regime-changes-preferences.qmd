@@ -138,3 +138,119 @@ $\beta$ : Causal effect of interest
 # Results
 
 # Robustness check
+
+```{r}
+#| message: false
+#| warning: false
+#| include: false
+
+# Define preference names for titles
+hetero_models_v2 <- readRDS(here("Output", "Models", "v2xregime results", "hetero_models_v2xregime.rds"))
+hetero_models_democ_v2 <- readRDS(here("Output", "Models", "v2xregime results", "hetero_models_democ_v2xregime.rds"))
+hetero_models_autoc_v2 <- readRDS(here("Output", "Models", "v2xregime results", "hetero_models_autoc_v2xregime.rds"))
+
+
+# LDE model
+lde_combined <- readRDS(here("Output", "Models", "hetero_models.rds"))
+lde_democ    <- readRDS(here("Output", "Models","hetero_models_democ.rds"))
+lde_autoc    <- readRDS(here("Output", "Models","hetero_models_autoc.rds"))
+preference_names <- c("Patience", "Risk taking", "Positive reciprocity", 
+                      "Negative reciprocity", "Altruism", "Trust")
+
+```
+
+
+
+
+
+
+
+
+
+```{r}
+#| message: false
+#| warning: false
+#| include: false
+
+
+# Preference üzrə cədvəl yaradan funksiya
+create_full_comparison_table <- function(i, preference_names,
+                                         regime_combined, regime_democ, regime_autoc,
+                                         lde_combined, lde_democ, lde_autoc) {
+  
+  msummary(
+    list(
+      "Regime: Combined" = regime_combined[[i]],
+      "Regime: Democratization" = regime_democ[[i]],
+      "Regime: Autocratization" = regime_autoc[[i]],
+      "LDE: Combined" = lde_combined[[i]],
+      "LDE: Democratization" = lde_democ[[i]],
+      "LDE: Autocratization" = lde_autoc[[i]]
+    ),
+    stars = TRUE,
+    coef_rename = c(
+      "democratization" = "Democratization",
+      "autocratization" = "Autocratization"
+    ),
+    gof_omit = "AIC|BIC|RMSE",
+    statistic = "({std.error})",
+    output = "kableExtra",
+    fmt = 3,
+    title = preference_names[i],
+    notes = list(
+      "+ p < 0.1, * p < 0.05, ** p < 0.01, *** p < 0.001",
+      "Standard errors clustered at isocode (country) level. Fixed effects for region and birth year included."
+    )
+  ) %>%
+    kable_styling(
+      latex_options = c("scale_down", "striped"),
+      position = "center",
+      full_width = FALSE
+    ) %>%
+    add_header_above(c(" " = 1, "Model Comparison" = 6), bold = TRUE)
+}
+
+```
+
+
+```{r}
+#| label: tbl-preference-patience
+#| echo: false
+#| results: asis
+#| message: false
+#| warning: false
+
+create_full_comparison_table(
+  i = 1,
+  preference_names = preference_names,
+  regime_combined = hetero_models_v2,
+  regime_democ = hetero_models_democ_v2,
+  regime_autoc = hetero_models_autoc_v2,
+  lde_combined = lde_combined,
+  lde_democ = lde_democ,
+  lde_autoc = lde_autoc
+)
+```
+
+
+```{r}
+#| label: tbl-preference-risk
+#| echo: false
+#| results: asis
+#| message: false
+#| warning: false
+
+
+create_full_comparison_table(
+  i = 2,
+  preference_names = preference_names,
+  regime_combined = hetero_models_v2,
+  regime_democ = hetero_models_democ_v2,
+  regime_autoc = hetero_models_autoc_v2,
+  lde_combined = lde_combined,
+  lde_democ = lde_democ,
+  lde_autoc = lde_autoc
+)
+
+```
+

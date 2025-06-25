@@ -1,0 +1,804 @@
+---
+title: "Regime Changes and Economic Preferences: Global Evidence"
+subtitle: "Milestone 5: Robustness"
+author: "Andrea Češková, Elvin Mammadov"
+format: 
+  pdf:
+    reference-location: document
+number-sections: true
+toc: true
+crossref:
+  fig-title: "Figure"
+  tbl-title: "Table"
+  eq-title: "Equation"
+  lot-title: "List of figures"
+bibliography: references.bib
+link-citations: true
+---
+
+```{r}
+#| message: false
+#| warning: false
+#| include: false
+library(pacman)
+
+p_load(haven,
+       here,
+       stargazer,
+       summarytools,
+       readxl,
+       dplyr,
+       lubridate,
+       ggplot2,
+       vdemdata,
+       summarytools,
+       devtools,
+       zoo,
+       tidyverse,
+       fixest,
+       dplyr,
+       tidyr,
+       modelsummary,
+       tinytable,
+       here,
+       countrycode,
+       gt,
+       knitr,
+       kableExtra
+       )
+```
+
+```{r}
+#| message: false
+#| warning: false
+#| include: false
+
+# Define preference names for titles
+hetero_models_v2 <- readRDS(here("Output", "Models", "v2xregime results", "hetero_models_v2xregime.rds"))
+hetero_models_democ_v2 <- readRDS(here("Output", "Models", "v2xregime results", "hetero_models_democ_v2xregime.rds"))
+hetero_models_autoc_v2 <- readRDS(here("Output", "Models", "v2xregime results", "hetero_models_autoc_v2xregime.rds"))
+
+
+# LDE model
+lde_combined <- readRDS(here("Output", "Models", "hetero_models.rds"))
+lde_democ    <- readRDS(here("Output", "Models","hetero_models_democ.rds"))
+lde_autoc    <- readRDS(here("Output", "Models","hetero_models_autoc.rds"))
+preference_names <- c("Patience", "Risk taking", "Positive reciprocity", 
+                      "Negative reciprocity", "Altruism", "Trust")
+
+```
+
+```{r}
+#| message: false
+#| warning: false
+#| include: false
+
+
+
+create_full_comparison_table <- function(i, preference_names,
+                                         regime_combined, regime_democ, regime_autoc,
+                                         lde_combined, lde_democ, lde_autoc) {
+  
+  msummary(
+    list(
+      "Regime: Combined" = regime_combined[[i]],
+      "Regime: Democratization" = regime_democ[[i]],
+      "Regime: Autocratization" = regime_autoc[[i]],
+      "LDE: Combined" = lde_combined[[i]],
+      "LDE: Democratization" = lde_democ[[i]],
+      "LDE: Autocratization" = lde_autoc[[i]]
+    ),
+    stars = TRUE,
+    coef_rename = c(
+      "democratization" = "Democratization",
+      "autocratization" = "Autocratization"
+    ),
+    gof_omit = "AIC|BIC|RMSE",
+    statistic = "({std.error})",
+    output = "kableExtra",
+    fmt = 3,
+    title = preference_names[i],
+    notes = list(
+      "+ p < 0.1, * p < 0.05, ** p < 0.01, *** p < 0.001",
+      "Standard errors clustered at isocode (country) level. Fixed effects for region and birth year included."
+    )
+  ) %>%
+    kable_styling(
+      latex_options = c("scale_down", "striped"),
+      position = "center",
+      full_width = FALSE
+    ) %>%
+    add_header_above(c(" " = 1, "Model Comparison" = 6), bold = TRUE)
+}
+
+```
+
+```{r}
+#| label: tbl-preference-patience
+#| echo: false
+#| results: asis
+#| message: false
+#| warning: false
+
+create_full_comparison_table(
+  i = 1,
+  preference_names = preference_names,
+  regime_combined = hetero_models_v2,
+  regime_democ = hetero_models_democ_v2,
+  regime_autoc = hetero_models_autoc_v2,
+  lde_combined = lde_combined,
+  lde_democ = lde_democ,
+  lde_autoc = lde_autoc
+)
+```
+
+```{r}
+#| label: tbl-preference-risk
+#| echo: false
+#| results: asis
+#| message: false
+#| warning: false
+
+create_full_comparison_table(
+  i = 2,
+  preference_names = preference_names,
+  regime_combined = hetero_models_v2,
+  regime_democ = hetero_models_democ_v2,
+  regime_autoc = hetero_models_autoc_v2,
+  lde_combined = lde_combined,
+  lde_democ = lde_democ,
+  lde_autoc = lde_autoc
+)
+```
+
+```{r}
+#| label: tbl-preference-pos-rec
+#| echo: false
+#| results: asis
+#| message: false
+#| warning: false
+
+create_full_comparison_table(
+  i = 3,
+  preference_names = preference_names,
+  regime_combined = hetero_models_v2,
+  regime_democ = hetero_models_democ_v2,
+  regime_autoc = hetero_models_autoc_v2,
+  lde_combined = lde_combined,
+  lde_democ = lde_democ,
+  lde_autoc = lde_autoc
+)
+```
+
+```{r}
+#| label: tbl-preference-neg-rec
+#| echo: false
+#| results: asis
+#| message: false
+#| warning: false
+
+create_full_comparison_table(
+  i = 4,
+  preference_names = preference_names,
+  regime_combined = hetero_models_v2,
+  regime_democ = hetero_models_democ_v2,
+  regime_autoc = hetero_models_autoc_v2,
+  lde_combined = lde_combined,
+  lde_democ = lde_democ,
+  lde_autoc = lde_autoc
+)
+```
+
+```{r}
+#| label: tbl-preference-Altruism
+#| echo: false
+#| results: asis
+#| message: false
+#| warning: false
+
+create_full_comparison_table(
+  i = 5,
+  preference_names = preference_names,
+  regime_combined = hetero_models_v2,
+  regime_democ = hetero_models_democ_v2,
+  regime_autoc = hetero_models_autoc_v2,
+  lde_combined = lde_combined,
+  lde_democ = lde_democ,
+  lde_autoc = lde_autoc
+)
+```
+
+```{r}
+#| label: tbl-preference-trust
+#| echo: false
+#| results: asis
+#| message: false
+#| warning: false
+
+create_full_comparison_table(
+  i = 6,
+  preference_names = preference_names,
+  regime_combined = hetero_models_v2,
+  regime_democ = hetero_models_democ_v2,
+  regime_autoc = hetero_models_autoc_v2,
+  lde_combined = lde_combined,
+  lde_democ = lde_democ,
+  lde_autoc = lde_autoc
+)
+```
+
+### Specification with Controls
+
+
+```{r}
+#| message: false
+#| warning: false
+#| include: false
+
+# Read models first
+hetero_models_controls_v2 <- readRDS(here("Output", "Models", "v2xregime results", "hetero_models_controls_v2xregime.rds"))
+hetero_models_democ_controls_v2 <- readRDS(here("Output", "Models", "v2xregime results", "hetero_models_democ_controls_v2xregime.rds"))
+hetero_models_autoc_controls_v2 <- readRDS(here("Output", "Models", "v2xregime results", "hetero_models_autoc_controls_v2xregime.rds"))
+
+
+
+
+# LDE-based model
+lde_controls_combined <- readRDS(here("Output", "Models","hetero_models_controls.rds"))
+lde_controls_democ    <- readRDS(here("Output", "Models","hetero_models_democ_controls.rds"))
+lde_controls_autoc    <- readRDS(here("Output", "Models","hetero_models_autoc_controls.rds"))
+```
+
+```{r}
+#| message: false
+#| warning: false
+#| include: false
+
+create_full_comparison_table_controls <- function(i, preference_names,
+                                                  regime_combined, regime_democ, regime_autoc,
+                                                  lde_combined, lde_democ, lde_autoc) {
+  
+  msummary(
+    list(
+      "Regime: Combined" = regime_combined[[i]],
+      "Regime: Democratization" = regime_democ[[i]],
+      "Regime: Autocratization" = regime_autoc[[i]],
+      "LDE: Combined" = lde_combined[[i]],
+      "LDE: Democratization" = lde_democ[[i]],
+      "LDE: Autocratization" = lde_autoc[[i]]
+    ),
+    stars = TRUE,
+    coef_rename = c(
+      "democratization" = "Democratization",
+      "autocratization" = "Autocratization",
+      "avg_gdppc_formative" = "Log of Average GDP per Capita during formative years",
+      "recession_formative" = "Recession experienced during formative years" ,
+      "avg_libdem_formative" = "Average LDI during formative years "
+    ),
+    gof_omit = "AIC|BIC|RMSE",
+    statistic = "({std.error})",
+    output = "kableExtra",
+    fmt = 3,
+    title = preference_names[i],
+    notes = list(
+      "+ p < 0.1, * p < 0.05, ** p < 0.01, *** p < 0.001",
+      "Standard errors clustered at isocode (country) level. Fixed effects for region and birth year included. Controls added."
+    )
+  ) %>%
+    kable_styling(
+      latex_options = c("scale_down", "striped"),
+      position = "center",
+      full_width = FALSE
+    ) %>%
+    add_header_above(c(" " = 1, "Model Comparison (with controls)" = 6), bold = TRUE)
+}
+
+```
+
+```{r}
+#| label: tbl-patience-controls
+#| echo: false
+#| results: asis
+#| warning: false
+#| message: false
+
+create_full_comparison_table_controls(
+  i = 1,
+  preference_names = preference_names,
+  regime_combined = hetero_models_controls_v2,
+  regime_democ = hetero_models_democ_controls_v2,
+  regime_autoc = hetero_models_autoc_controls_v2,
+  lde_combined = lde_controls_combined,
+  lde_democ = lde_controls_democ,
+  lde_autoc = lde_controls_autoc
+)
+
+```
+
+```{r}
+#| label: tbl-risk-controls
+#| echo: false
+#| results: asis
+#| warning: false
+#| message: false
+
+create_full_comparison_table_controls(
+  i = 2,
+  preference_names = preference_names,
+  regime_combined = hetero_models_controls_v2,
+  regime_democ = hetero_models_democ_controls_v2,
+  regime_autoc = hetero_models_autoc_controls_v2,
+  lde_combined = lde_controls_combined,
+  lde_democ = lde_controls_democ,
+  lde_autoc = lde_controls_autoc
+)
+
+```
+
+Autocratization has strongly negative effect on Risk Taking of individuals.
+
+
+```{r}
+#| label: tbl-pos-rec-controls
+#| echo: false
+#| results: asis
+#| warning: false
+#| message: false
+
+create_full_comparison_table_controls(
+  i = 3,
+  preference_names = preference_names,
+  regime_combined = hetero_models_controls_v2,
+  regime_democ = hetero_models_democ_controls_v2,
+  regime_autoc = hetero_models_autoc_controls_v2,
+  lde_combined = lde_controls_combined,
+  lde_democ = lde_controls_democ,
+  lde_autoc = lde_controls_autoc
+)
+
+```
+
+```{r}
+#| label: tbl-neg-rec-controls
+#| echo: false
+#| results: asis
+#| warning: false
+#| message: false
+
+create_full_comparison_table_controls(
+  i = 4,
+  preference_names = preference_names,
+  regime_combined = hetero_models_controls_v2,
+  regime_democ = hetero_models_democ_controls_v2,
+  regime_autoc = hetero_models_autoc_controls_v2,
+  lde_combined = lde_controls_combined,
+  lde_democ = lde_controls_democ,
+  lde_autoc = lde_controls_autoc
+)
+
+```
+
+```{r}
+#| label: tbl-altruism-controls
+#| echo: false
+#| results: asis
+#| warning: false
+#| message: false
+
+create_full_comparison_table_controls(
+  i = 5,
+  preference_names = preference_names,
+  regime_combined = hetero_models_controls_v2,
+  regime_democ = hetero_models_democ_controls_v2,
+  regime_autoc = hetero_models_autoc_controls_v2,
+  lde_combined = lde_controls_combined,
+  lde_democ = lde_controls_democ,
+  lde_autoc = lde_controls_autoc
+)
+
+```
+
+```{r}
+#| label: tbl-trust-controls
+#| echo: false
+#| results: asis
+#| warning: false
+#| message: false
+
+create_full_comparison_table_controls(
+  i = 6,
+  preference_names = preference_names,
+  regime_combined = hetero_models_controls_v2,
+  regime_democ = hetero_models_democ_controls_v2,
+  regime_autoc = hetero_models_autoc_controls_v2,
+  lde_combined = lde_controls_combined,
+  lde_democ = lde_controls_democ,
+  lde_autoc = lde_controls_autoc
+)
+
+```
+
+Patience is positively and strongly associated with the log of average GDP per capita during formative years across all models. This suggests that individuals who grew up in wealthier economic environments tend to be more patient. Risk taking significantly decreases following autocratization in regime-based models. Negative reciprocity significantly declines after autocratization in regime models , indicating that such political transitions may suppress retaliatory economic behaviors. Trust decreases substantially in response to autocratization in regime-based models, highlighting a strong erosion of interpersonal or institutional trust in individuals exposed to such regime shifts.
+
+
+## Polity5 dataset
+
+The Polity5 dataset, developed by the Center for Systemic Peace, provides measures of political regime characteristics and transitions for independent states worldwide from 1800 to 2018. The dataset covers all major independent countries with populations exceeding 500,000 (167 countries as of 2018) [@noauthor_polityproject_nodate].
+
+The dataset's core measurement framework centers on three key dimensions of political authority: (1) executive recruitment (how leaders come to power), (2) executive constraints (limitations on executive power), and (3) political competition (the extent of political participation and opposition). These components are combined to create c**omposite democracy (DEMOC)** and **autocracy (AUTOC)** scores, each ranging from 0 to 10, which can be further combined into the **POLITY score ranging from -10 (full autocracy) to +10 (full democracy)** [@noauthor_polityproject_nodate].
+
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+#| fig-width: 16
+#| fig-height: 12
+#| fig-cap: "Polity5: Regime Changes by Country and Continent (Post-1920)"
+#| label: fig-regime-changes-polity
+
+all_countries_plot_polity
+```
+
+```{r}
+#| message: false
+#| warning: false
+#| include: false
+
+# Load models from the "polity results" folder
+hetero_models_polity <- readRDS(here("Output", "Models", "polity results", "hetero_models_polity.rds"))
+hetero_models_democ_polity <- readRDS(here("Output", "Models", "polity results", "hetero_models_democ_polity.rds"))
+hetero_models_autoc_polity <- readRDS(here("Output", "Models", "polity results", "hetero_models_autoc_polity.rds"))
+
+```
+
+```{r}
+#| message: false
+#| warning: false
+#| include: false
+
+create_polity_lde_comparison_table <- function(i, preference_names,
+                                               regime_combined, regime_democ, regime_autoc,
+                                               lde_combined, lde_democ, lde_autoc) {
+  
+  msummary(
+    list(
+      "Regime: Combined" = regime_combined[[i]],
+      "Regime: Democratization" = regime_democ[[i]],
+      "Regime: Autocratization" = regime_autoc[[i]],
+      "LDE: Combined" = lde_combined[[i]],
+      "LDE: Democratization" = lde_democ[[i]],
+      "LDE: Autocratization" = lde_autoc[[i]]
+    ),
+    stars = TRUE,
+    coef_rename = c(
+      "democratization" = "Democratization",
+      "autocratization" = "Autocratization"
+    ),
+    gof_omit = "AIC|BIC|RMSE",
+    statistic = "({std.error})",
+    output = "kableExtra",
+    fmt = 3,
+    title = preference_names[i],
+    notes = list(
+      "+ p < 0.1, * p < 0.05, ** p < 0.01, *** p < 0.001",
+      "Standard errors clustered at isocode (country) level. Fixed effects for region and birth year included."
+    )
+  ) %>%
+    kable_styling(
+      latex_options = c("scale_down", "striped"),
+      position = "center",
+      full_width = FALSE
+    ) %>%
+    add_header_above(c(" " = 1, "Polity vs. LDE Model Comparison" = 6), bold = TRUE)
+}
+
+
+```
+
+```{r}
+#| label: tbl-polity-patience
+#| echo: false
+#| results: asis
+#| warning: false
+#| message: false
+
+create_polity_lde_comparison_table(
+  i = 1,
+  preference_names = preference_names,
+  regime_combined = hetero_models_polity,
+  regime_democ = hetero_models_democ_polity,
+  regime_autoc = hetero_models_autoc_polity,
+  lde_combined = lde_combined,
+  lde_democ = lde_democ,
+  lde_autoc = lde_autoc
+)
+
+```
+
+```{r}
+#| label: tbl-polity-risk
+#| echo: false
+#| results: asis
+#| warning: false
+#| message: false
+
+create_polity_lde_comparison_table(
+  i = 2,
+  preference_names = preference_names,
+  regime_combined = hetero_models_polity,
+  regime_democ = hetero_models_democ_polity,
+  regime_autoc = hetero_models_autoc_polity,
+  lde_combined = lde_combined,
+  lde_democ = lde_democ,
+  lde_autoc = lde_autoc
+)
+
+```
+
+```{r}
+#| label: tbl-polity-pos-rec
+#| echo: false
+#| results: asis
+#| warning: false
+#| message: false
+
+create_polity_lde_comparison_table(
+  i = 3,
+  preference_names = preference_names,
+  regime_combined = hetero_models_polity,
+  regime_democ = hetero_models_democ_polity,
+  regime_autoc = hetero_models_autoc_polity,
+  lde_combined = lde_combined,
+  lde_democ = lde_democ,
+  lde_autoc = lde_autoc
+)
+
+```
+
+```{r}
+#| label: tbl-polity-neg-rec
+#| echo: false
+#| results: asis
+#| warning: false
+#| message: false
+
+create_polity_lde_comparison_table(
+  i = 4,
+  preference_names = preference_names,
+  regime_combined = hetero_models_polity,
+  regime_democ = hetero_models_democ_polity,
+  regime_autoc = hetero_models_autoc_polity,
+  lde_combined = lde_combined,
+  lde_democ = lde_democ,
+  lde_autoc = lde_autoc
+)
+
+```
+
+```{r}
+#| label: tbl-polity-altruism
+#| echo: false
+#| results: asis
+#| warning: false
+#| message: false
+
+create_polity_lde_comparison_table(
+  i = 5,
+  preference_names = preference_names,
+  regime_combined = hetero_models_polity,
+  regime_democ = hetero_models_democ_polity,
+  regime_autoc = hetero_models_autoc_polity,
+  lde_combined = lde_combined,
+  lde_democ = lde_democ,
+  lde_autoc = lde_autoc
+)
+
+```
+
+```{r}
+#| label: tbl-polity-trust
+#| echo: false
+#| results: asis
+#| warning: false
+#| message: false
+
+create_polity_lde_comparison_table(
+  i = 6,
+  preference_names = preference_names,
+  regime_combined = hetero_models_polity,
+  regime_democ = hetero_models_democ_polity,
+  regime_autoc = hetero_models_autoc_polity,
+  lde_combined = lde_combined,
+  lde_democ = lde_democ,
+  lde_autoc = lde_autoc
+)
+
+```
+
+
+### Specification with Controls
+
+
+
+
+```{r}
+# Read polity-based models with controls
+hetero_models_controls_polity <- readRDS(here("Output", "Models", "polity results", "hetero_models_controls_polity.rds"))
+hetero_models_democ_controls_polity <- readRDS(here("Output", "Models", "polity results", "hetero_models_democ_controls_polity.rds"))
+hetero_models_autoc_controls_polity <- readRDS(here("Output", "Models", "polity results", "hetero_models_autoc_controls_polity.rds"))
+
+```
+
+```{r}
+#| message: false
+#| warning: false
+#| include: false
+
+create_polity_lde_controls_table <- function(i, preference_names,
+                                             regime_combined, regime_democ, regime_autoc,
+                                             lde_combined, lde_democ, lde_autoc) {
+  
+  msummary(
+    list(
+      "Regime: Combined" = regime_combined[[i]],
+      "Regime: Democratization" = regime_democ[[i]],
+      "Regime: Autocratization" = regime_autoc[[i]],
+      "LDE: Combined" = lde_combined[[i]],
+      "LDE: Democratization" = lde_democ[[i]],
+      "LDE: Autocratization" = lde_autoc[[i]]
+    ),
+    stars = TRUE,
+    coef_rename = c(
+      "democratization" = "Democratization",
+      "autocratization" = "Autocratization",
+      "avg_gdppc_formative" = "Log of Average GDP per Capita during formative years",
+      "recession_formative" = "Recession experienced during formative years",
+       "avg_libdem_formative" = "Average LDI during formative years ", 
+      "avg_polity2_formative" = "Average polity index during formative years"	
+    ),
+    gof_omit = "AIC|BIC|RMSE",
+    statistic = "({std.error})",
+    output = "kableExtra",
+    fmt = 3,
+    title = preference_names[i],
+    notes = list(
+      "+ p < 0.1, * p < 0.05, ** p < 0.01, *** p < 0.001",
+      "Standard errors clustered at isocode (country) level. Fixed effects and controls included."
+    )
+  ) %>%
+    kable_styling(
+      latex_options = c("scale_down", "striped"),
+      position = "center",
+      full_width = FALSE
+    ) %>%
+    add_header_above(c(" " = 1, "Polity + LDE Comparison (with Controls)" = 6), bold = TRUE)
+}
+
+```
+
+```{r}
+#| label: tbl-patience-polity-controls
+#| echo: false
+#| results: asis
+#| warning: false
+#| message: false
+
+create_polity_lde_controls_table(
+  i = 1,
+  preference_names = preference_names,
+  regime_combined = hetero_models_controls_polity,
+  regime_democ = hetero_models_democ_controls_polity,
+  regime_autoc = hetero_models_autoc_controls_polity,
+  lde_combined = lde_controls_combined,
+  lde_democ = lde_controls_democ,
+  lde_autoc = lde_controls_autoc
+)
+
+```
+
+```{r}
+#| label: tbl-risk-polity-controls
+#| echo: false
+#| results: asis
+#| warning: false
+#| message: false
+
+create_polity_lde_controls_table(
+  i = 2,
+  preference_names = preference_names,
+  regime_combined = hetero_models_controls_polity,
+  regime_democ = hetero_models_democ_controls_polity,
+  regime_autoc = hetero_models_autoc_controls_polity,
+  lde_combined = lde_controls_combined,
+  lde_democ = lde_controls_democ,
+  lde_autoc = lde_controls_autoc
+)
+
+```
+
+```{r}
+#| label: tbl-pos-rec-polity-controls
+#| echo: false
+#| results: asis
+#| warning: false
+#| message: false
+
+create_polity_lde_controls_table(
+  i = 3,
+  preference_names = preference_names,
+  regime_combined = hetero_models_controls_polity,
+  regime_democ = hetero_models_democ_controls_polity,
+  regime_autoc = hetero_models_autoc_controls_polity,
+  lde_combined = lde_controls_combined,
+  lde_democ = lde_controls_democ,
+  lde_autoc = lde_controls_autoc
+)
+
+```
+
+```{r}
+#| label: tbl-neg-rec-polity-controls
+#| echo: false
+#| results: asis
+#| warning: false
+#| message: false
+
+create_polity_lde_controls_table(
+  i = 4,
+  preference_names = preference_names,
+  regime_combined = hetero_models_controls_polity,
+  regime_democ = hetero_models_democ_controls_polity,
+  regime_autoc = hetero_models_autoc_controls_polity,
+  lde_combined = lde_controls_combined,
+  lde_democ = lde_controls_democ,
+  lde_autoc = lde_controls_autoc
+)
+
+```
+
+```{r}
+#| label: tbl-altruism-polity-controls
+#| echo: false
+#| results: asis
+#| warning: false
+#| message: false
+
+create_polity_lde_controls_table(
+  i = 5,
+  preference_names = preference_names,
+  regime_combined = hetero_models_controls_polity,
+  regime_democ = hetero_models_democ_controls_polity,
+  regime_autoc = hetero_models_autoc_controls_polity,
+  lde_combined = lde_controls_combined,
+  lde_democ = lde_controls_democ,
+  lde_autoc = lde_controls_autoc
+)
+
+```
+
+```{r}
+#| label: tbl-trust-polity-controls
+#| echo: false
+#| results: asis
+#| warning: false
+#| message: false
+
+create_polity_lde_controls_table(
+  i = 6,
+  preference_names = preference_names,
+  regime_combined = hetero_models_controls_polity,
+  regime_democ = hetero_models_democ_controls_polity,
+  regime_autoc = hetero_models_autoc_controls_polity,
+  lde_combined = lde_controls_combined,
+  lde_democ = lde_controls_democ,
+  lde_autoc = lde_controls_autoc
+)
+
+```
+
+
+
+But in all 3 different data based models, we can see that Log of Average GDP per Capita has strongly positive effect on Patience. This coefficient from Polity based model is way more than rest 2 different data based models
+# References
+
