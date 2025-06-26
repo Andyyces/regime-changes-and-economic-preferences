@@ -81,11 +81,11 @@ Economic preferences are formed during childhood + adolescence (Detlefsen et al.
 
 **Assumption**: the individual was also born in the same country
 
-| Group                        | Number of observations |
-|:-----------------------------|:-----------------------|
-| Treated: **Autocratization** | 4 949                  |
-| Treated: **Democratization** | 17 344                 |
-| No regime change experience  | 53 175                 |
+| Group                                   | Number of observations |
+|:----------------------------------------|:-----------------------|
+| Treated: **Autocratization**            | 4 949                  |
+| Treated: **Democratization**            | 17 344                 |
+| No regime change during formative years | 53 175                 |
 
 ## Control group
 
@@ -93,15 +93,15 @@ Economic preferences are formed during childhood + adolescence (Detlefsen et al.
 
 -   **Contaminated controls**: Individuals from countries that experienced a regime change, but these happen to be outside of their formative years period (3-18 years), **Removed from analysis**
 
-+--------------------------+-------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| Group                    | N                       | Countries                                                                                                                                                                                                                              |
-+:=========================+:=======================:+:=======================================================================================================================================================================================================================================+
-| Treated: Autocratization | 4 949                   | Turkey, France, Netherlands, Spain, Italy, Poland, Hungary, Czech Republic, Greece, Venezuela, Ghana, Uganda, Argentina, Austria, Chile, Estonia, Lithuania, Nicaragua, Peru, Suriname, Indonesia, Germany, India, Brazil, Philippines |
-+--------------------------+-------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| Treated: Democratization | 17 344                  | Turkey, France, Netherlands, Spain, Italy, Poland, Hungary, Czech Republic, Venezuela, Israel, Sri Lanka, Botswana, Georgia, Moldova, ...                                                                                              |
-+--------------------------+-------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| No regime change         | [**26876**]{.underline} | China, Kenya, Tanzania, Australia, Cambodia, Rwanda, Afghanistan, Kazakhstan, Ukraine, Colombia, Guatemala, United States, Morocco, Saudi Arabia, Jordan, Pakistan, Canada, ...                                                        |
-+--------------------------+-------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
++--------------------------+-------------------------+
+| Group                    | N                       |
++:=========================+:=======================:+
+| Treated: Autocratization | 4 949                   |
++--------------------------+-------------------------+
+| Treated: Democratization | 17 344                  |
++--------------------------+-------------------------+
+| No regime change         | [**26876**]{.underline} |
++--------------------------+-------------------------+
 
 ## 
 
@@ -159,6 +159,6 @@ $X_{ict}$ : Controls including: **Average V-Dem LDI during formative years (ages
 
 = 47% of individuals experienced a recession during their formative years
 
-# Results
+# 
 
-# Robustness check
+Thank you for your attention, now let's move to Results + Robustness checks (Elvin)
