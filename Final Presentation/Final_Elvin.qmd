@@ -3,21 +3,12 @@ title: "Final Presentation"
 author: "Elvin"
 format:
   pdf:
-    template: _extensions/sarahzeller/tud/front-matter.tex
-    mainfont: Helvetica
+    mainfont: "Helvetica"
     toc: true
     number-sections: true
-  beamer:
-    include-in-header:
-      - _extensions/sarahzeller/tud/front-matter.tex
-    section-titles: false
-    theme: Dresden
-    outertheme: miniframes
-  typst:
-    template-partials:
-      - _extensions/sarahzeller/tud/typst-template.typ
-      - _extensions/sarahzeller/tud/typst-show.typ
-bibliography: references.bib
+    include-in-header: _extensions/sarahzeller/tud/front-matter.tex
+
+
 ---
 
 
@@ -440,7 +431,7 @@ This specification shown in @tbl-hetautoc examines only the impact of autocratic
 ```{r}
 #| echo: false
 #| label: tbl-basemodel
-#| tbl-cap: "Base model specification: Combined"
+#| tbl-cap: "Specification with Controls"
 #| tbl-pos: "h"
 # Creating a function for heterogeneity models
 run_hetero_reg <- function(outcome_var, 
