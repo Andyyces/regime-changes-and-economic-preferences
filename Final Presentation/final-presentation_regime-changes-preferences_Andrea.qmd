@@ -5,79 +5,157 @@ subtitle: Empirical Research Task
 format:
   tud-typst:
     has_section_slides: false
-    mainfont: "Helvetica"
 
 bibliography: references.bib
 bibliographystyle: apa
 ---
 
-Research question: Is there a causal link between experiencing regime changes and different
+Research question:
+
+**Is there a causal link between experiencing regime changes and economic preferences?**
 
 # Data
 
-Economic preferences: patience, risk taking, positive reciprocity, negative reciprocity, altruism, trust
-
-|  |  |
-|:----------------------------------:|:----------------------------------:|
-| V-Dem | General Preference Survey |
-| Panel from 1789-now | Cross-section collected in 2012 |
++:---------------------------------:+:---------------------------------------------------------:+
+| V-Dem                             | General Preference Survey                                 |
++-----------------------------------+-----------------------------------------------------------+
+| Panel from 1789-now               | Cross-section collected in 2012                           |
++-----------------------------------+-----------------------------------------------------------+
 | Liberal Democracy Index ( 0 - 1 ) | 6 economic preferences, country, age, math skills, gender |
++-----------------------------------+-----------------------------------------------------------+
 
--   Combination of both: approx 75.000 individuals from 1910-2012 from 76 countries
+-   Combination of both: approx **75.000 individuals** from **1910-2012** from **76 countries**
 
 -   Economic preferences are formed during childhood + adolescence (Detlefsen et al., 2024)
 
+## Structure of aggregation: Liberal Democracy Index
+
+![](images/LDI_aggregation-04.png){fig-align="center"}
+
 ## Economic preferences
 
-Note: přidej všechny preferences, jak byly měřeny a scale
+From General Preference Survey (2012)
+
+Values for each preference derived from combination of responses to different survey measures
+
++:------------------------------------------------------------------+:------------------------------+:---------------------------------------------------------------------------------------------------------------------------------------------------+
+| **Patience**                                                      | **Risk Taking**               | **Positive Reciprocity**                                                                                                                           |
++-------------------------------------------------------------------+-------------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------+
+| hypothetical binary choice: immediate or delayed financial reward | Choices between fixed lottery | Imagine you got lost in an unfamiliar area - stranger offers to take them into their destination. How much eur to give stranger as a "thank you"\  |
+|                                                                   |                               | self assesment: how willing are you to return a favor?                                                                                             |
++-------------------------------------------------------------------+-------------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------+
+
++:-------------------------------------------------------------------------------------------------------------------------+:---------------------------------------------------------------------------------------+:------------------------------------------------------------------------+
+| **Negative Reciprocity**                                                                                                 | **Altruism**                                                                           | **Trust**                                                               |
++--------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------+-------------------------------------------------------------------------+
+| self assesment: how willing are you to take revenge if you are treated very unjustly, even if doing so comes at a cost?\ | how willing would you be to give to good causes without expecting anything in return?\ | Do you assume people have only the best intentions? (Likert scale 0-10) |
+| willingness to punish someone for unfair behavior\                                                                       | unexpectedly receiving 1000 euros: how much to donate?                                 |                                                                         |
+| prosocial punishment (similar concept to norm enforcement)                                                               |                                                                                        |                                                                         |
++--------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------+-------------------------------------------------------------------------+
 
 # Setting
 
 ## Treatment group
 
--   Initial approach: Regime change experienced between 3 -18 years old (democratization / autocratization)
-    -   Goal: identify whether an individual experienced a regime change during formative years (3-18)
-        -   According to Lührmann et al. (2020): Evaluating differences of the LDI index at time **t** and **t-10** -\> **confidence intervals** -\>**no overlap** between them **AND** absolute value of the change in LDI is \> 0.05 **=** identified as regime change
-        -   Was individual's age between 3-18 during this identified year -\> treated
--   **New approach**: democratization / autocratization as a treatment
+-   **Goal**: identify whether an individual experienced a regime change during formative years (3-18)
 
-Note: Přidej graf regime changes na urovni zemi
+    Methodology from Lührmann et al. (2020), we start on country level
+
+    1.   $\Delta\text{LDI} = \text{LDI}_t - \text{LDI}_{t-10}$
+    2.  $|\Delta\text{LDI}| > 0.2$
+    3.  Test for significant change:
+
+    $\text{CI}_t = [\text{LDI}_t - \text{ME}_t, \text{LDI}_t + \text{ME}_t]$\
+    $\text{CI}_{t-10} = [\text{LDI}_{t-10} - \text{ME}_{t-10}, \text{LDI}_{t-10} + \text{ME}_{t-10}]$
+
+    $\text{Significant if: } \text{CI}_t \cap \text{CI}_{t-10} = \emptyset$
+
+    ![](images/regimechanges_LDI.png)
+
+-   next step: **connect with individual level data (GPS survey)**
+
+    1.  Evaluate age of each individual at regime change periods
+    2.  If between "formative age" (3-18 years) : treated
+
+Economic preferences are formed during childhood + adolescence (Detlefsen et al., 2024)
+
+**Assumption**: the individual was also born in the same country
+
+| Group                        | Number of observations |
+|:-----------------------------|:-----------------------|
+| Treated: **Autocratization** | 4 949                  |
+| Treated: **Democratization** | 17 344                 |
+| No regime change experience  | 53 175                 |
 
 ## Control group
 
-Note: přidej tabulku pocty pozorovani v jednotlivych skupinach + rozdeleni zemi
+-   **True controls**: Individuals from countries that never experienced any regime changes
+
+-   **Contaminated controls**: Individuals from countries that experienced a regime change, but these happen to be outside of their formative years period (3-18 years), **Removed from analysis**
+
++--------------------------+--------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Group                    | N                        | Countries                                                                                                                                                                                                                              |
++:=========================+:========================:+:=======================================================================================================================================================================================================================================+
+| Treated: Autocratization | 4 949                    | Turkey, France, Netherlands, Spain, Italy, Poland, Hungary, Czech Republic, Greece, Venezuela, Ghana, Uganda, Argentina, Austria, Chile, Estonia, Lithuania, Nicaragua, Peru, Suriname, Indonesia, Germany, India, Brazil, Philippines |
++--------------------------+--------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Treated: Democratization | 17 344                   | Turkey, France, Netherlands, Spain, Italy, Poland, Hungary, Czech Republic, Romania, Sweden, Greece, Venezuela, Israel, Ghana, Malawi, Sri Lanka, Botswana, Georgia, Moldova, ...                                                      |
++--------------------------+--------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| No regime change         | [**17 344**]{.underline} | China, Kenya, Tanzania, Australia, Cambodia, Rwanda, Afghanistan, Kazakhstan, Ukraine, Cameroon, Zimbabwe, Colombia, Guatemala, United States, Morocco, Saudi Arabia, Jordan, Pakistan, Bangladesh, Iran, Canada,...                   |
++--------------------------+--------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+
+Why removing so many observations?
+
+Individuals might have indirect exposure effects to the regime changes, which could compromise the integrity of our study.
 
 # Econometric models
 
-## Baseline specification
+## Baseline specification: TWFE
+
+Errors clustered at country level
 
 $$
-Y_{ict} = \alpha + \beta \cdot \text{Autocratization}_{ic} + \gamma_c + \delta_t  + \varepsilon_{ict}
+Y_{irt} = \alpha + \beta \cdot \text{Autocratization}_{ir} + \gamma_r + \delta_t  + \varepsilon_{irt}
 $$
 
 $$
-Y_{ict} = \alpha + \beta \cdot \text{Democratization}_{ic} + \gamma_c + \delta_t  + \varepsilon_{ict}
-$$ Where:
+Y_{irt} = \alpha + \beta \cdot \text{Democratization}_{ir} + \gamma_r + \delta_t  + \varepsilon_{irt}
+$$
 
-$Y_{ict}$: **Preference outcome** (trust, patience, etc.) for **individual** ( i ), **country** ( c ), **birth cohort** ( t )
+$Y_{ict}$: **Preference outcome** for **individual** ( i ), **region** ( r ), **birth cohort** ( t )
 
-$\text{Autocratization}_{ic}$ or $\text{Democratization}_{ic}$ : Binary treatments indicator (1 if experienced democratization or autocratization during formative years, 0 otherwise)
+$\text{Autocratization}_{ir}$ or $\text{Democratization}_{ir}$ : Binary treatment indicator
 
-$\gamma_c$ : Country fixed effects
+$\gamma_r$ : Region fixed effects
 
 $\delta_t$ : Birth cohort fixed effects
 
-$X_{ict}$ : Controls including:
+## Specification with controls
 
-Average V-Dem LDI during formative years (ages 3-18)
+Goal: Exploit cross-sectional variation between individuals who experienced regime changes and those who didn't, within the same region and birth cohort, while controlling for observed characteristics
 
-Average GDP in formative years
+$$ 
+Y_{irt} = \alpha + \beta \cdot \text{Democratization}_{ir} + \gamma_r + \delta_t + X_{irt} \cdot \text{(Controls)} + \varepsilon_{irt} 
+$$
 
-Recession experience
+$$ 
+Y_{irt} = \alpha + \beta \cdot \text{Autocratization}_{ir} + \gamma_r + \delta_t + X_{irt} \cdot \text{(Controls)} + \varepsilon_{irt} 
+$$
 
 $\beta$ : Causal effect of interest
 
--   Goal: Exploit cross-sectional variation between individuals who experienced regime changes and those who didn't, within the same country and birth cohort, while controlling for observed characteristics
+$X_{ict}$ : Controls including: **Average V-Dem LDI during formative years (ages 3-18)**
+
+**Log of average GDP per capita in formative years (ages 3-18)**
+
+**Recession in formative years (ages 3-18)**
+
+1.  Country specific recession threshold = Mean growth - (1,5 x standard deviation)
+
+2.  Recession: $\text{GDP growth}_{c,t} < (\mu_{\text{growth}_{c}} - 1.5 \times \sigma_{\text{growth}_{c}})$
+
+3.  1 if recession occured in formative years, 0 otherwise
+
+= 47% of individuals experienced a recession during their formative years
 
 # Results
 
