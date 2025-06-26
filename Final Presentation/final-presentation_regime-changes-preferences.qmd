@@ -46,10 +46,10 @@ p_load(haven,
 
 Economic preferences: patience, risk taking, positive reciprocity, negative reciprocity, altruism, trust
 
-|  |  |  |  |
-|:--:|:--:|----|----|
-| V-Dem | General Preference Survey | Polity V | V-Dem Regime of World |
-| Panel from 1789-now | Cross-section collected in 2012 | panel 1800--2023 | Panel from 1789-now |
+|                                   |                                                           |                           |                                |
+|:----------------:|:----------------:|------------------|------------------|
+|               V-Dem               |                 General Preference Survey                 | Polity V                  | V-Dem Regime of World          |
+|        Panel from 1789-now        |              Cross-section collected in 2012              | panel 1800--2023          | Panel from 1789-now            |
 | Liberal Democracy Index ( 0 - 1 ) | 6 economic preferences, country, age, math skills, gender | Polity2 index \[-10: 10\] | categorical regime index (0-3) |
 
 -   Combination of both: approx 75.000 individuals from 1910-2012 from 76 countries
@@ -137,7 +137,481 @@ $\beta$ : Causal effect of interest
 
 # Results
 
+```{r}
+#| include: false
+# reading the formatted data
+final_data_gdp <- readRDS(here("Input", "clean", "final_data_gdp.rds"))
+
+
+# Data
+final_data_gdp <- readRDS(here("Input", "clean", "final_data_gdp.rds"))
+
+# Models
+#regime_change model
+preference_models <- readRDS(here("Output", "Models", "regime_change_models.rds"))
+
+# Models without controls
+hetero_models <- readRDS(here("Output", "Models", "hetero_models.rds"))
+hetero_models_autoc <- readRDS(here("Output", "Models", "hetero_models_autoc.rds"))
+hetero_models_democ <- readRDS(here("Output", "Models", "hetero_models_democ.rds"))
+
+# Models with controls
+hetero_models_controls <- readRDS(here("Output", "Models", "hetero_models_controls.rds"))
+hetero_models_autoc_controls <- readRDS(here("Output", "Models", "hetero_models_autoc_controls.rds"))
+hetero_models_democ_controls <- readRDS(here("Output", "Models", "hetero_models_democ_controls.rds"))
+
+model_names <- c("Patience", "Risk taking", "Positive reciprocity", "Negative reciprocity", "Altruism", "Trust")
+
+# Regime change visualization
+regime_change_visualization <- readRDS(here("Output", "figures", "LDI_regime_change_visualization.rds"))
+```
+
+
+
+```{r}
+#| message: false
+#| warning: false
+#| include: false
+lde_combined <- readRDS(here("Output", "Models", "hetero_models.rds"))
+lde_democ    <- readRDS(here("Output", "Models","hetero_models_democ.rds"))
+lde_autoc    <- readRDS(here("Output", "Models","hetero_models_autoc.rds"))
+preference_names <- c("Patience", "Risk taking", "Positive reciprocity", 
+                      "Negative reciprocity", "Altruism", "Trust")
+regime_lde <- readRDS(here("Output", "Models", "regime_change_models.rds"))
+preference_names <- c("Patience", "Risk taking", "Positive reciprocity", 
+                      "Negative reciprocity", "Altruism", "Trust")
+```
+
+```{r}
+#| echo: false
+#| label: tbl-combinedeffects
+#| tbl-cap: "Combined Effects specification"
+#| tbl-pos: "h"
+
+# Creating custom function for two-way fixed effects models
+run_twfe_reg <- function(outcome_var,
+                         data = final_data_gdp,
+                         controls = c("avg_gdppc_formative", "avg_libdem_formative"),
+                         treatment = "formative_regime_change",
+                         fe = c("region", "birth_year"),
+                         cluster_var = "country") {
+  
+# Constructing formula with controls
+controls_formula <- paste(controls, collapse = " +")
+  
+# Creating the full formula with fixed effects
+formula_str <- paste(
+  outcome_var, "~", treatment, controls_formula, "|", 
+  paste(fe, collapse = " + ")
+  )
+  
+# Converting string to formula
+formula <- as.formula(formula_str)
+  
+# Running the model
+model <- feols(
+  formula,
+  data = data,
+  cluster = cluster_var
+  )
+  
+return(model)
+}
+
+preference_vars <- c("patience", "risktaking", "posrecip", "negrecip", "altruism", "trust")
+model_names <- c("Patience", "Risk taking", "Positive reciprocity", "Negative reciprocity", "Altruism", "Trust")
+
+
+# Applying run_twfe_reg to each preference variable and store in a list
+preference_models <- list()
+for (pref in preference_vars) {
+  preference_models[[pref]] <- run_twfe_reg(
+    outcome_var = pref,
+    data = final_data_gdp,
+    controls = NULL,
+    treatment = "formative_regime_change",
+    fe = c("region", "birth_year"),
+    cluster_var = "country"  # Using country as the cluster variable
+  )
+}
+
+names(preference_models) <- model_names
+
+# Creating a reproducible directory structure
+if (!dir.exists(here("Output"))) {
+  dir.create(here("Output"))
+}
+
+if (!dir.exists(here("Output","Models"))) {
+  dir.create(here("Output","Models"))
+}
+
+
+# Creating a model summary table using msummary
+msummary(
+  preference_models,
+  title = "Effect of Regime Change on Economic Preferences (Two-way Fixed Effects)",
+  stars = TRUE,
+  coef_rename = c(
+    "formative_regime_change" = "Regime Change Experience",
+    "avg_gdppc_formative" = "Log GDP per Capita (formative)",
+    "avg_libdem_formative" = "Avg. Liberal Democracy Index"
+  ),
+  notes = list(
+    "+ p < 0.1, * p < 0.05, ** p < 0.01, *** p < 0.001",
+    "Standard errors clustered at country level. Region and birth year fixed effects included."
+  ),
+  output = "kableExtra",
+  fmt = 3
+) %>%
+  kable_styling(
+    latex_options = c("scale_down", "striped"),
+    font_size = 7,
+    position = "center",
+    full_width = TRUE
+  ) %>%
+  add_header_above(c(" " = 1, "Preferences" = length(preference_models)), bold = TRUE)
+
+```
+
+In combined effect model in @tbl-combinedeffects ,we find that regime change exposure is significantly associated with increased patience and risk-taking. Specifically, individuals exposed to regime changes score on average $0.278$ units higher in patience and $0.298$ units higher in risk-taking, with both coefficients being statistically significant ($p < 0.001$ and $p < 0.05$, respectively). This suggests that early-life exposure to political instability may foster greater patience and will ingness to take risks. Exposure to regime change is also positively associated with negative reciprocity $𝛽 = 0.39$, $p < 0.001$), indicating that individuals who experienced political instability are more likely to respond punitively when treated unfairly. Finally, the coefficient on altruism is negative and marginally significant $𝛽 =-0.416$, $p < 0.1$), hinting at a potential decrease in other-regarding preferences among those exposed to regime change, though this result should be interpreted with caution due to its lower level of statistical confidence.
+
+# Base Specification with Heterogenous Effects
+
+The results are shown in @tbl-basemodel1. We present the estimated effects of democratization and autocratization experiences during formative years on individual-level economic preferences. Both types of regime change are included simultaneously in the same model to identify their distinct influences while controlling for region and birth-year fixed effects, with standard errors clustered at the country level.
+
+```{r}
+#| echo: false
+#| label: tbl-basemodel1
+#| tbl-cap: "Base model specification: Combined"
+#| tbl-pos: "h"
+# For heterogeneity models, we need to create democratization and autocratization 
+# variables
+# Using the existing formative_democratization and formative_autocratization columns
+final_data_gdp <- final_data_gdp %>%
+  mutate(
+    democratization = formative_democratization,
+    autocratization = formative_autocratization
+  )
+
+# Creating a function for heterogeneity models
+run_hetero_reg <- function(outcome_var,
+                          data = final_data_gdp,
+                          controls = c("avg_gdppc_formative",
+                          "avg_libdem_formative",
+                          "recession_formative"),
+                          fe = c("region", "birth_year"),
+                          cluster_var = "country") {
+  
+  # Constructing formula with controls
+  controls_formula <- paste(controls, collapse = " + ")
+  
+  # Creating the full formula with fixed effects
+  formula_str <- paste(
+    outcome_var, "~ democratization + autocratization", controls_formula, "|",
+    paste(fe, collapse = " + ")
+  )
+  
+  # Converting string to formula
+  formula <- as.formula(formula_str)
+  
+  # Running the model
+  model <- feols(
+    formula,
+    data = data,
+    cluster = cluster_var
+  )
+  
+  return(model)
+}
+
+
+# Applying to each preference without controls
+hetero_models <- lapply(preference_vars, function(pref) {
+  run_hetero_reg(
+    outcome_var = pref,
+    data = final_data_gdp,
+    controls = NULL  # Without controls
+  )
+})
+names(hetero_models) <- model_names
+
+# saving the model as a list for the report
+
+# Checking the output without controls
+msummary(
+  hetero_models,
+  title = "Heterogeneity by Regime Change Direction (Two-way Fixed Effects) - No Controls",
+  stars = TRUE,
+  coef_rename = c(
+    "democratization" = "Democratization",
+    "autocratization" = "Autocratization"
+  ),
+  notes = "Standard errors clustered at country level. All models include region and birth year fixed effects.",
+  output = "kableExtra",
+  fmt = 3
+) %>%
+  kable_styling(
+    latex_options = c("scale_down", "striped"),
+    font_size = 7,
+    position = "center",
+    full_width = TRUE
+  ) %>%
+  add_header_above(c(" " = 1, "Preferences" = length(preference_models)), bold = TRUE)
+
+```
+
+In this specification shown in @tbl-hetdemoc, which examines only the effects of democratic transitions, the results reveal important differences from the combined model. Democratization maintains a positive and statistically significant effect on **patience** ($𝛽 = 0.056$), though the effect size is somewhat smaller than in the combined specification. This attenuation suggests that part of the effect in the combined model may have been amplified by the implicit contrast with autocratization.
+
+```{r}
+#| echo: false
+#| label: tbl-hetdemoc
+#| tbl-cap: "Base model specification: Democratization"
+#| tbl-pos: "h"
+# Creating a function for heterogeneity models
+run_democ_reg <- function(outcome_var,
+                          data = final_data_gdp,
+                          controls = c("avg_gdppc_formative",
+                          "avg_libdem_formative",
+                          "recession_formative"),
+                          fe = c("region", "birth_year"),
+                          cluster_var = "country") {
+  
+  # Constructing formula with controls
+  controls_formula <- paste(controls, collapse = " + ")
+  
+  # Creating the full formula with fixed effects
+  formula_str <- paste(
+    outcome_var, "~ democratization", controls_formula, "|",
+    paste(fe, collapse = " + ")
+  )
+  
+  # Converting string to formula
+  formula <- as.formula(formula_str)
+  
+  # Running the model
+  model <- feols(
+    formula,
+    data = data,
+    cluster = cluster_var
+  )
+  
+  return(model)
+}
+
+
+# Applying to each preference without controls
+hetero_models_democ <- lapply(preference_vars, function(pref) {
+  run_democ_reg(
+    outcome_var = pref,
+    data = final_data_gdp,
+    controls = NULL  # Without controls
+  )
+})
+names(hetero_models_democ) <- model_names
+
+# saving the model as a list for the report
+saveRDS(hetero_models_democ, here("Output","Models", "hetero_models_democ.rds"))
+
+# Checking the output without controls
+msummary(
+  hetero_models_democ,
+  title = "Heterogeneity by Regime Change Direction (Two-way Fixed Effects) - No Controls",
+  stars = TRUE,
+  coef_rename = c(
+    "democratization" = "Democratization"
+  ),
+  notes = "Standard errors clustered at country level. All models include region and birth year fixed effects.",
+   output = "kableExtra",
+  fmt = 3
+) %>%
+  kable_styling(
+    latex_options = c("scale_down", "striped"),
+    font_size = 7,
+    position = "center",
+    full_width = TRUE
+  ) %>%
+  add_header_above(c(" " = 1, "Preferences" = length(preference_models)), bold = TRUE)
+
+```
+```{r}
+#| message: false
+#| warning: false
+#| include: false
+
+# Read models first
+hetero_models_controls_v2 <- readRDS(here("Output", "Models", "v2xregime results", "hetero_models_controls_v2xregime.rds"))
+hetero_models_democ_controls_v2 <- readRDS(here("Output", "Models", "v2xregime results", "hetero_models_democ_controls_v2xregime.rds"))
+hetero_models_autoc_controls_v2 <- readRDS(here("Output", "Models", "v2xregime results", "hetero_models_autoc_controls_v2xregime.rds"))
+
+```
+
+## Autocratization
+
+```{r}
+#| echo: false
+#| label: tbl-hetautoc
+#| tbl-cap: "Base model specification: Autocratization"
+#| tbl-pos: "h"
+run_autoc_reg <- function(outcome_var,
+                          data = final_data_gdp,
+                          controls = c("avg_gdppc_formative",
+                          "avg_libdem_formative",
+                          "recession_formative"),
+                          fe = c("region", "birth_year"),
+                          cluster_var = "country") {
+  
+  # Constructing formula with controls
+  controls_formula <- paste(controls, collapse = " + ")
+  
+  # Creating the full formula with fixed effects
+  formula_str <- paste(
+    outcome_var, "~ autocratization", controls_formula, "|",
+    paste(fe, collapse = " + ")
+  )
+  
+  # Converting string to formula
+  formula <- as.formula(formula_str)
+  
+  # Running the model
+  model <- feols(
+    formula,
+    data = data,
+    cluster = cluster_var
+  )
+  
+  return(model)
+}
+
+
+# Applying to each preference without controls
+hetero_models_autoc <- lapply(preference_vars, function(pref) {
+  run_autoc_reg(
+    outcome_var = pref,
+    data = final_data_gdp,
+    controls = NULL  # Without controls
+  )
+})
+names(hetero_models_autoc) <- model_names
+
+# saving the model as a list for the report
+
+# Checking the output without controls
+msummary(
+  hetero_models_autoc,
+  title = "Heterogeneity by Regime Change Direction (Two-way Fixed Effects) - No Controls",
+  stars = TRUE,
+  coef_rename = c(
+    "autocratization" = "Autocratization"
+  ),
+  notes = "Standard errors clustered at country level. All models include region and birth year fixed effects.",
+   output = "kableExtra",
+  fmt = 3
+) %>%
+  kable_styling(
+    latex_options = c("scale_down", "striped"),
+    font_size = 7,
+    position = "center",
+    full_width = TRUE
+  ) %>%
+  add_header_above(c(" " = 1, "Preferences" = length(preference_models)), bold = TRUE)
+
+```
+
+This specification shown in @tbl-hetautoc examines only the impact of autocratic transitions on economic preferences during the formative period. Compared with previous models, the results show that the effects of autocratization are **weak and statistically insignificant** when examined in isolation from democratization.
+
+# Specification with Controls
+
+```{r}
+#| echo: false
+#| label: tbl-basemodel
+#| tbl-cap: "Base model specification: Combined"
+#| tbl-pos: "h"
+# Creating a function for heterogeneity models
+run_hetero_reg <- function(outcome_var, 
+                          data = final_data_gdp, 
+                          controls = c("avg_gdppc_formative", "avg_libdem_formative", "recession_formative"),
+                          fe = c("region", "birth_year"),
+                          cluster_var = "country") {
+  
+  # Constructing formula with controls
+  controls_formula <- paste(controls, collapse = " + ")
+  
+  # Creating the full formula with fixed effects
+  formula_str <- paste(
+    outcome_var, "~ democratization + autocratization +", controls_formula, "|", 
+    paste(fe, collapse = " + ")
+  )
+  
+ # Converting string to formula
+  formula <- as.formula(formula_str)
+  
+  # Running the model
+  model <- feols(
+    formula,
+    data = data,
+    cluster = cluster_var
+  )
+  
+  return(model)
+}
+
+# Applying to each preference
+hetero_models_controls <- lapply(preference_vars, function(pref) {
+  run_hetero_reg(
+    outcome_var = pref,
+    data = final_data_gdp
+  )
+})
+names(hetero_models_controls) <- model_names
+
+# saving the model as a list for the report
+
+
+# checking the output
+msummary(
+  hetero_models_controls,
+  title = "Heterogeneity by Regime Change Direction (Two-way Fixed Effects)",
+  stars = TRUE,
+  coef_rename = c(
+    "democratization" = "Democratization",
+    "autocratization" = "Autocratization",
+    "avg_gdppc_formative" = "Log of Average GDP per Capita during formative years",
+    "avg_libdem_formative" = "Average LDI during formative years",
+    "recession_formative" = "Recession experienced during formative years"
+  ),
+  notes = "Standard errors clustered at country level. All models include region and birth year fixed effects.",
+ output = "kableExtra",
+  fmt = 3
+) %>%
+  kable_styling(
+    latex_options = c("scale_down", "striped"),
+    font_size = 7,
+    position = "center",
+    full_width = TRUE
+  ) %>%
+  add_header_above(c(" " = 1, "Preferences" = length(preference_models)), bold = TRUE)
+
+```
+
+The model specification presented in this section takes into account a number of important control variables in order to more accurately assess the impact of regime change during the formative period on individual economic preferences. The control variables capture three distinct theoretical channels that could influence preference formation independently of regime changes:
+
+-   The **logarithm of the average GDP per capita during the formative period** -- proxies for the general level of economic development and material conditions that shape individuals' economic opportunities and constraints;
+
+-   The **average Liberal Democracy Index (LDI) during the formative period** -- captures the baseline institutional environment, distinguishing between the level of democratic quality and changes in that quality;
+
+-   The **experience of economic crisis during the formation period (recession dummy)** -- account for economic volatility that often accompanies but is conceptually distinct from political transitions.
+
 # Robustness check
+
+```{r}
+#| include: false
+sample_composition <- readRDS(here("Output", "Tables", "sample_composition.rds"))
+  clustering_results <- readRDS(here("Output", "Robustness", "clustering_results.rds"))
+country_summary <- readRDS(here("Input", "clean", "country_summary.rds"))
+
+
+```
 
 ```{r}
 #| message: false
@@ -159,10 +633,191 @@ preference_names <- c("Patience", "Risk taking", "Positive reciprocity",
 
 ```
 
+```{r}
+#| message: false
+#| warning: false
+#| include: false
+demo_summary <- clustering_results$demo_summary
+auto_summary <- clustering_results$auto_summary
+```
+
+## Sample composition
+
+Our final analytical sample consists of `r sum(sample_composition$n)` individuals across three groups:
+
+```{r}
+#| echo: false
+#| label: tbl-samplecomp
+#| tbl-cap: "Sample Composition by Treatment Type"
+#| tbl-pos: "h"
+create_summary_table <- function() {
+  
+  # Defining group labels 
+  group_labels <- c(
+    "0" = "Control (No regime change)",  
+    "1" = "Autocratization",              
+    "2" = "Democratization"             
+  )
+  
+  # Calculating summary statistics
+  summary_table <- country_summary %>%
+    group_by(first_formative_type) %>%
+    summarise(
+      N = sum(n_individuals, na.rm = TRUE),
+      .groups = 'drop'
+    ) %>%
+    mutate(
+      Group = case_when(
+        first_formative_type == 0 ~ "Control (No regime change)",
+        first_formative_type == 1 ~ "Autocratization", 
+        first_formative_type == 2 ~ "Democratization",
+        TRUE ~ as.character(first_formative_type)
+      ),
+      Proportion = round(N / sum(N), 2),
+      Percentage = round((N / sum(N)) * 100, 1)
+    ) %>%
+    select(Group, N, Proportion, Percentage) %>%
+    arrange(desc(N))  # Sorting by sample size, largest first
+  
+  return(summary_table)
+}
+
+# Generating the table
+table_data <- create_summary_table()
+
+# Creating a formatted table
+formatted_table <- table_data %>%
+  kable(
+    col.names = c("Group", "N", "Proportion", "Percentage"),
+    align = c("l", "r", "r", "r"),
+    format = "latex"
+  ) %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover"),
+    full_width = FALSE,
+    position = "center"
+  ) %>%
+  add_footnote(
+    "Distribution of observations across control and treatment groups.",
+    notation = "none"
+  )
+
+# Displaying the formatted table
+formatted_table
+```
+
+## Different specification
+
+### Clustering of standard errors
+
+Our baseline specification clusters standard errors at the country level, reflecting our assumption that the primary source of correlation in errors stems from shared country-specific factors such as cultural norms, institutional quality, and historical experiences. To assess the robustness of our inference, we examine how our results change under alternative clustering assumptions.
+
+In this chapter we present sensitivity analysis across four clustering methods: **country-level clustering (our baseline)**, **two-way clustering by country and birth cohort**, **regional clustering**, and **birth cohort clustering**. We chose to analyse only our baseline specification. @tbl-cluster_democ shows the results for base specification: democratization and @tbl-cluster_autoc for base specification: autocratization.
+
+```{r}
+#| message: false
+#| warning: false
+#| include: false
+
+# Function to create professional clustering tables for PDF
+create_clustering_table_pdf <- function(summary_data, treatment_type) {
+  
+  summary_data$preference <- c("Patience", "Risk taking", "Positive Reciprocity", "Negative Reciprocity", "Altruism", "Trust")
+  # Clean up column names to match your report style
+  colnames(summary_data) <- c("", "Country", "Two-way", "Region", "Cohort")
+  
+  # Create the table for PDF/LaTeX output
+  table <- summary_data %>%
+    kable(format = "latex", 
+          align = c("l", "c", "c", "c", "c"),
+          escape = FALSE) %>%
+    kable_styling(
+      latex_options = c("striped", "scale_down"),
+      full_width = FALSE,
+      position = "center",
+      font_size = 10
+    ) %>%
+    row_spec(0, bold = TRUE) %>%
+    column_spec(1, width = "4cm", bold = FALSE) %>%
+    column_spec(2:5, width = "2cm") %>%
+    add_header_above(c(" " = 1, "Clustering Method" = 4), bold = TRUE) %>%
+    footnote(
+      general = "Standard errors clustered as indicated in column headers. All models include region and birth year fixed effects.",
+      general_title = "Note:",
+      footnote_as_chunk = TRUE,
+      threeparttable = TRUE
+    )
+  
+  return(table)
+}
+
+```
+
+The patience affect in @tbl-cluster_democ remains stable across all clustering methods, with standard errors ranging from $0.0207$ to $0.0262$, maintaining significance at the 5% level or better. This consistency provides **strong evidence** that our main finding---**experiencing democratization during formative years increases patience**---is not just because of our choice of one clustering method.
+
+The similarity between standard errors under country-level ($0.025$) and two-way clustering ($0.024$) indicates minimal temporal correlation within countries. Regional clustering yields slightly larger standard errors, as expected given the smaller number of clusters, while cohort clustering produces the smallest standard errors.
+
+Notably, the **altruism coefficient** exhibits sensitivity to the clustering method. While the point estimate remains stable at $-0.078$, it is insignificant under country clustering but becomes **highly significant (**$p \< 0.001$) under **cohort clustering**. This pattern suggests that altruism preferences exhibit **stronger within-country correlation than within-cohort correlation** - in other words, individuals within the same country are more similar to each other in their altruism preferences than individuals born in the same year globally. This likely reflects the importance of country-specific cultural transmission mechanisms in shaping other-regarding preferences.
+
+```{r}
+#| echo: false
+#| label: tbl-cluster_democ
+#| tbl-cap: "Sensitivity to Clustering Approaches - Democratization Effects"
+#| tbl-pos: "h"
+#| fig-pos: "h"
+demo_table_pdf <- create_clustering_table_pdf(demo_summary, 
+                                              "democratization")
+
+demo_table_pdf
+```
+
+Results in @tbl-cluster_autoc how generally weaker effects across all clustering methods, consistent with our main findings. The marginal significance of positive reciprocity is relatively stable across specifications, while other effects remain statistically insignificant regardless of clustering approach.
+
+```{r}
+#| echo: false
+#| label: tbl-cluster_autoc
+#| tbl-cap: "Sensitivity to Clustering Approaches - Autocratization Effects"
+#| tbl-pos: "h"
+#| fig-pos: "h"
+auto_table_pdf <- create_clustering_table_pdf(auto_summary, 
+                                              "autocratization")
+auto_table_pdf
+```
+
+Overall, these robustness checks strengthen confidence in our core findings while highlighting which results are sensitive to different clustering approaches. The **persistence of the democratization-patience relationship** across all specifications underscores its robustness as our primary empirical contribution.
+
+```{r}
+#| message: false
+#| warning: false
+#| include: false
+#| echo: false
+
+# Read polity-based models with controls
+hetero_models_controls_polity <- readRDS(here("Output", "Models", "polity results", "hetero_models_controls_polity.rds"))
+hetero_models_democ_controls_polity <- readRDS(here("Output", "Models", "polity results", "hetero_models_democ_controls_polity.rds"))
+hetero_models_autoc_controls_polity <- readRDS(here("Output", "Models", "polity results", "hetero_models_autoc_controls_polity.rds"))
+
+# Define preference names for titles
+hetero_models_v2 <- readRDS(here("Output", "Models", "v2xregime results", "hetero_models_v2xregime.rds"))
+hetero_models_democ_v2 <- readRDS(here("Output", "Models", "v2xregime results", "hetero_models_democ_v2xregime.rds"))
+hetero_models_autoc_v2 <- readRDS(here("Output", "Models", "v2xregime results", "hetero_models_autoc_v2xregime.rds"))
+
+
+# LDE model
+lde_combined <- readRDS(here("Output", "Models", "hetero_models.rds"))
+lde_democ    <- readRDS(here("Output", "Models","hetero_models_democ.rds"))
+lde_autoc    <- readRDS(here("Output", "Models","hetero_models_autoc.rds"))
+preference_names <- c("Patience", "Risk taking", "Positive reciprocity", 
+                      "Negative reciprocity", "Altruism", "Trust")
 
 
 
+# LDE-based model
+lde_controls_combined <- readRDS(here("Output", "Models","hetero_models_controls.rds"))
+lde_controls_democ    <- readRDS(here("Output", "Models","hetero_models_democ_controls.rds"))
+lde_controls_autoc    <- readRDS(here("Output", "Models","hetero_models_autoc_controls.rds"))
 
+```
 
 
 
@@ -172,11 +827,9 @@ preference_names <- c("Patience", "Risk taking", "Positive reciprocity",
 #| warning: false
 #| include: false
 
-
-# Preference üzrə cədvəl yaradan funksiya
-create_full_comparison_table <- function(i, preference_names,
-                                         regime_combined, regime_democ, regime_autoc,
-                                         lde_combined, lde_democ, lde_autoc) {
+create_full_comparison_table_controls <- function(i, preference_names,
+                                                  regime_combined, regime_democ, regime_autoc,
+                                                  lde_combined, lde_democ, lde_autoc) {
   
   msummary(
     list(
@@ -190,7 +843,10 @@ create_full_comparison_table <- function(i, preference_names,
     stars = TRUE,
     coef_rename = c(
       "democratization" = "Democratization",
-      "autocratization" = "Autocratization"
+      "autocratization" = "Autocratization",
+      "avg_gdppc_formative" = "Log of Average GDP per Capita during formative years",
+      "recession_formative" = "Recession experienced during formative years" ,
+      "avg_libdem_formative" = "Average LDI during formative years "
     ),
     gof_omit = "AIC|BIC|RMSE",
     statistic = "({std.error})",
@@ -199,7 +855,7 @@ create_full_comparison_table <- function(i, preference_names,
     title = preference_names[i],
     notes = list(
       "+ p < 0.1, * p < 0.05, ** p < 0.01, *** p < 0.001",
-      "Standard errors clustered at isocode (country) level. Fixed effects for region and birth year included."
+      "Standard errors clustered at isocode (country) level. Fixed effects for region and birth year included. Controls added."
     )
   ) %>%
     kable_styling(
@@ -207,50 +863,320 @@ create_full_comparison_table <- function(i, preference_names,
       position = "center",
       full_width = FALSE
     ) %>%
-    add_header_above(c(" " = 1, "Model Comparison" = 6), bold = TRUE)
+    add_header_above(c(" " = 1, "Model Comparison (with controls)" = 6), bold = TRUE)
 }
 
 ```
 
 
 ```{r}
-#| label: tbl-preference-patience
+#| label: tbl-patience-controls
+#| tbl-cap: Comparision with controls
 #| echo: false
 #| results: asis
-#| message: false
 #| warning: false
+#| message: false
 
-create_full_comparison_table(
+create_full_comparison_table_controls(
   i = 1,
   preference_names = preference_names,
-  regime_combined = hetero_models_v2,
-  regime_democ = hetero_models_democ_v2,
-  regime_autoc = hetero_models_autoc_v2,
-  lde_combined = lde_combined,
-  lde_democ = lde_democ,
-  lde_autoc = lde_autoc
+  regime_combined = hetero_models_controls_v2,
+  regime_democ = hetero_models_democ_controls_v2,
+  regime_autoc = hetero_models_autoc_controls_v2,
+  lde_combined = lde_controls_combined,
+  lde_democ = lde_controls_democ,
+  lde_autoc = lde_controls_autoc
 )
+
+```
+
+```{r}
+#| label: tbl-risk-controls
+#| tbl-cap: Comparision with controls
+#| echo: false
+#| results: asis
+#| warning: false
+#| message: false
+
+create_full_comparison_table_controls(
+  i = 2,
+  preference_names = preference_names,
+  regime_combined = hetero_models_controls_v2,
+  regime_democ = hetero_models_democ_controls_v2,
+  regime_autoc = hetero_models_autoc_controls_v2,
+  lde_combined = lde_controls_combined,
+  lde_democ = lde_controls_democ,
+  lde_autoc = lde_controls_autoc
+)
+
+```
+Autocratization has strongly negative effect on Risk Taking of individuals.
+
+```{r}
+#| label: tbl-pos-rec-controls
+#| tbl-cap: Comparision with controls
+#| echo: false
+#| results: asis
+#| warning: false
+#| message: false
+
+create_full_comparison_table_controls(
+  i = 3,
+  preference_names = preference_names,
+  regime_combined = hetero_models_controls_v2,
+  regime_democ = hetero_models_democ_controls_v2,
+  regime_autoc = hetero_models_autoc_controls_v2,
+  lde_combined = lde_controls_combined,
+  lde_democ = lde_controls_democ,
+  lde_autoc = lde_controls_autoc
+)
+
+```
+
+```{r}
+#| label: tbl-neg-rec-controls
+#| tbl-cap: Comparision with controls
+#| echo: false
+#| results: asis
+#| warning: false
+#| message: false
+
+create_full_comparison_table_controls(
+  i = 4,
+  preference_names = preference_names,
+  regime_combined = hetero_models_controls_v2,
+  regime_democ = hetero_models_democ_controls_v2,
+  regime_autoc = hetero_models_autoc_controls_v2,
+  lde_combined = lde_controls_combined,
+  lde_democ = lde_controls_democ,
+  lde_autoc = lde_controls_autoc
+)
+
 ```
 
 
 ```{r}
-#| label: tbl-preference-risk
+#| label: tbl-altruism-controls
+#| tbl-cap: Comparision with controls
 #| echo: false
 #| results: asis
-#| message: false
 #| warning: false
+#| message: false
 
-
-create_full_comparison_table(
-  i = 2,
+create_full_comparison_table_controls(
+  i = 5,
   preference_names = preference_names,
-  regime_combined = hetero_models_v2,
-  regime_democ = hetero_models_democ_v2,
-  regime_autoc = hetero_models_autoc_v2,
-  lde_combined = lde_combined,
-  lde_democ = lde_democ,
-  lde_autoc = lde_autoc
+  regime_combined = hetero_models_controls_v2,
+  regime_democ = hetero_models_democ_controls_v2,
+  regime_autoc = hetero_models_autoc_controls_v2,
+  lde_combined = lde_controls_combined,
+  lde_democ = lde_controls_democ,
+  lde_autoc = lde_controls_autoc
 )
 
 ```
 
+
+```{r}
+#| label: tbl-trust-controls
+#| tbl-cap: Comparision with controls
+#| echo: false
+#| results: asis
+#| warning: false
+#| message: false
+
+create_full_comparison_table_controls(
+  i = 6,
+  preference_names = preference_names,
+  regime_combined = hetero_models_controls_v2,
+  regime_democ = hetero_models_democ_controls_v2,
+  regime_autoc = hetero_models_autoc_controls_v2,
+  lde_combined = lde_controls_combined,
+  lde_democ = lde_controls_democ,
+  lde_autoc = lde_controls_autoc
+)
+
+```
+Patience is positively and strongly associated with the log of average GDP per capita during formative years across all models. This suggests that individuals who grew up in wealthier economic environments tend to be more patient. Risk taking significantly decreases following autocratization in regime-based models. Negative reciprocity significantly declines after autocratization in regime models , indicating that such political transitions may suppress retaliatory economic behaviors. Trust decreases substantially in response to autocratization in regime-based models, highlighting a strong erosion of interpersonal or institutional trust in individuals exposed to such regime shifts.
+
+
+```{r}
+#| message: false
+#| warning: false
+#| include: false
+
+create_polity_lde_controls_table <- function(i, preference_names,
+                                             regime_combined, regime_democ, regime_autoc,
+                                             lde_combined, lde_democ, lde_autoc) {
+  
+  msummary(
+    list(
+      "Regime: Combined" = regime_combined[[i]],
+      "Regime: Democratization" = regime_democ[[i]],
+      "Regime: Autocratization" = regime_autoc[[i]],
+      "LDE: Combined" = lde_combined[[i]],
+      "LDE: Democratization" = lde_democ[[i]],
+      "LDE: Autocratization" = lde_autoc[[i]]
+    ),
+    stars = TRUE,
+    coef_rename = c(
+      "democratization" = "Democratization",
+      "autocratization" = "Autocratization",
+      "avg_gdppc_formative" = "Log of Average GDP per Capita during formative years",
+      "recession_formative" = "Recession experienced during formative years",
+       "avg_libdem_formative" = "Average LDI during formative years ", 
+      "avg_polity2_formative" = "Average polity index during formative years"	
+    ),
+    gof_omit = "AIC|BIC|RMSE",
+    statistic = "({std.error})",
+    output = "kableExtra",
+    fmt = 3,
+    title = preference_names[i],
+    notes = list(
+      "+ p < 0.1, * p < 0.05, ** p < 0.01, *** p < 0.001",
+      "Standard errors clustered at isocode (country) level. Fixed effects and controls included."
+    )
+  ) %>%
+    kable_styling(
+      latex_options = c("scale_down", "striped"),
+      position = "center",
+      full_width = FALSE
+    ) %>%
+    add_header_above(c(" " = 1, "Polity + LDE Comparison (with Controls)" = 6), bold = TRUE)
+}
+
+```
+
+
+```{r}
+#| label: tbl-patience-polity-controls
+#| tbl-cap: Comparision with controls
+#| echo: false
+#| results: asis
+#| warning: false
+#| message: false
+
+create_polity_lde_controls_table(
+  i = 1,
+  preference_names = preference_names,
+  regime_combined = hetero_models_controls_polity,
+  regime_democ = hetero_models_democ_controls_polity,
+  regime_autoc = hetero_models_autoc_controls_polity,
+  lde_combined = lde_controls_combined,
+  lde_democ = lde_controls_democ,
+  lde_autoc = lde_controls_autoc
+)
+
+```
+
+```{r}
+#| label: tbl-risk-polity-controls
+#| tbl-cap: Comparision with controls
+#| echo: false
+#| results: asis
+#| warning: false
+#| message: false
+
+create_polity_lde_controls_table(
+  i = 2,
+  preference_names = preference_names,
+  regime_combined = hetero_models_controls_polity,
+  regime_democ = hetero_models_democ_controls_polity,
+  regime_autoc = hetero_models_autoc_controls_polity,
+  lde_combined = lde_controls_combined,
+  lde_democ = lde_controls_democ,
+  lde_autoc = lde_controls_autoc
+)
+
+```
+
+```{r}
+#| label: tbl-pos-rec-polity-controls
+#| tbl-cap: Comparision with controls
+#| echo: false
+#| results: asis
+#| warning: false
+#| message: false
+
+create_polity_lde_controls_table(
+  i = 3,
+  preference_names = preference_names,
+  regime_combined = hetero_models_controls_polity,
+  regime_democ = hetero_models_democ_controls_polity,
+  regime_autoc = hetero_models_autoc_controls_polity,
+  lde_combined = lde_controls_combined,
+  lde_democ = lde_controls_democ,
+  lde_autoc = lde_controls_autoc
+)
+
+```
+
+
+```{r}
+#| label: tbl-neg-rec-polity-controls
+#| tbl-cap: Comparision with controls
+#| echo: false
+#| results: asis
+#| warning: false
+#| message: false
+
+create_polity_lde_controls_table(
+  i = 4,
+  preference_names = preference_names,
+  regime_combined = hetero_models_controls_polity,
+  regime_democ = hetero_models_democ_controls_polity,
+  regime_autoc = hetero_models_autoc_controls_polity,
+  lde_combined = lde_controls_combined,
+  lde_democ = lde_controls_democ,
+  lde_autoc = lde_controls_autoc
+)
+
+```
+
+
+```{r}
+#| label: tbl-altruism-polity-controls
+#| tbl-cap: Comparision with controls
+#| echo: false
+#| results: asis
+#| warning: false
+#| message: false
+
+create_polity_lde_controls_table(
+  i = 5,
+  preference_names = preference_names,
+  regime_combined = hetero_models_controls_polity,
+  regime_democ = hetero_models_democ_controls_polity,
+  regime_autoc = hetero_models_autoc_controls_polity,
+  lde_combined = lde_controls_combined,
+  lde_democ = lde_controls_democ,
+  lde_autoc = lde_controls_autoc
+)
+
+```
+
+
+
+```{r}
+#| label: tbl-trust-polity-controls
+#| tbl-cap: Comparision with controls
+#| echo: false
+#| results: asis
+#| warning: false
+#| message: false
+
+create_polity_lde_controls_table(
+  i = 6,
+  preference_names = preference_names,
+  regime_combined = hetero_models_controls_polity,
+  regime_democ = hetero_models_democ_controls_polity,
+  regime_autoc = hetero_models_autoc_controls_polity,
+  lde_combined = lde_controls_combined,
+  lde_democ = lde_controls_democ,
+  lde_autoc = lde_controls_autoc
+)
+
+```
+
+
+But in all 3 different data based models, we can see that Log of Average GDP per Capita has strongly positive effect on Patience. This coefficient from Polity based model is way more than rest 2 different data based models
