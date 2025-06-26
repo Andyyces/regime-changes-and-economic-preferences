@@ -61,7 +61,9 @@ Analysis
 Milestones
 
 `Milestones/Milestone 1 Research proposal.qmd` : Andrea + Elvin\
-`Milestones/Milestone-2-Data.qmd` : Andrea + Elvin (map figure)`Milestones/Milestone-3_Econometric-Approach.qmd` : Andrea `Milestones/Milestone-4_Results.qmd` : Andrea\
+`Milestones/Milestone-2-Data.qmd` : Andrea + Elvin (map figure)\
+`Milestones/Milestone-3_Econometric-Approach.qmd` : Andrea \
+`Milestones/Milestone-4_Results.qmd` : Andrea\
 `Milestones/Milestone-5_Robustness-Andrea.qmd` : Andrea
 
 `Milestones/Milestone 5_Elvin.qmd`: Elvin\
