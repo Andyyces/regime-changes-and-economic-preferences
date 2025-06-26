@@ -44,7 +44,7 @@ The `/Milestones` folder contains both source (.qmd) and rendered PDF files of t
 
 Analysis
 
-`R/01_Data_loading.R` : Andrea + Elvin (Polity 5)\
+`R/01_Data_loading.R` : Andrea + Elvin (Polity 5 + regime )\
 `R/02_filtering.R` : Andrea\
 `R/03_regime_changes_function.R` : Andrea\
 `R/04_merging_GPS_vdem.R` : Andrea\
@@ -61,8 +61,10 @@ Analysis
 Milestones
 
 `Milestones/Milestone 1 Research proposal.qmd` : Andrea + Elvin\
-`Milestones/Milestone-2-Data.qmd` : Andrea + Elvin (map figure)`Milestones/Milestone-3_Econometric-Approach.qmd` : Andrea `Milestones/Milestone-4_Results.qmd` : Andrea \
-`Milestones/Milestone-5_Robustness-Andrea.qmd` : Andrea \
+`Milestones/Milestone-2-Data.qmd` : Andrea + Elvin (map figure)`Milestones/Milestone-3_Econometric-Approach.qmd` : Andrea `Milestones/Milestone-4_Results.qmd` : Andrea\
+`Milestones/Milestone-5_Robustness-Andrea.qmd` : Andrea
+
+`Milestones/Milestone 5_Elvin.qmd`: Elvin\
 `Milestones/Milestone-5_Robustness.qmd` : Andrea + Elvin
 
 Other
