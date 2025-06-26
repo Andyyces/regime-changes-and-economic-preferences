@@ -26,9 +26,9 @@ Research question:
 
 -   Combination of both: approx **75.000 individuals** from **1910-2012** from **76 countries**
 
--   Economic preferences are formed during childhood + adolescence (Detlefsen et al., 2024)
-
 ## Structure of aggregation: Liberal Democracy Index
+
+Various indicators:
 
 ![](images/LDI_aggregation-04.png){fig-align="center"}
 
@@ -38,20 +38,20 @@ From General Preference Survey (2012)
 
 Values for each preference derived from combination of responses to different survey measures
 
-+:------------------------------------------------------------------+:------------------------------+:---------------------------------------------------------------------------------------------------------------------------------------------------+
-| **Patience**                                                      | **Risk Taking**               | **Positive Reciprocity**                                                                                                                           |
-+-------------------------------------------------------------------+-------------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------+
-| hypothetical binary choice: immediate or delayed financial reward | Choices between fixed lottery | Imagine you got lost in an unfamiliar area - stranger offers to take them into their destination. How much eur to give stranger as a "thank you"\  |
-|                                                                   |                               | self assesment: how willing are you to return a favor?                                                                                             |
-+-------------------------------------------------------------------+-------------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------+
++:------------------------------------------------------------------+:-------------------------------------------------------------------------+:---------------------------------------------------------------------------------------------------------------------------------------------------+
+| **Patience**                                                      | **Risk Taking**                                                          | **Positive Reciprocity**                                                                                                                           |
++-------------------------------------------------------------------+--------------------------------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------+
+| hypothetical binary choice: immediate or delayed financial reward | Choices between fixed lottery payouts x or 0, or varying sure payments y | Imagine you got lost in an unfamiliar area - stranger offers to take them into their destination. How much eur to give stranger as a "thank you"\  |
+|                                                                   |                                                                          | self assesment: how willing are you to return a favor?                                                                                             |
++-------------------------------------------------------------------+--------------------------------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------+
 
-+:-------------------------------------------------------------------------------------------------------------------------+:---------------------------------------------------------------------------------------+:------------------------------------------------------------------------+
-| **Negative Reciprocity**                                                                                                 | **Altruism**                                                                           | **Trust**                                                               |
-+--------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------+-------------------------------------------------------------------------+
-| self assesment: how willing are you to take revenge if you are treated very unjustly, even if doing so comes at a cost?\ | how willing would you be to give to good causes without expecting anything in return?\ | Do you assume people have only the best intentions? (Likert scale 0-10) |
-| willingness to punish someone for unfair behavior\                                                                       | unexpectedly receiving 1000 euros: how much to donate?                                 |                                                                         |
-| prosocial punishment (similar concept to norm enforcement)                                                               |                                                                                        |                                                                         |
-+--------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------+-------------------------------------------------------------------------+
++:-----------------------------------------------------------+:---------------------------------------------------------------------------------------+:------------------------------------------------------------------------+
+| **Negative Reciprocity**                                   | **Altruism**                                                                           | **Trust**                                                               |
++------------------------------------------------------------+----------------------------------------------------------------------------------------+-------------------------------------------------------------------------+
+| self assesment: \                                          | how willing would you be to give to good causes without expecting anything in return?\ | Do you assume people have only the best intentions? (Likert scale 0-10) |
+| willingness to punish someone for unfair behavior\         | unexpectedly receiving 1000 euros: how much to donate?                                 |                                                                         |
+| prosocial punishment (similar concept to norm enforcement) |                                                                                        |                                                                         |
++------------------------------------------------------------+----------------------------------------------------------------------------------------+-------------------------------------------------------------------------+
 
 # Setting
 
@@ -93,15 +93,17 @@ Economic preferences are formed during childhood + adolescence (Detlefsen et al.
 
 -   **Contaminated controls**: Individuals from countries that experienced a regime change, but these happen to be outside of their formative years period (3-18 years), **Removed from analysis**
 
-+--------------------------+--------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| Group                    | N                        | Countries                                                                                                                                                                                                                              |
-+:=========================+:========================:+:=======================================================================================================================================================================================================================================+
-| Treated: Autocratization | 4 949                    | Turkey, France, Netherlands, Spain, Italy, Poland, Hungary, Czech Republic, Greece, Venezuela, Ghana, Uganda, Argentina, Austria, Chile, Estonia, Lithuania, Nicaragua, Peru, Suriname, Indonesia, Germany, India, Brazil, Philippines |
-+--------------------------+--------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| Treated: Democratization | 17 344                   | Turkey, France, Netherlands, Spain, Italy, Poland, Hungary, Czech Republic, Romania, Sweden, Greece, Venezuela, Israel, Ghana, Malawi, Sri Lanka, Botswana, Georgia, Moldova, ...                                                      |
-+--------------------------+--------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| No regime change         | [**17 344**]{.underline} | China, Kenya, Tanzania, Australia, Cambodia, Rwanda, Afghanistan, Kazakhstan, Ukraine, Cameroon, Zimbabwe, Colombia, Guatemala, United States, Morocco, Saudi Arabia, Jordan, Pakistan, Bangladesh, Iran, Canada,...                   |
-+--------------------------+--------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
++--------------------------+-------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Group                    | N                       | Countries                                                                                                                                                                                                                              |
++:=========================+:=======================:+:=======================================================================================================================================================================================================================================+
+| Treated: Autocratization | 4 949                   | Turkey, France, Netherlands, Spain, Italy, Poland, Hungary, Czech Republic, Greece, Venezuela, Ghana, Uganda, Argentina, Austria, Chile, Estonia, Lithuania, Nicaragua, Peru, Suriname, Indonesia, Germany, India, Brazil, Philippines |
++--------------------------+-------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Treated: Democratization | 17 344                  | Turkey, France, Netherlands, Spain, Italy, Poland, Hungary, Czech Republic, Venezuela, Israel, Sri Lanka, Botswana, Georgia, Moldova, ...                                                                                              |
++--------------------------+-------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| No regime change         | [**26876**]{.underline} | China, Kenya, Tanzania, Australia, Cambodia, Rwanda, Afghanistan, Kazakhstan, Ukraine, Colombia, Guatemala, United States, Morocco, Saudi Arabia, Jordan, Pakistan, Canada, ...                                                        |
++--------------------------+-------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+
+## 
 
 Why removing so many observations?
 
